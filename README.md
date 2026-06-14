@@ -57,10 +57,17 @@ its own zone at runtime from its hostname. All zones are SPAs, so configure a
 catch-all rewrite to `index.html`:
 
 - **Netlify** — `public/_redirects` (included) handles it.
-- **Vercel** — add a rewrite `{ "source": "/(.*)", "destination": "/index.html" }`.
+- **Vercel** — `vercel.json` (included) has the catch-all rewrite.
 - **Nginx** — `try_files $uri /index.html;`.
 
-Point the apex + four subdomains at the same deployment.
+Point the apex + four subdomains at the same deployment (the apex alone also works
+— on `palissage.net` every zone is reachable at a path prefix like `/shop`).
+
+The live network/contract config is baked into `.env.production` (all `VITE_*`
+values are public client-side config). Without it the build runs in offline-demo
+mode — static data, no wallet/chain. The deployed app uses the **Arbitrum Sepolia**
+addresses there; override any value in the host's env (e.g. Vercel project settings)
+to point a deployment elsewhere.
 
 ## Structure
 

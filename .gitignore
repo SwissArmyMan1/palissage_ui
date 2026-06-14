@@ -11,11 +11,12 @@ node_modules
 dist
 dist-ssr
 
-# Local env / secrets — never commit (only .env.example is tracked)
+# Local env / secrets — never commit (.env.example + the public-config .env.production are tracked)
 *.local
 .env
 .env.*
 !.env.example
+!.env.production
 *.bak
 
 # Editor directories and files
