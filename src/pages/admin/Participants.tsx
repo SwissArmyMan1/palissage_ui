@@ -1,201 +1,283 @@
 import { useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { Plus, X, UserPlus, Check, ShieldX } from 'lucide-react';
-import { isAddress, type Address } from 'viem';
-import { PageHeader } from '@/components/layout/DashboardLayout';
+import { isAddress } from 'viem';
+import { CircleCheck, CircleMinus } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { Input, Select } from '@/components/ui/Field';
-import { Chips } from '@/components/ui/Tabs';
-import { StatusBadge, type Tone } from '@/components/ui/StatusBadge';
-import { SectionTitle } from '@/components/ui/primitives';
-import { participants, type Participant } from '@/lib/mock';
-import { useSession } from '@/lib/session';
-import { useChainTx } from '@/lib/tx';
-import { ROLE_ORDER, ROLE_META, ROLE_ENUM, type Role } from '@/lib/roles';
-import { contracts } from '@/contracts';
+import { Callout } from '@/components/ui/Callout';
+import { Field, Select, TextInput } from '@/components/ui/Field';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import { AddressValue, ExplorerLink, Mono } from '@/components/ui/Mono';
+import { CabinetPage, PageHeader } from '@/components/layout/PageHeader';
+import { ActionReview } from '@/components/patterns/ActionReview';
+import { useParticipant } from '@/chain/lens';
+import { useCapabilities } from '@/chain/roles';
+import { roleGatewayAbi } from '@/chain/abis';
+import { CONTRACTS } from '@/chain/config';
+import { useTx } from '@/chain/tx';
+import { GATEWAY_ROLE } from '@/lib/enums';
+
+const ROLE_OPTIONS = [
+  { value: '1', label: 'Admin — operations' },
+  { value: '2', label: 'Winery — issues KYC and the winery claim' },
+  { value: '3', label: 'Shop — issues KYC and the B2B buyer claim' },
+  { value: '4', label: 'Collector — issues KYC only' },
+];
 
 /**
- * Grant or revoke a protocol role on-chain. The admin signs `RoleGateway.assignRole`
- * / `revokeRole`, which provisions the wallet's identity + issuer claims. Works whether
- * or not test mode is on (gated to gateway admins by the contract).
+ * ADM-02 and ADM-03.
+ *
+ * There is no participant index on-chain: the registry answers about a wallet
+ * you name, and the read model has no "list every participant" call. So this
+ * screen looks a wallet up rather than pretending to enumerate them — a list
+ * would have to come from an indexer this interface deliberately does not run.
  */
-function GrantRolePanel() {
-  const { gatewayConfigured, role: myRole } = useSession();
-  const { send, pending, error, clearError } = useChainTx();
-  const [wallet, setWallet] = useState('');
-  const [role, setRole] = useState<Role>('winery');
-  const [done, setDone] = useState<string | null>(null);
+export default function AdminParticipants() {
+  const caps = useCapabilities();
+  const [input, setInput] = useState('');
+  const [role, setRole] = useState('3');
+  const [assigning, setAssigning] = useState(false);
+  const [revoking, setRevoking] = useState(false);
 
-  const valid = isAddress(wallet);
-  const canAct = gatewayConfigured && myRole === 'admin';
-
-  const run = async (kind: 'grant' | 'revoke') => {
-    if (!valid) return;
-    clearError();
-    setDone(null);
-    const ok = await send(
-      kind === 'grant'
-        ? { ...contracts.roleGateway, functionName: 'assignRole', args: [wallet as Address, ROLE_ENUM[role]] }
-        : { ...contracts.roleGateway, functionName: 'revokeRole', args: [wallet as Address] },
-    );
-    if (ok) {
-      setDone(kind === 'grant' ? `Granted ${ROLE_META[role].label} role` : 'Role revoked');
-      setWallet('');
-    }
-  };
+  const valid = isAddress(input.trim());
+  const target = valid ? (input.trim() as `0x${string}`) : undefined;
+  const participant = useParticipant(target);
+  const p = participant.data;
 
   return (
-    <div className="card mb-4 flex flex-col gap-4 p-5">
-      <SectionTitle>Grant a role on-chain</SectionTitle>
-      {!gatewayConfigured ? (
-        <p className="t-small text-fg-secondary">
-          Connect to a live deployment (RoleGateway configured) to issue roles on-chain.
-        </p>
-      ) : !canAct ? (
-        <p className="t-small text-fg-secondary">
-          Sign in with an admin wallet to grant roles.
-        </p>
-      ) : (
-        <>
-          <div className="grid gap-3 md:grid-cols-[1fr_180px]">
-            <Input
-              label="Wallet address"
-              mono
+    <CabinetPage>
+      <PageHeader
+        title="Participants"
+        lede="Look up a wallet's registry state, its claims and the roles each contract grants it."
+      />
+
+      <div className="mt-8 max-w-xl">
+        <Field
+          label="Wallet address"
+          error={input !== '' && !valid ? 'Enter a full 42-character wallet address, starting 0x.' : undefined}
+          hint="The registry answers about a wallet you name. This interface does not run an indexer, so it cannot list every participant."
+        >
+          {(props) => (
+            <TextInput
+              {...props}
+              value={input}
+              onChange={(event) => setInput(event.target.value)}
               placeholder="0x…"
-              value={wallet}
-              onChange={(e) => setWallet(e.target.value.trim())}
-              error={wallet && !valid ? 'Not a valid address' : undefined}
+              autoComplete="off"
+              className="t-mono"
+              invalid={input !== '' && !valid}
             />
-            <Select label="Role" value={role} onChange={(e) => setRole(e.target.value as Role)}>
-              {ROLE_ORDER.map((r) => (
-                <option key={r} value={r}>
-                  {ROLE_META[r].label}
-                </option>
-              ))}
-            </Select>
-          </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <Button icon={<UserPlus size={16} />} loading={pending} disabled={!valid} onClick={() => run('grant')}>
-              Grant role
-            </Button>
-            <Button
-              kind="ghost"
-              className="text-danger"
-              icon={<ShieldX size={16} />}
-              disabled={!valid || pending}
-              onClick={() => run('revoke')}
-            >
-              Revoke
-            </Button>
-            {done && (
-              <span className="inline-flex items-center gap-1.5 t-small text-success">
-                <Check size={16} /> {done}
-              </span>
+          )}
+        </Field>
+      </div>
+
+      {target && p ? (
+        <div className="mt-10 grid gap-6 lg:grid-cols-2">
+          <section className="card p-6" aria-labelledby="registry-heading">
+            <h2 id="registry-heading" className="t-h3">
+              Registry
+            </h2>
+            <dl className="mt-4 space-y-3">
+              <Row label="Wallet" value={<AddressValue address={target} label="wallet" />} />
+              <Row
+                label="Identity contract"
+                value={
+                  p.identity !== '0x0000000000000000000000000000000000000000' ? (
+                    <AddressValue address={p.identity} label="identity contract" />
+                  ) : (
+                    <Mono>none</Mono>
+                  )
+                }
+              />
+              <Row label="Registered" value={<Mono>{p.registered ? 'yes' : 'no'}</Mono>} />
+              <Row label="Verified" value={<Mono>{p.isVerified ? 'yes' : 'no'}</Mono>} />
+              <Row label="Gateway role" value={<Mono>{GATEWAY_ROLE[p.gatewayRole]}</Mono>} />
+              <Row label="Can receive bottles" value={<Mono>{p.canReceive ? 'yes' : 'no'}</Mono>} />
+              <Row label="Can send bottles" value={<Mono>{p.canSend ? 'yes' : 'no'}</Mono>} />
+            </dl>
+            <ExplorerLink address={target} className="mt-4">
+              This wallet on Base
+            </ExplorerLink>
+          </section>
+
+          <section className="card p-6" aria-labelledby="claims-heading">
+            <h2 id="claims-heading" className="t-h3">
+              Claims and roles
+            </h2>
+            <ul className="mt-4 space-y-2">
+              <Flag on={p.kyc} label="KYC claim" />
+              <Flag on={p.b2bClaim} label="B2B buyer claim" />
+              <Flag on={p.wineryClaim} label="Winery claim" />
+              <Flag on={p.kyb} label="KYB attestation (not enforced by any contract)" />
+              <Flag on={p.tokenVerifier} label="Token verifier role" />
+              <Flag on={p.primaryVerifier} label="Primary market verifier role" />
+              <Flag on={p.redemptionVerifier} label="Redemption verifier role" />
+              <Flag on={p.tokenEnforcer} label="Token enforcer role" />
+              <Flag on={p.gatewayAdmin} label="Gateway admin" />
+            </ul>
+          </section>
+
+          <section className="card p-6 lg:col-span-2" aria-labelledby="assign-heading">
+            <h2 id="assign-heading" className="t-h3">
+              Set this wallet’s role
+            </h2>
+            <p className="mt-2 max-w-reading text-body-sm text-ink-secondary">
+              Assigning a role provisions an identity contract for the wallet and issues the claims
+              that role needs. One role per wallet: assigning a new one removes the previous role’s
+              claims.
+            </p>
+
+            <div className="mt-4 flex flex-wrap items-end gap-4">
+              <Field label="Role" className="min-w-64">
+                {(props) => (
+                  <Select {...props} value={role} onChange={(event) => setRole(event.target.value)}>
+                    {ROLE_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </Select>
+                )}
+              </Field>
+              <Button disabled={!caps.canAssignRoles} onClick={() => setAssigning(true)}>
+                Assign the role
+              </Button>
+              {p.gatewayRole !== 0 ? (
+                <Button kind="danger" disabled={!caps.canAssignRoles} onClick={() => setRevoking(true)}>
+                  Revoke the role
+                </Button>
+              ) : null}
+            </div>
+
+            {!caps.canAssignRoles ? (
+              <Callout tone="warning" className="mt-4 max-w-none">
+                Assigning and revoking roles is restricted to a gateway admin. This wallet is not
+                one, so the gateway would reject the write.
+              </Callout>
+            ) : (
+              <Callout tone="info" className="mt-4 max-w-none">
+                Admin is the one role that cannot be self-assigned in the sandbox, because it
+                carries the verifier role on the token. Granting it here is the intended path.
+              </Callout>
             )}
-            {error && <span className="t-small text-danger">{error}</span>}
-          </div>
-        </>
-      )}
+          </section>
+        </div>
+      ) : target && participant.isLoading ? (
+        <p className="mt-8 text-body-sm text-ink-secondary" role="status">
+          Reading the registry…
+        </p>
+      ) : null}
+
+      {assigning && target ? (
+        <AssignDialog target={target} role={role} onClose={() => setAssigning(false)} />
+      ) : null}
+
+      {revoking && target ? (
+        <RevokeDialog target={target} onClose={() => setRevoking(false)} />
+      ) : null}
+    </CabinetPage>
+  );
+}
+
+function AssignDialog({
+  target,
+  role,
+  onClose,
+}: {
+  target: `0x${string}`;
+  role: string;
+  onClose: () => void;
+}) {
+  const tx = useTx();
+  return (
+    <ActionReview
+      open
+      onClose={onClose}
+      title="Assign this role"
+      object={
+        <div className="space-y-1">
+          <p className="t-mono break-all">{target}</p>
+          <p className="text-body-sm text-ink-secondary">
+            {ROLE_OPTIONS.find((option) => option.value === role)?.label}
+          </p>
+        </div>
+      }
+      consequence={
+        <p>
+          The gateway provisions an identity for this wallet, registers it and issues the role’s
+          claims. Any claims from a previous role are removed.
+        </p>
+      }
+      steps={[
+        {
+          id: 'assign',
+          label: 'Assign the role',
+          required: true,
+          run: () =>
+            tx.send({
+              address: CONTRACTS.roleGateway,
+              abi: roleGatewayAbi,
+              functionName: 'assignRole',
+              args: [target, Number(role)],
+            }),
+          tx,
+        },
+      ]}
+    />
+  );
+}
+
+function RevokeDialog({ target, onClose }: { target: `0x${string}`; onClose: () => void }) {
+  const tx = useTx();
+  return (
+    <ActionReview
+      open
+      onClose={onClose}
+      destructive
+      title="Revoke this wallet’s role"
+      object={<p className="t-mono break-all">{target}</p>}
+      consequence={
+        <p>
+          The role and its claims are removed. The wallet can no longer receive bottles, and any
+          action that needs a claim will be rejected by the contracts.
+        </p>
+      }
+      steps={[
+        {
+          id: 'revoke',
+          label: 'Revoke the role',
+          required: true,
+          run: () =>
+            tx.send({
+              address: CONTRACTS.roleGateway,
+              abi: roleGatewayAbi,
+              functionName: 'revokeRole',
+              args: [target],
+            }),
+          tx,
+        },
+      ]}
+    />
+  );
+}
+
+function Row({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+      <dt className="w-48 shrink-0 text-body-sm text-ink-secondary">{label}</dt>
+      <dd className="min-w-0">{value}</dd>
     </div>
   );
 }
 
-const typeTone: Record<Participant['type'], Tone> = {
-  Winery: 'success',
-  'B2B buyer': 'info',
-  Verifier: 'neutral',
-};
-
-const ease = [0.2, 0, 0, 1] as const;
-
-export default function Participants() {
-  const [filter, setFilter] = useState('All');
-  const [selected, setSelected] = useState<Participant | null>(null);
-
-  const rows = participants.filter((p) => {
-    if (filter === 'All') return true;
-    if (filter === 'Wineries') return p.type === 'Winery';
-    if (filter === 'Buyers') return p.type === 'B2B buyer';
-    if (filter === 'Pending claims') return p.claims.some((c) => c.tone === 'warning');
-    return true;
-  });
-
+function Flag({ on, label }: { on: boolean; label: string }) {
   return (
-    <div>
-      <PageHeader title="Participants" action={<Button icon={<Plus size={16} />}>Register identity</Button>} />
-      <GrantRolePanel />
-      <div className="mb-4">
-        <Chips items={['All', 'Wineries', 'Buyers', 'Pending claims']} value={filter} onChange={setFilter} />
-      </div>
-
-      <div className="card overflow-hidden">
-        <div className="hidden grid-cols-[1fr_140px_80px_110px_180px_100px_70px] items-center gap-4 bg-page-subtle px-4 py-2.5 md:grid">
-          {['PARTICIPANT', 'WALLET', 'COUNTRY', 'TYPE', 'CLAIMS', 'REGISTERED', ''].map((h, i) => (
-            <span key={i} className="t-caption text-fg-secondary">{h}</span>
-          ))}
-        </div>
-        {rows.map((p) => (
-          <button
-            key={p.wallet}
-            onClick={() => setSelected(p)}
-            className={`grid w-full grid-cols-1 items-center gap-2 border-t border-line px-4 py-3 text-left transition-colors hover:bg-page-subtle md:grid-cols-[1fr_140px_80px_110px_180px_100px_70px] md:gap-4 ${selected?.wallet === p.wallet ? 'bg-accent-subtle' : ''}`}
-          >
-            <div className="flex items-center gap-2.5">
-              <span className="h-6 w-6 shrink-0 rounded-full bg-gradient-to-br from-accent to-accent-subtle" />
-              <span className="t-body-strong text-fg">{p.name}</span>
-            </div>
-            <span className="t-mono text-fg-secondary">{p.wallet}</span>
-            <span className="t-small text-fg-secondary">{p.country}</span>
-            <span><StatusBadge tone={typeTone[p.type]}>{p.type}</StatusBadge></span>
-            <span className="flex flex-wrap gap-1.5">
-              {p.claims.map((c) => <StatusBadge key={c.label} tone={c.tone}>{c.label}</StatusBadge>)}
-            </span>
-            <span className="t-small text-fg-secondary">{p.registered}</span>
-            <span className="t-small-strong text-accent md:text-right">View</span>
-          </button>
-        ))}
-      </div>
-
-      {/* drawer */}
-      <AnimatePresence>
-        {selected && (
-          <motion.div
-            key="drawer"
-            className="fixed inset-0 z-40 flex justify-end bg-[#231d18]/40"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            onClick={() => setSelected(null)}
-          >
-            <motion.aside
-              className="flex w-full max-w-[480px] flex-col gap-4 overflow-y-auto bg-surface-raised p-6 shadow-e3"
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ duration: 0.28, ease }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-center justify-between">
-                <h2 className="t-h2 text-fg">{selected.name}</h2>
-                <button onClick={() => setSelected(null)} className="text-fg-secondary hover:text-fg"><X size={20} /></button>
-              </div>
-              <p className="t-small text-fg-secondary">{selected.type} · {selected.country} · registered {selected.registered}</p>
-              <p className="t-mono text-fg-secondary">identity 0xA1f9…3D55 · wallet {selected.wallet}</p>
-              <h3 className="t-h3 mt-2 text-fg">Claims</h3>
-              {selected.claims.map((c, i) => (
-                <div key={i} className="flex items-center gap-3 rounded-md border border-line bg-surface px-4 py-3">
-                  <div className="flex-1">
-                    <p className="t-body-strong text-fg">{c.label.replace(' ✓', ' verified').replace(' review', ' under review')}</p>
-                    <p className="t-caption normal-case tracking-normal text-fg-tertiary">issuer Palissage KYC · {selected.registered}</p>
-                  </div>
-                  <Button kind="ghost" size="sm" className="text-danger">Revoke</Button>
-                </div>
-              ))}
-            </motion.aside>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+    <li className="flex items-center gap-3 text-body-sm">
+      {on ? (
+        <CircleCheck aria-hidden className="size-4 shrink-0 text-success" strokeWidth={1.75} />
+      ) : (
+        <CircleMinus aria-hidden className="size-4 shrink-0 text-ink-secondary" strokeWidth={1.75} />
+      )}
+      <span className={on ? undefined : 'text-ink-secondary'}>{label}</span>
+      {on ? <StatusBadge tone="success" className="ml-auto">Held</StatusBadge> : null}
+    </li>
   );
 }

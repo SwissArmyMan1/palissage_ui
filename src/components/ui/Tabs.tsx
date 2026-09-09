@@ -1,38 +1,83 @@
-import { motion } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/cn';
 
+/**
+ * Manual activation: some panels read the chain, so arrow keys move focus and
+ * Enter/Space activates. The travelling indicator is a transform on one
+ * pseudo-element, not a re-layout.
+ */
 export function Tabs({
-  items,
+  tabs,
   value,
   onChange,
-  id = 'tabs',
+  className,
 }: {
-  items: string[];
+  tabs: readonly { id: string; label: string }[];
   value: string;
-  onChange: (v: string) => void;
-  id?: string;
+  onChange: (id: string) => void;
+  className?: string;
 }) {
+  const listRef = useRef<HTMLDivElement | null>(null);
+  const [indicator, setIndicator] = useState({ x: 0, w: 0 });
+
+  useEffect(() => {
+    const list = listRef.current;
+    if (!list) return;
+    const active = list.querySelector<HTMLElement>(`[data-tab-id="${value}"]`);
+    if (!active) return;
+    setIndicator({ x: active.offsetLeft, w: active.offsetWidth });
+  }, [value, tabs]);
+
+  const move = (delta: number) => {
+    const index = tabs.findIndex((tab) => tab.id === value);
+    const next = tabs[(index + delta + tabs.length) % tabs.length];
+    const node = listRef.current?.querySelector<HTMLElement>(`[data-tab-id="${next.id}"]`);
+    node?.focus();
+  };
+
   return (
-    <div className="flex gap-6 overflow-x-auto border-b border-line">
-      {items.map((it) => {
-        const active = it === value;
+    <div
+      ref={listRef}
+      role="tablist"
+      className={cn('tab-rail flex gap-6 border-b border-edge-subtle', className)}
+      style={{ ['--tab-x' as string]: `${indicator.x}px`, ['--tab-w' as string]: `${indicator.w}px` }}
+      onKeyDown={(event) => {
+        if (event.key === 'ArrowRight') {
+          event.preventDefault();
+          move(1);
+        } else if (event.key === 'ArrowLeft') {
+          event.preventDefault();
+          move(-1);
+        } else if (event.key === 'Home') {
+          event.preventDefault();
+          listRef.current?.querySelector<HTMLElement>(`[data-tab-id="${tabs[0].id}"]`)?.focus();
+        } else if (event.key === 'End') {
+          event.preventDefault();
+          listRef.current
+            ?.querySelector<HTMLElement>(`[data-tab-id="${tabs[tabs.length - 1].id}"]`)
+            ?.focus();
+        }
+      }}
+    >
+      {tabs.map((tab) => {
+        const selected = tab.id === value;
         return (
           <button
-            key={it}
-            onClick={() => onChange(it)}
+            key={tab.id}
+            type="button"
+            role="tab"
+            data-tab-id={tab.id}
+            id={`tab-${tab.id}`}
+            aria-selected={selected}
+            aria-controls={`panel-${tab.id}`}
+            tabIndex={selected ? 0 : -1}
+            onClick={() => onChange(tab.id)}
             className={cn(
-              'relative whitespace-nowrap pb-2.5 pt-1 transition-colors',
-              active ? 't-body-strong text-accent' : 't-body text-fg-secondary hover:text-fg',
+              'relative -mb-px min-h-[42px] border-b-2 border-transparent pb-2 pt-1 text-body-sm transition-colors duration-fast ease-out',
+              selected ? 'font-semibold text-ink' : 'text-ink-secondary hover:text-ink',
             )}
           >
-            {it}
-            {active && (
-              <motion.span
-                layoutId={`${id}-underline`}
-                className="absolute inset-x-0 -bottom-px h-0.5 bg-accent"
-                transition={{ duration: 0.2, ease: [0.2, 0, 0, 1] }}
-              />
-            )}
+            {tab.label}
           </button>
         );
       })}
@@ -40,35 +85,19 @@ export function Tabs({
   );
 }
 
-/** Filter chips row (mobile / compact filtering). */
-export function Chips({
-  items,
-  value,
-  onChange,
+export function TabPanel({
+  id,
+  active,
+  children,
 }: {
-  items: string[];
-  value: string;
-  onChange: (v: string) => void;
+  id: string;
+  active: boolean;
+  children: React.ReactNode;
 }) {
+  if (!active) return null;
   return (
-    <div className="flex gap-2 overflow-x-auto pb-1">
-      {items.map((it) => {
-        const active = it === value;
-        return (
-          <button
-            key={it}
-            onClick={() => onChange(it)}
-            className={cn(
-              'whitespace-nowrap rounded-full border px-3.5 py-2 t-small-strong transition-colors',
-              active
-                ? 'border-accent bg-accent-subtle text-accent'
-                : 'border-line-strong bg-surface text-fg-secondary hover:text-fg',
-            )}
-          >
-            {it}
-          </button>
-        );
-      })}
+    <div role="tabpanel" id={`panel-${id}`} aria-labelledby={`tab-${id}`} tabIndex={0} className="outline-none">
+      {children}
     </div>
   );
 }

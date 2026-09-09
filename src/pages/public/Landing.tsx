@@ -1,239 +1,129 @@
-import { motion } from 'framer-motion';
-import {
-  Wine,
-  Store,
-  Users,
-  Wallet,
-  Landmark,
-  ShieldCheck,
-  FileText,
-  ChevronDown,
-} from 'lucide-react';
-import { Logo } from '@/components/layout/Logo';
-import { ThemeToggle } from '@/components/layout/ThemeToggle';
-import { Button } from '@/components/ui/Button';
-import { StatCard } from '@/components/ui/primitives';
-import { LotCard } from '@/components/ui/LotCard';
-import { Stepper } from '@/components/ui/Stepper';
-import { Stagger, StaggerItem } from '@/components/layout/Page';
-import { marketplaceLots } from '@/lib/mock';
-import { CHAIN_LABEL } from '@/contracts/config';
-import { zoneLink } from '@/lib/zone';
+import { Link } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
+import { LinkButton } from '@/components/ui/Button';
+import { Plate } from '@/components/ui/Plate';
+import { StatTile, CountUpMoney } from '@/components/ui/StatTile';
+import { Section, SectionHead } from '@/components/layout/Section';
+import { TrellisLifecycle } from '@/components/patterns/TrellisLifecycle';
+import { ASSETS } from '@/lib/content/assets';
+import { LANDING } from '@/lib/content/copy';
 
-const ease = [0.2, 0, 0, 1] as const;
-
-/** In-page anchors. Each href points at a section `id` further down the page. */
-const navLinks = [
-  { label: 'For wineries', href: '#for-wineries' },
-  { label: 'For shops', href: '#for-shops' },
-  { label: 'How it works', href: '#how-it-works' },
-  { label: 'FAQ', href: '#faq' },
-];
-const footerLinks = [...navLinks, { label: 'Contact', href: '#contact' }];
-
-const triplet = [
-  {
-    icon: <Wine size={24} />,
-    title: 'Wineries',
-    text: 'Sell direct at a better price, fund harvests early with En Primeur, keep your customer.',
-  },
-  {
-    icon: <Store size={24} />,
-    title: 'Shops & importers',
-    text: 'Buy verified lots below distributor prices, resell allocations on a whitelisted market.',
-  },
-  {
-    icon: <Users size={24} />,
-    title: 'Communities',
-    text: 'Drops, loyalty passports and exclusive releases — physical wine with onchain provenance.',
-  },
-];
-
-const steps = ['Create lot', 'Verify', 'Reserve & escrow', 'Milestone release', 'Redeem'].map(
-  (label) => ({ label, state: 'done' as const }),
-);
-
-const faq = [
-  'Do I need crypto to start buying?',
-  'How is a lot verified?',
-  'What happens to my money before delivery?',
-  'Can I resell an allocation I no longer need?',
-  'What is En Primeur and why is it cheaper?',
-  'Which countries can order delivery?',
-];
-
-const trust = [
-  { icon: <Wallet size={20} />, text: 'Onchain ownership of every allocation' },
-  { icon: <Landmark size={20} />, text: 'Programmable escrow with milestone release' },
-  { icon: <ShieldCheck size={20} />, text: 'Lots verified by independent partners' },
-  { icon: <FileText size={20} />, text: 'Full audit trail: documents, payments, redemptions' },
-];
-
+/**
+ * PUB-01. `Content page template` with an editorial split hero — not a centred
+ * hero, and not three equal feature cards.
+ *
+ * The headline and the photograph carry **no** entrance animation: the headline
+ * is the LCP element and the `Kinetic type` entry vetoes animating it. The
+ * photograph's only movement is an ambient scroll-linked drift under 3%, which
+ * starts after paint and runs on the compositor.
+ *
+ * The page's one signature moment is the trellis vine, below the fold.
+ */
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-page">
-      {/* top bar */}
-      <header className="sticky top-0 z-30 border-b border-line bg-surface/85 backdrop-blur">
-        <div className="mx-auto flex h-[88px] max-w-content items-center gap-6 px-4 md:px-10">
-          <Logo to="/" className="w-36 md:w-40" />
-          <nav className="ml-auto hidden items-center gap-8 lg:flex">
-            {navLinks.map((l) => (
-              <a key={l.label} href={l.href} className="t-body text-fg hover:text-accent">
-                {l.label}
-              </a>
-            ))}
-          </nav>
-          <div className="ml-auto flex items-center gap-3 lg:ml-0">
-            <ThemeToggle />
-            <Button size="sm" to="/sign-in" icon={<Wallet size={16} />}>
-              Connect wallet
-            </Button>
+    <>
+      {/* ---- Hero: no reveal, no entrance animation ------------------------ */}
+      <section className="bg-page py-12 md:py-20">
+        <div className="shell grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+          <div className="max-w-reading">
+            <p className="t-caption text-accent">{LANDING.eyebrow}</p>
+            <h1 className="mt-4 t-display">{LANDING.h1}</h1>
+            <p className="mt-6 text-body text-ink-secondary">{LANDING.lede}</p>
+            <div className="mt-8 flex flex-wrap items-center gap-6">
+              <LinkButton to="/lots">{LANDING.ctaPrimary}</LinkButton>
+              <Link
+                to="/demo"
+                className="inline-flex items-center gap-1.5 text-body-sm font-medium text-accent underline decoration-transparent underline-offset-4 transition-colors duration-fast ease-out hover:decoration-current"
+              >
+                Try it on Base Sepolia
+                <ArrowRight aria-hidden className="size-4" strokeWidth={1.75} />
+              </Link>
+            </div>
           </div>
-        </div>
-      </header>
 
-      {/* hero */}
-      <section className="relative overflow-hidden">
-        <div className="pointer-events-none absolute right-6 top-16 hidden opacity-[0.06] xl:block">
-          <Logo variant="mark" className="h-[320px] w-[320px]" />
-        </div>
-        <div className="mx-auto flex max-w-content flex-col items-center gap-6 px-4 py-20 text-center md:px-10 md:py-28">
-          <motion.h1
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease }}
-            className="t-display max-w-[820px] text-fg"
-          >
-            Direct wine trade, verified onchain
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.08, ease }}
-            className="t-body max-w-[640px] text-fg-secondary"
-          >
-            Wineries sell verified lots straight to shops and importers. Escrow, En Primeur
-            futures and bottle-level loyalty — without the distributor margin.
-          </motion.p>
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.16, ease }}
-            className="flex flex-wrap items-center justify-center gap-3"
-          >
-            <Button to="/sign-in" icon={<Wallet size={16} />}>
-              Connect wallet
-            </Button>
-            <Button kind="ghost" to={zoneLink('shop', '')}>
-              Explore marketplace
-            </Button>
-          </motion.div>
+          <Plate
+            asset={ASSETS.heroEstate}
+            alt="Vineyard rows running to the hills, with a trellis post in the foreground"
+            ratio="9 / 10"
+            priority
+            drift
+            sizes="(min-width: 1024px) 560px, 92vw"
+            className="lg:justify-self-end lg:w-[min(560px,100%)]"
+          />
         </div>
       </section>
 
-      {/* value triplet */}
-      <section id="for-wineries" className="mx-auto max-w-content scroll-mt-24 px-4 pb-24 md:px-10">
-        <Stagger className="grid gap-6 md:grid-cols-3">
-          {triplet.map((t) => (
-            <StaggerItem key={t.title} className="card flex flex-col gap-3 p-6">
-              <span className="text-accent">{t.icon}</span>
-              <h2 className="t-h2 text-fg">{t.title}</h2>
-              <p className="t-body text-fg-secondary">{t.text}</p>
-            </StaggerItem>
-          ))}
-        </Stagger>
-      </section>
-
-      {/* how it works */}
-      <section id="how-it-works" className="mx-auto max-w-content scroll-mt-24 px-4 pb-24 md:px-10">
-        <h2 className="t-h1 mb-10 text-center text-fg">How it works</h2>
-        <div className="mx-auto hidden max-w-3xl md:block">
-          <Stepper steps={steps} />
+      {/* ---- The signature moment ----------------------------------------- */}
+      <Section tone="surface" labelledBy="lifecycle-heading">
+        <SectionHead
+          id="lifecycle-heading"
+          title={LANDING.lifecycleTitle}
+          lede={LANDING.lifecycleLede}
+        />
+        <div className="mt-12">
+          <TrellisLifecycle stage={4} variant="animated" label="How a lot moves from vine to shelf" />
         </div>
-        <div className="mx-auto max-w-xs md:hidden">
-          <Stepper steps={steps} direction="vertical" />
-        </div>
-      </section>
-
-      {/* trust + example lot */}
-      <section id="for-shops" className="scroll-mt-24 bg-page-subtle py-16">
-        <div className="mx-auto grid max-w-content items-center gap-12 px-4 md:grid-cols-2 md:px-10">
-          <div className="flex flex-col gap-4">
-            <h2 className="t-h1 text-fg">Trust is the product</h2>
-            {trust.map((t) => (
-              <div key={t.text} className="flex items-center gap-3">
-                <span className="text-accent">{t.icon}</span>
-                <span className="t-body text-fg">{t.text}</span>
-              </div>
-            ))}
-          </div>
-          <div className="mx-auto w-full max-w-[280px]">
-            <LotCard lot={marketplaceLots[2]} to={zoneLink('shop', `/lot/${marketplaceLots[2].id}`)} />
-          </div>
-        </div>
-      </section>
-
-      {/* numbers */}
-      <section className="mx-auto max-w-content px-4 py-24 md:px-10">
-        <h2 className="t-h1 text-center text-fg">The same margin, shared differently</h2>
-        <p className="t-body mb-10 mt-2 text-center text-fg-secondary">
-          On a 10 000-bottle lot sold direct at €7.20 instead of via a distributor:
+        <p className="mt-8 max-w-reading text-body-sm text-ink-secondary">
+          Every lot records its stage on Base, and it only moves forward. Where you join depends on
+          whether the wine already exists.
         </p>
-        <div className="grid gap-6 md:grid-cols-3">
-          <StatCard label="Shop saves" value="€13 700" delta="vs distributor price" deltaTone="muted" />
-          <StatCard label="Winery earns more" value="€9 840" delta="vs selling to distributor" deltaTone="muted" />
-          <StatCard label="Protocol fee" value="€2 160" delta="3% on direct trade" deltaTone="muted" />
-        </div>
-      </section>
+      </Section>
 
-      {/* faq */}
-      <section id="faq" className="mx-auto max-w-3xl scroll-mt-24 px-4 pb-24 md:px-10">
-        <h2 className="t-h1 mb-6 text-fg">FAQ</h2>
-        <div className="flex flex-col">
-          {faq.map((q) => (
-            <details key={q} className="group border-b border-line py-4">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4">
-                <span className="t-h3 text-fg">{q}</span>
-                <ChevronDown size={20} className="text-fg-secondary transition-transform group-open:rotate-180" />
-              </summary>
-              <p className="t-body mt-3 text-fg-secondary">
-                Palissage keeps business meaning on the surface and chain details one level
-                down. Verification, escrow and redemption are explained in plain euros and
-                delivery dates inside the app.
-              </p>
-            </details>
+      {/* ---- Two audiences ------------------------------------------------ */}
+      <Section labelledBy="audiences-heading">
+        <SectionHead id="audiences-heading" title={LANDING.audiencesTitle} />
+        <div className="reveal-stagger mt-12 grid gap-6 lg:grid-cols-2">
+          {LANDING.audiences.map((audience, index) => (
+            <article key={audience.title} className="card overflow-hidden p-6 shadow-1">
+              <Plate
+                asset={index === 0 ? ASSETS.estateRissacVineyard : ASSETS.estateRissacDomain}
+                alt=""
+                ratio="16 / 6"
+              />
+              <h3 className="mt-6 t-h2">{audience.title}</h3>
+              <p className="mt-3 text-body text-ink-secondary">{audience.body}</p>
+              <LinkButton to={audience.to} kind="secondary" size="sm" className="mt-6">
+                {audience.cta}
+                <ArrowRight aria-hidden className="size-4" strokeWidth={1.75} />
+              </LinkButton>
+            </article>
           ))}
         </div>
-      </section>
+      </Section>
 
-      {/* footer */}
-      <footer id="contact" className="scroll-mt-24 border-t border-line bg-surface">
-        <div className="mx-auto flex max-w-content flex-col gap-8 px-4 py-12 md:flex-row md:px-10">
-          <Logo to="/" className="w-36" />
-          <nav className="flex flex-1 flex-col gap-2">
-            {footerLinks.map((l) => (
-              <a key={l.label} href={l.href} className="t-small text-fg-secondary hover:text-fg">
-                {l.label}
-              </a>
-            ))}
-          </nav>
-          <div className="max-w-md">
-            <p className="t-small-strong text-fg">Built on {CHAIN_LABEL}</p>
-            <p className="t-caption mt-2 normal-case tracking-normal text-fg-tertiary">
-              Palissage provides infrastructure for direct B2B wine trade. Nothing here is
-              financial advice or an offer of securities. Allocations are claims on physical
-              wine subject to verification and export rules.
-            </p>
-          </div>
+      {/* ---- The margin comparison ---------------------------------------- */}
+      <Section tone="surface" labelledBy="margin-heading">
+        <SectionHead id="margin-heading" title={LANDING.marginTitle} lede={LANDING.marginLede} />
+        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {LANDING.marginTiles.map((tile) => (
+            <StatTile key={tile.label} label={tile.label} value={<CountUpMoney target={tile.value} />} />
+          ))}
         </div>
-      </footer>
+        <p className="mt-8 max-w-reading text-body-sm text-ink-secondary">{LANDING.marginFootnote}</p>
+      </Section>
 
-      {/* mobile sticky CTA */}
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface p-4 lg:hidden">
-        <Button full to="/sign-in" icon={<Wallet size={16} />}>
-          Connect wallet
-        </Button>
-      </div>
-    </div>
+      {/* ---- What verified means ------------------------------------------ */}
+      <Section labelledBy="trust-heading">
+        <SectionHead id="trust-heading" title={LANDING.trustTitle} />
+        <div className="reveal-stagger mt-12 grid gap-x-12 gap-y-10 lg:grid-cols-2">
+          {LANDING.trust.map((item) => (
+            <div key={item.title}>
+              <span aria-hidden className="block h-0.5 w-10 rounded-full bg-accent" />
+              <h3 className="mt-3 text-body font-semibold">{item.title}</h3>
+              <p className="mt-2 text-body-sm text-ink-secondary">{item.body}</p>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      {/* ---- Where the project is ------------------------------------------ */}
+      <Section tone="surface" labelledBy="stage-heading">
+        <SectionHead id="stage-heading" title={LANDING.stageTitle} />
+        <p className="mt-6 max-w-reading text-body text-ink-secondary">{LANDING.stageBody}</p>
+        <LinkButton to="/pilot" className="mt-8">
+          {LANDING.stageCta}
+        </LinkButton>
+      </Section>
+    </>
   );
 }

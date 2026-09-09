@@ -18,5 +18,14 @@ export default defineConfig([
     languageOptions: {
       globals: globals.browser,
     },
+    rules: {
+      // A provider that also exports its own hook, or a pattern component that
+      // exports the helper that builds its rows, is ordinary React. Fast
+      // Refresh handles both; the rule is only told to expect them.
+      'react-refresh/only-export-components': [
+        'error',
+        { allowExportNames: ['useTheme', 'useToast', 'reserveLines'] },
+      ],
+    },
   },
 ])

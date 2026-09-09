@@ -1,46 +1,39 @@
-import type { ReactNode } from 'react';
+import { CircleCheck, CircleMinus, CircleX, Clock, Info, TriangleAlert } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import type { Tone } from '@/lib/enums';
 
-export type Tone =
-  | 'neutral'
-  | 'success'
-  | 'warning'
-  | 'danger'
-  | 'info'
-  | 'gold';
-
-const tones: Record<Tone, { dot: string; text: string; bg: string }> = {
-  neutral: { dot: 'bg-fg-secondary', text: 'text-fg-secondary', bg: 'bg-page-subtle' },
-  success: { dot: 'bg-success', text: 'text-success', bg: 'bg-success-subtle' },
-  warning: { dot: 'bg-warning', text: 'text-warning', bg: 'bg-warning-subtle' },
-  danger: { dot: 'bg-danger', text: 'text-danger', bg: 'bg-danger-subtle' },
-  info: { dot: 'bg-info', text: 'text-info', bg: 'bg-info-subtle' },
-  gold: { dot: 'bg-gold', text: 'text-gold', bg: 'bg-gold-subtle' },
+/**
+ * Icon plus text, always. Colour is never the only signal (WCAG 1.4.1) — which
+ * matters here because the accent and the danger colour are both reds.
+ */
+const TONES: Record<Tone, { className: string; Icon: typeof CircleCheck }> = {
+  success: { className: 'bg-success-subtle text-success', Icon: CircleCheck },
+  warning: { className: 'bg-warning-subtle text-warning', Icon: Clock },
+  danger: { className: 'bg-danger-subtle text-danger', Icon: CircleX },
+  info: { className: 'bg-info-subtle text-info', Icon: Info },
+  neutral: { className: 'bg-surface-sunken text-ink-secondary', Icon: CircleMinus },
+  accent: { className: 'bg-accent-subtle text-accent', Icon: TriangleAlert },
 };
 
-/** Single shared pill for lifecycle status, so the tone colors stay consistent everywhere. */
 export function StatusBadge({
   tone = 'neutral',
   children,
-  icon,
   className,
 }: {
   tone?: Tone;
-  children: ReactNode;
-  icon?: ReactNode;
+  children: React.ReactNode;
   className?: string;
 }) {
-  const t = tones[tone];
+  const { className: toneClass, Icon } = TONES[tone];
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-2 rounded-full px-3 py-1 t-caption',
-        t.bg,
-        t.text,
+        'inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-body-sm font-medium',
+        toneClass,
         className,
       )}
     >
-      {icon ?? <span className={cn('h-2 w-2 rounded-full', t.dot)} />}
+      <Icon aria-hidden className="size-3.5 shrink-0" strokeWidth={1.75} />
       {children}
     </span>
   );

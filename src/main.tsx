@@ -1,19 +1,21 @@
+import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
-// self-hosted fonts (no runtime network) — Fraunces / Inter / JetBrains Mono
-import '@fontsource-variable/fraunces';
-import '@fontsource-variable/inter';
+// Fraunces with only the optical-size and weight axes registered, which pins
+// SOFT and WONK to zero — the quirky, dated character comes from those two.
+import '@fontsource-variable/fraunces/opsz.css';
+import '@fontsource-variable/inter/opsz.css';
 import '@fontsource/jetbrains-mono/400.css';
-import '@fontsource/jetbrains-mono/500.css';
 
+// Tokens first: custom properties only, so load order does not fight Tailwind's
+// preflight. Everything else is inside Tailwind's own layers.
+import './styles/tokens.css';
 import './index.css';
-import App from './App.tsx';
 
-// NOTE: React.StrictMode is intentionally omitted. Its dev-only double-mount
-// (mount → unmount → remount) tears down and re-initialises the wagmi/WalletConnect
-// connector and its relay subscription, so the *first* wallet connect's events are
-// emitted to the discarded instance and never reach React. The symptom is a wallet
-// that connects but leaves the UI stuck until a manual page refresh (which re-reads
-// the now-persisted, already-connected snapshot via wagmi's reconnectOnMount).
-// Production builds never double-mount, so this only ever affected `vite dev`.
-createRoot(document.getElementById('root')!).render(<App />);
+import App from './App';
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+);

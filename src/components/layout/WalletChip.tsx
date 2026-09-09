@@ -1,47 +1,59 @@
-import { AlertTriangle } from 'lucide-react';
-import { StatusBadge } from '@/components/ui/StatusBadge';
-import { useSession } from '@/lib/session';
-import { useEure } from '@/lib/eure';
-import { ROLE_META } from '@/lib/roles';
-import { shortAddress, EURE } from '@/contracts';
+import { useAccount, useConnect, useDisconnect, useSwitchChain } from 'wagmi';
+import { Wallet } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { truncateAddress } from '@/lib/format';
+import { CHAIN_ID, CHAIN_LABEL } from '@/chain/config';
+import { hasWalletConnect, walletConnectConnector } from '@/chain/wagmi';
 
-/**
- * Header wallet chip — identicon + connected address + role badge, plus the
- * connected wallet's live EURe balance when a deployment is configured.
- * Falls back to the demo role's placeholder address when no wallet is connected
- * (offline demo mode).
- */
+/** Wallet connection lives inside /app, never in the public header. */
 export function WalletChip() {
-  const { account, role } = useSession();
-  const eure = useEure();
-  const display = account
-    ? shortAddress(account)
-    : role
-      ? ROLE_META[role].address
-      : '0x0000…0000';
+  const { address, isConnected, chainId } = useAccount();
+  const { connect, connectors, isPending } = useConnect();
+  const { disconnect } = useDisconnect();
+  const { switchChain } = useSwitchChain();
 
-  const showBalance = eure.configured && !!account;
-  const balance = Number(eure.balanceFormatted).toLocaleString('en-US', {
-    maximumFractionDigits: 2,
-  });
+  if (!isConnected) {
+    const injectedConnector = connectors[0];
+    return (
+      <span className="flex items-center gap-2">
+        <Button
+          size="sm"
+          kind="secondary"
+          pending={isPending}
+          onClick={() => injectedConnector && connect({ connector: injectedConnector })}
+        >
+          <Wallet aria-hidden className="size-4" strokeWidth={1.75} />
+          Connect wallet
+        </Button>
+        {hasWalletConnect ? (
+          <Button
+            size="sm"
+            kind="ghost"
+            onClick={async () => connect({ connector: await walletConnectConnector() })}
+          >
+            Use a phone
+          </Button>
+        ) : null}
+      </span>
+    );
+  }
+
+  if (chainId !== CHAIN_ID) {
+    return (
+      <Button size="sm" kind="danger" onClick={() => switchChain({ chainId: CHAIN_ID })}>
+        Switch to {CHAIN_LABEL}
+      </Button>
+    );
+  }
 
   return (
-    <div className="flex flex-col gap-1.5">
-      <div className="flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5">
-        <span className="h-6 w-6 overflow-hidden rounded-full">
-          <span className="block h-full w-full bg-gradient-to-br from-accent to-accent-subtle" />
-        </span>
-        <span className="t-mono text-fg">{display}</span>
-        {role && <StatusBadge tone="success">{ROLE_META[role].label}</StatusBadge>}
-      </div>
-      {showBalance && (
-        <span className="t-mono flex items-center gap-1.5 px-3 text-fg-secondary">
-          {eure.decimalsMismatch ? (
-            <AlertTriangle size={13} className="text-danger" aria-label="EURe decimals mismatch" />
-          ) : null}
-          {balance} {EURE.symbol}
-        </span>
-      )}
-    </div>
+    <button
+      type="button"
+      onClick={() => disconnect()}
+      title="Disconnect"
+      className="min-h-[34px] rounded-md border border-edge-subtle bg-surface-sunken px-3 text-body-sm tabular-nums"
+    >
+      {truncateAddress(address)}
+    </button>
   );
 }

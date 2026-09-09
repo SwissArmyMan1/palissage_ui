@@ -1,0 +1,280 @@
+/* ============================================================================
+   Palissage design tokens — tier 1 primitives and tier 2 semantics.
+   Ported from specifications/ui-v2/02-design-system.md and the Figma variable
+   collections (Primitives / Color / Spacing / Typography).
+
+   Figma variable path `color/text/primary` is CSS `--color-text-primary`.
+   That mapping is mechanical and must stay mechanical.
+
+   Components consume tier 2 only. A hex literal in a component is a bug.
+   ========================================================================== */
+
+:root {
+  /* ---- tier 1: stone — neutral, H 75, warm limestone ---------------------- */
+  --stone-0: #ffffff;
+  --stone-50: #f8f5f1;
+  --stone-100: #f1ede8;
+  --stone-200: #e4dfd9;
+  --stone-300: #d4cfc7;
+  --stone-400: #b0aaa1;
+  --stone-500: #8c867d;
+  --stone-600: #6c665f;
+  --stone-700: #524d46;
+  --stone-800: #39352f;
+  --stone-850: #2a2622;
+  --stone-900: #1e1b17;
+  --stone-950: #13100d;
+
+  /* ---- tier 1: wine — accent, H 14, bordeaux ----------------------------- */
+  --wine-50: #fef3f4;
+  --wine-100: #ffe4e5;
+  --wine-200: #fecbce;
+  --wine-300: #faa7ae;
+  --wine-400: #ec7a87;
+  --wine-500: #d34e63;
+  --wine-600: #b1364d;
+  --wine-700: #8e2a3c;
+  --wine-800: #6e212e;
+  --wine-900: #541a23;
+  --wine-975: #341619;
+
+  /* ---- tier 1: status ramps ---------------------------------------------- */
+  --vine-200: #c5e9cb;
+  --vine-400: #63b376;
+  --vine-700: #2b6a3c;
+  --vine-975: #0a2110;
+
+  --amber-200: #f7e6c3;
+  --amber-400: #d7aa42;
+  --amber-700: #836412;
+  --amber-975: #271b01;
+
+  --signal-200: #fcd5cf;
+  --signal-400: #f66e60;
+  --signal-700: #a51f1b;
+  --signal-975: #31100c;
+
+  --azur-200: #d2e3f9;
+  --azur-400: #64a1ee;
+  --azur-700: #155aa7;
+  --azur-975: #0a1c32;
+
+  /* ---- tier 1: space ----------------------------------------------------- */
+  --space-2: 2px;
+  --space-4: 4px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-48: 48px;
+  --space-64: 64px;
+  --space-96: 96px;
+  --space-128: 128px;
+
+  /* ---- tier 1: radius ---------------------------------------------------- */
+  --radius-2: 2px;
+  --radius-4: 4px;
+  --radius-8: 8px;
+  --radius-12: 12px;
+  --radius-16: 16px;
+  --radius-full: 9999px;
+
+  /* ---- tier 2: semantic colour, LIGHT ------------------------------------ */
+  --color-page: var(--stone-50);
+  --color-surface: var(--stone-0);
+  --color-surface-raised: var(--stone-0);
+  --color-surface-overlay: var(--stone-0);
+  --color-surface-sunken: var(--stone-100);
+  --color-surface-selected: var(--wine-50);
+  --color-surface-disabled: var(--stone-100);
+
+  --color-border-subtle: var(--stone-200);
+  --color-border-strong: var(--stone-300);
+  --color-border-field: var(--stone-500);
+  --color-border-disabled: var(--stone-300);
+  --color-focus-ring: var(--stone-900);
+
+  --color-text-primary: var(--stone-900);
+  --color-text-secondary: var(--stone-600);
+  /* 3.32:1 in light — decoration and >=24px display only. Never a value,
+     label, placeholder or hint. See doc 02 section 3. */
+  --color-text-muted: var(--stone-500);
+  --color-text-disabled: var(--stone-500);
+  --color-text-on-accent: #ffffff;
+
+  --color-accent: var(--wine-700);
+  --color-accent-hover: var(--wine-800);
+  --color-accent-pressed: var(--wine-900);
+  --color-accent-subtle: var(--wine-200);
+
+  --color-success: var(--vine-700);
+  --color-success-subtle: var(--vine-200);
+  --color-warning: var(--amber-700);
+  --color-warning-subtle: var(--amber-200);
+  --color-danger: var(--signal-700);
+  --color-danger-subtle: var(--signal-200);
+  --color-info: var(--azur-700);
+  --color-info-subtle: var(--azur-200);
+
+  /* chain identity, never a UI accent */
+  --color-chain-base: #0000ff;
+  --color-chain-base-subtle: var(--azur-200);
+
+  --shadow-1: 0 1px 2px oklch(0.224 0.009 75 / 0.06), 0 1px 3px oklch(0.224 0.009 75 / 0.04);
+  --shadow-2: 0 2px 4px oklch(0.224 0.009 75 / 0.06), 0 8px 20px oklch(0.224 0.009 75 / 0.09);
+  --shadow-3: 0 4px 8px oklch(0.224 0.009 75 / 0.07), 0 24px 56px oklch(0.224 0.009 75 / 0.16);
+
+  color-scheme: light;
+
+  /* ---- tier 2: typography ------------------------------------------------ */
+  --font-display: 'Fraunces Variable', Fraunces, 'Iowan Old Style', Georgia, serif;
+  --font-sans: 'Inter Variable', Inter, system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+
+  --text-display: clamp(2.25rem, 1.4rem + 4.2vw, 4.5rem);
+  --text-h1: clamp(1.75rem, 1.3rem + 2.2vw, 2.75rem);
+  --text-h2: clamp(1.375rem, 1.15rem + 1.1vw, 1.875rem);
+  --text-h3: clamp(1.125rem, 1.05rem + 0.36vw, 1.3125rem);
+  --text-body: 1rem;
+  --text-body-sm: 0.875rem;
+  --text-caption: 0.75rem;
+  --text-mono: 0.8125rem;
+
+  /* ---- tier 2: motion primitives ---------------------------------------- */
+  --duration-instant: 100ms;
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --duration-slow: 350ms;
+  --duration-slower: 500ms;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Multiplied into every travel distance in the system. */
+  --motion-scale: 1;
+
+  /* ---- tier 3: component aliases ---------------------------------------- */
+  --sidenav-w: 240px;
+  --topbar-h: 56px;
+  --publicnav-h: 66px;
+  --table-row-hover: var(--color-surface-sunken);
+  --gutter: var(--space-16);
+  --content-max: 1200px;
+}
+
+/* System dark, unless the reader explicitly chose light. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --color-page: var(--stone-950);
+    --color-surface: var(--stone-900);
+    --color-surface-raised: var(--stone-850);
+    --color-surface-overlay: var(--stone-800);
+    --color-surface-sunken: var(--stone-950);
+    --color-surface-selected: var(--wine-975);
+    --color-surface-disabled: var(--stone-850);
+
+    --color-border-subtle: var(--stone-800);
+    --color-border-strong: var(--stone-700);
+    --color-border-field: var(--stone-600);
+    --color-border-disabled: var(--stone-700);
+    --color-focus-ring: var(--stone-100);
+
+    --color-text-primary: var(--stone-100);
+    --color-text-secondary: var(--stone-400);
+    --color-text-muted: var(--stone-500);
+    --color-text-disabled: var(--stone-600);
+    --color-text-on-accent: var(--stone-950);
+
+    --color-accent: var(--wine-400);
+    --color-accent-hover: var(--wine-300);
+    --color-accent-pressed: var(--wine-500);
+    --color-accent-subtle: var(--wine-975);
+
+    --color-success: var(--vine-400);
+    --color-success-subtle: var(--vine-975);
+    --color-warning: var(--amber-400);
+    --color-warning-subtle: var(--amber-975);
+    --color-danger: var(--signal-400);
+    --color-danger-subtle: var(--signal-975);
+    --color-info: var(--azur-400);
+    --color-info-subtle: var(--azur-975);
+
+    --color-chain-base: #6097ff;
+    --color-chain-base-subtle: var(--azur-975);
+
+    /* Dark expresses elevation by surface lightness, not by shadow. */
+    --shadow-1: none;
+    --shadow-2: none;
+    --shadow-3: 0 24px 56px oklch(0.13 0 0 / 0.6);
+
+    color-scheme: dark;
+  }
+}
+
+/* An explicit choice wins in both directions. */
+:root[data-theme='dark'] {
+  --color-page: var(--stone-950);
+  --color-surface: var(--stone-900);
+  --color-surface-raised: var(--stone-850);
+  --color-surface-overlay: var(--stone-800);
+  --color-surface-sunken: var(--stone-950);
+  --color-surface-selected: var(--wine-975);
+  --color-surface-disabled: var(--stone-850);
+
+  --color-border-subtle: var(--stone-800);
+  --color-border-strong: var(--stone-700);
+  --color-border-field: var(--stone-600);
+  --color-border-disabled: var(--stone-700);
+  --color-focus-ring: var(--stone-100);
+
+  --color-text-primary: var(--stone-100);
+  --color-text-secondary: var(--stone-400);
+  --color-text-muted: var(--stone-500);
+  --color-text-disabled: var(--stone-600);
+  --color-text-on-accent: var(--stone-950);
+
+  --color-accent: var(--wine-400);
+  --color-accent-hover: var(--wine-300);
+  --color-accent-pressed: var(--wine-500);
+  --color-accent-subtle: var(--wine-975);
+
+  --color-success: var(--vine-400);
+  --color-success-subtle: var(--vine-975);
+  --color-warning: var(--amber-400);
+  --color-warning-subtle: var(--amber-975);
+  --color-danger: var(--signal-400);
+  --color-danger-subtle: var(--signal-975);
+  --color-info: var(--azur-400);
+  --color-info-subtle: var(--azur-975);
+
+  --color-chain-base: #6097ff;
+  --color-chain-base-subtle: var(--azur-975);
+
+  --shadow-1: none;
+  --shadow-2: none;
+  --shadow-3: 0 24px 56px oklch(0.13 0 0 / 0.6);
+
+  color-scheme: dark;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-scale: 0;
+  }
+}
+
+/* Layout gutters follow the grid table in doc 02 section 6. */
+@media (min-width: 480px) {
+  :root { --gutter: var(--space-24); }
+}
+@media (min-width: 768px) {
+  :root { --gutter: var(--space-32); }
+}
+@media (min-width: 1024px) {
+  :root { --gutter: var(--space-48); }
+}
+@media (min-width: 1440px) {
+  :root { --gutter: var(--space-96); }
+}

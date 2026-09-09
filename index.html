@@ -2,17 +2,59 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/img/brand/logo-light.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#faf7f2" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+    <title>Palissage — wine sold before it is bottled</title>
     <meta
       name="description"
-      content="Palissage — direct wine trade, verified onchain. Real world wine assets."
+      content="Independent producers in the Cabardès sell verified wine lots directly to shops, importers and restaurants — including part of a vintage still on the vine. A prototype on Base Sepolia."
     />
-    <title>Palissage — real world wine assets</title>
+
+    <link rel="icon" type="image/png" href="/img/brand/mark-on-light.png" media="(prefers-color-scheme: light)" />
+    <link rel="icon" type="image/png" href="/img/brand/mark-on-dark.png" media="(prefers-color-scheme: dark)" />
+    <link rel="apple-touch-icon" href="/img/brand/mark-on-light.png" />
+
+    <meta name="theme-color" content="#f8f5f1" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#13100d" media="(prefers-color-scheme: dark)" />
+
+    <meta property="og:title" content="Palissage — wine sold before it is bottled" />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:description"
+      content="Verified wine lots, sold direct by the producer. A prototype on Base Sepolia; test assets only."
+    />
+
+    <!--
+      The LCP image on the landing page. Preloaded so it is not discovered late,
+      and never lazy-loaded. Everything is first-party: no CDN, no analytics,
+      no third-party font.
+    -->
+    <link rel="preload" as="image" href="/img/estate/deumie-panorama.jpg" fetchpriority="high" />
+
+    <script>
+      // The theme choice lives in a cookie so the right palette is applied
+      // before first paint — no flash, no post-hydration resize.
+      (function () {
+        try {
+          var m = document.cookie.match(/(?:^|; )palissage-theme=([^;]*)/);
+          var v = m && m[1];
+          if (v === 'light' || v === 'dark') {
+            document.documentElement.setAttribute('data-theme', v);
+          }
+        } catch (e) {
+          /* a blocked cookie jar just means the system preference wins */
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <p style="font-family: system-ui; margin: 2rem">
+        Palissage reads its catalogue from the Base network in your browser, so it needs
+        JavaScript. The contracts and their records are public on Basescan either way.
+      </p>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -1,26 +1,18 @@
-import '@rainbow-me/rainbowkit/styles.css';
-import { WagmiProvider } from 'wagmi';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { ThemeProvider } from '@/lib/theme';
-import { SessionProvider } from '@/lib/session';
-import { wagmiConfig } from '@/lib/wagmi';
+import { ToastProvider } from '@/components/ui/Toast';
 import { AppRouter } from '@/router';
 
-const queryClient = new QueryClient();
-
+/**
+ * The theme and the toast region are the only things every route needs. The
+ * chain providers are a lazy layout route inside the router, so a reader who
+ * never leaves the marketing pages never downloads them.
+ */
 export default function App() {
   return (
-    <WagmiProvider config={wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider>
-          <ThemeProvider>
-            <SessionProvider>
-              <AppRouter />
-            </SessionProvider>
-          </ThemeProvider>
-        </RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+    <ThemeProvider>
+      <ToastProvider>
+        <AppRouter />
+      </ToastProvider>
+    </ThemeProvider>
   );
 }

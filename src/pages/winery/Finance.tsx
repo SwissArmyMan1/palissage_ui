@@ -1,104 +1,249 @@
-import { useState } from 'react';
-import { PageHeader } from '@/components/layout/DashboardLayout';
+import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useAccount } from 'wagmi';
+import { useReadContracts } from 'wagmi';
 import { Button } from '@/components/ui/Button';
-import { StatCard, SectionTitle, FeeBreakdown } from '@/components/ui/primitives';
-import { StatusBadge, type Tone } from '@/components/ui/StatusBadge';
-import { Modal } from '@/components/ui/Modal';
-import { Stagger, StaggerItem } from '@/components/layout/Page';
-import { PAYMENT_LABEL } from '@/contracts/config';
+import { Callout } from '@/components/ui/Callout';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { SkeletonTiles } from '@/components/ui/Skeleton';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import { CabinetPage, PageHeader } from '@/components/layout/PageHeader';
+import { ConnectPrompt } from '@/components/layout/ConnectPrompt';
+import { ActionReview } from '@/components/patterns/ActionReview';
+import { useLots, useOffersOfWinery, useProtocol } from '@/chain/lens';
+import { palissageLensAbi, primaryMarketAbi } from '@/chain/abis';
+import { CONTRACTS, PAYMENT_TOKEN } from '@/chain/config';
+import { useTx } from '@/chain/tx';
+import { formatBps, formatMoney } from '@/lib/format';
+import type { SettlementView } from '@/chain/types';
 
-interface Milestone {
-  desc: string;
-  pct: string;
-  amount: string;
-  state: 'released' | 'confirmable' | 'pending';
+/**
+ * WIN-07. "How much can I take out today", answered honestly.
+ *
+ * Doc 10 M1 is fixed here. `withdrawReleased(offerId)` is **per offer**, so the
+ * headline stays a sum while the action lives on each offer's row, and the page
+ * says how many transactions a full withdrawal would take. A single global
+ * Withdraw button would promise something the contract cannot do.
+ *
+ * Secondary royalties are deliberately absent: they are paid directly at each
+ * sale and the read model does not aggregate them, so there is no figure this
+ * page could print without inventing it.
+ */
+export default function Finance() {
+  const { address, isConnected } = useAccount();
+  const offers = useOffersOfWinery(address);
+  const lots = useLots();
+  const protocol = useProtocol();
+  const [withdrawing, setWithdrawing] = useState<{ offerId: bigint; amount: bigint } | null>(null);
+
+  const decimals = protocol.data?.paymentDecimals ?? PAYMENT_TOKEN.decimals;
+
+  const settlements = useReadContracts({
+    contracts: offers.items.map((offer) => ({
+      address: CONTRACTS.palissageLens,
+      abi: palissageLensAbi,
+      functionName: 'settlement' as const,
+      args: [offer.id] as const,
+    })),
+    query: { enabled: offers.items.length > 0, refetchInterval: 12_000 },
+  });
+
+  const rows = useMemo(() => {
+    const byLot = new Map(lots.items.map((lot) => [String(lot.id), lot]));
+    return offers.items.map((offer, index) => ({
+      offer,
+      lot: byLot.get(String(offer.lotId)),
+      settlement: settlements.data?.[index]?.result as SettlementView | undefined,
+    }));
+  }, [offers.items, lots.items, settlements.data]);
+
+  const funded = rows.filter((row) => (row.settlement?.settledFunds ?? 0n) > 0n);
+  const withdrawableTotal = funded.reduce((sum, row) => sum + (row.settlement?.withdrawable ?? 0n), 0n);
+  const settledTotal = funded.reduce((sum, row) => sum + (row.settlement?.settledFunds ?? 0n), 0n);
+  const withdrawnTotal = funded.reduce((sum, row) => sum + (row.settlement?.withdrawnGross ?? 0n), 0n);
+  const withdrawableOffers = funded.filter((row) => (row.settlement?.withdrawable ?? 0n) > 0n);
+
+  if (!isConnected) {
+    return (
+      <CabinetPage>
+        <PageHeader title="Finance" />
+        <ConnectPrompt what="your escrow and withdrawals" className="mt-8" />
+      </CabinetPage>
+    );
+  }
+
+  return (
+    <CabinetPage>
+      <PageHeader title="Finance" />
+
+      <div className="mt-8 space-y-8">
+        {offers.isLoading ? (
+          <SkeletonTiles count={2} />
+        ) : funded.length === 0 ? (
+          <EmptyState
+            title="No money in escrow yet."
+            body="When buyers pay, their money is held here and released to you as production milestones are confirmed."
+            action={{ label: 'Publish an offer', to: '/app/winery/lots' }}
+          />
+        ) : (
+          <>
+            <section className="card p-6 shadow-1">
+              <p className="t-caption text-ink-secondary">Withdrawable now</p>
+              <p className="mt-2 t-metric text-[clamp(2rem,1.4rem+2vw,3rem)]">
+                {formatMoney(withdrawableTotal, decimals)}
+              </p>
+              <p className="mt-3 max-w-reading text-body-sm text-ink-secondary">
+                of {formatMoney(settledTotal, decimals)} settled in escrow. Buyers have paid; funds
+                are released to you as a verifier confirms each production milestone.
+              </p>
+              {withdrawableOffers.length > 0 ? (
+                <Callout tone="info" className="mt-4 max-w-none">
+                  Withdrawal is per offer, so taking all of it means{' '}
+                  {withdrawableOffers.length === 1
+                    ? 'one transaction'
+                    : `${withdrawableOffers.length} separate transactions`}
+                  . Each offer's own button is on its card below.
+                </Callout>
+              ) : null}
+            </section>
+
+            <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-8">
+              <div className="space-y-6">
+                {funded.map(({ offer, lot, settlement }) => (
+                  <section key={String(offer.id)} className="card p-6" aria-labelledby={`offer-${offer.id}`}>
+                    <div className="flex flex-wrap items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <h2 id={`offer-${offer.id}`} className="t-h3">
+                          <Link to={`/lots/${offer.lotId}`} className="underline decoration-transparent underline-offset-4 hover:decoration-current">
+                            {lot?.name ?? `Lot #${String(offer.lotId)}`}
+                          </Link>
+                          <span className="text-ink-secondary"> · {offer.kind === 1 ? 'En Primeur' : 'Current release'}</span>
+                        </h2>
+                        <p className="mt-1 text-body-sm text-ink-secondary tabular-nums">
+                          {formatMoney(settlement?.settledFunds ?? 0n, decimals)} settled ·{' '}
+                          {formatBps(Number(settlement?.releasedBps ?? 0n))} released · protocol fee{' '}
+                          {formatBps(settlement?.primaryFeeBps ?? 0)}
+                        </p>
+                      </div>
+                      <Button
+                        size="sm"
+                        disabled={(settlement?.withdrawable ?? 0n) === 0n}
+                        onClick={() =>
+                          setWithdrawing({ offerId: offer.id, amount: settlement!.withdrawable })
+                        }
+                      >
+                        {(settlement?.withdrawable ?? 0n) > 0n
+                          ? `Withdraw ${formatMoney(settlement!.withdrawable, decimals)}`
+                          : 'Nothing released yet'}
+                      </Button>
+                    </div>
+
+                    <ul className="mt-6 divide-y divide-edge-subtle">
+                      {(settlement?.milestones ?? []).map((milestone, index) => {
+                        const share =
+                          ((settlement?.settledFunds ?? 0n) * BigInt(milestone.bps)) / 10_000n;
+                        return (
+                          <li
+                            key={index}
+                            className="flex flex-wrap items-center gap-4 py-3"
+                          >
+                            <div className="min-w-0 flex-1">
+                              <p className="text-body-sm">{milestone.description || `Milestone ${index + 1}`}</p>
+                              <p className="text-body-sm text-ink-secondary tabular-nums">
+                                {milestone.bps} bps of the offer
+                              </p>
+                            </div>
+                            <p className="shrink-0 text-body-sm tabular-nums">
+                              {formatMoney(share, decimals)}
+                            </p>
+                            <StatusBadge tone={milestone.released ? 'success' : 'warning'}>
+                              {milestone.released ? 'Released' : 'Awaiting verifier'}
+                            </StatusBadge>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </section>
+                ))}
+              </div>
+
+              <aside className="space-y-6">
+                <div className="card p-6">
+                  <p className="t-caption text-ink-secondary">Withdrawn to date</p>
+                  <p className="mt-2 t-metric text-2xl">{formatMoney(withdrawnTotal, decimals)}</p>
+                  <p className="mt-3 text-body-sm text-ink-secondary">
+                    Gross, before the protocol fee, across every offer of yours.
+                  </p>
+                </div>
+                <div className="card p-6">
+                  <p className="t-caption text-ink-secondary">Secondary royalties</p>
+                  <p className="mt-3 text-body-sm text-ink-secondary">
+                    Your royalty is paid to you directly at the moment a resale settles. The read
+                    model does not total those payments, so this interface does not print a figure
+                    it has not read. Your wallet balance on Base is the record.
+                  </p>
+                </div>
+              </aside>
+            </div>
+          </>
+        )}
+      </div>
+
+      {withdrawing ? (
+        <WithdrawDialog
+          offerId={withdrawing.offerId}
+          amount={withdrawing.amount}
+          decimals={decimals}
+          onClose={() => setWithdrawing(null)}
+        />
+      ) : null}
+    </CabinetPage>
+  );
 }
 
-const milestones: Milestone[] = [
-  { desc: 'Harvest', pct: '30%', amount: '€9 645.00', state: 'released' },
-  { desc: 'Bottling', pct: '40%', amount: '€12 860.00', state: 'confirmable' },
-  { desc: 'Delivery', pct: '30%', amount: '€9 645.00', state: 'pending' },
-];
-
-const msTone: Record<Milestone['state'], { tone: Tone; label: string }> = {
-  released: { tone: 'success', label: 'Released' },
-  confirmable: { tone: 'warning', label: 'Awaiting verifier' },
-  pending: { tone: 'warning', label: 'Awaiting verifier' },
-};
-
-const payouts = [
-  { date: '28.05.2026', offer: 'A1353 Limousis 2026 — En Primeur', ms: 'Harvest 30%', amount: '€9 355.65', tx: '0x8c2f…b911' },
-  { date: '02.04.2026', offer: 'Demoiselle 2022 — Standard', ms: 'Full release', amount: '€16 564.35', tx: '0x91aa…03f7' },
-];
-
-export default function WineryFinance() {
-  const [open, setOpen] = useState(false);
+function WithdrawDialog({
+  offerId,
+  amount,
+  decimals,
+  onClose,
+}: {
+  offerId: bigint;
+  amount: bigint;
+  decimals: number;
+  onClose: () => void;
+}) {
+  const tx = useTx();
   return (
-    <div>
-      <PageHeader title="Finance" action={<Button onClick={() => setOpen(true)}>Withdraw available</Button>} />
-
-      <Stagger className="flex flex-col gap-8">
-        <StaggerItem className="grid gap-4 md:grid-cols-3">
-          <StatCard label="In escrow" value="€32 150.00" delta="across 2 offers" deltaTone="muted" />
-          <StatCard label="Released to date" value="€25 920.00" delta="3 milestones" deltaTone="muted" />
-          <StatCard label="Available to withdraw" value="€12 940.00" delta="after 3% protocol fee" deltaTone="muted" />
-        </StaggerItem>
-
-        <StaggerItem className="card flex flex-col gap-3 p-5">
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <SectionTitle>A1353 Limousis 2026 — En Primeur</SectionTitle>
-            <span className="t-mono text-fg-secondary">Paid total: €32 150.00</span>
-          </div>
-          <div className="flex flex-col gap-2">
-            {milestones.map((m) => (
-              <div key={m.desc} className="flex flex-wrap items-center gap-3 rounded-md border border-line px-4 py-3">
-                <span className="t-body flex-1 text-fg">{m.desc}</span>
-                <span className="t-mono text-fg-secondary">{m.pct}</span>
-                <span className="t-mono text-fg">{m.amount}</span>
-                <StatusBadge tone={msTone[m.state].tone}>{msTone[m.state].label}</StatusBadge>
-                {m.state === 'confirmable' && <Button kind="secondary" size="sm">Confirm</Button>}
-              </div>
-            ))}
-          </div>
-          <p className="t-caption normal-case tracking-normal text-fg-tertiary">
-            Protocol fee 3% is withheld on each release
-          </p>
-        </StaggerItem>
-
-        <StaggerItem className="flex flex-col gap-3">
-          <SectionTitle>Payout history</SectionTitle>
-          <div className="card overflow-hidden">
-            <div className="hidden grid-cols-[110px_1fr_130px_130px_120px] gap-4 bg-page-subtle px-4 py-2.5 md:grid">
-              {['DATE', 'OFFER', 'MILESTONE', 'AMOUNT', 'TX'].map((h, i) => (
-                <span key={h} className={`t-caption text-fg-secondary ${i >= 3 ? 'text-right' : ''}`}>{h}</span>
-              ))}
-            </div>
-            {payouts.map((p) => (
-              <div key={p.tx} className="grid grid-cols-1 gap-1 border-t border-line px-4 py-3 md:grid-cols-[110px_1fr_130px_130px_120px] md:items-center md:gap-4">
-                <span className="t-small text-fg-secondary">{p.date}</span>
-                <span className="t-body text-fg">{p.offer}</span>
-                <span className="t-small text-fg-secondary">{p.ms}</span>
-                <span className="t-mono text-fg md:text-right">{p.amount}</span>
-                <span className="t-mono text-fg-secondary md:text-right">{p.tx} ↗</span>
-              </div>
-            ))}
-          </div>
-        </StaggerItem>
-      </Stagger>
-
-      <Modal open={open} onClose={() => setOpen(false)} title="Withdraw available">
-        <div className="flex flex-col gap-4">
-          <FeeBreakdown
-            rows={[
-              { label: 'Available balance', value: '€13 340.21' },
-              { label: 'Protocol fee 3%', value: '€400.21' },
-            ]}
-            total={{ label: 'You receive', value: '€12 940.00' }}
-          />
-          <p className="t-small text-fg-secondary">Payment token: {PAYMENT_LABEL} · gas paid in ETH</p>
-          <Button full>Confirm in wallet</Button>
-        </div>
-      </Modal>
-    </div>
+    <ActionReview
+      open
+      onClose={onClose}
+      title={`Withdraw from offer #${String(offerId)}`}
+      object={
+        <p className="text-body">
+          {formatMoney(amount, decimals)} released against offer #{String(offerId)}
+        </p>
+      }
+      consequence={
+        <p>
+          The released share leaves escrow and arrives in your wallet, less the protocol fee. Money
+          still held against unconfirmed milestones stays in escrow.
+        </p>
+      }
+      steps={[
+        {
+          id: 'withdraw',
+          label: `Withdraw ${formatMoney(amount, decimals)}`,
+          required: true,
+          run: () =>
+            tx.send({
+              address: CONTRACTS.primaryMarket,
+              abi: primaryMarketAbi,
+              functionName: 'withdrawReleased',
+              args: [offerId],
+            }),
+          tx,
+        },
+      ]}
+    />
   );
 }

@@ -1,5 +1,8 @@
 /** @type {import('tailwindcss').Config} */
-const v = (name) => `var(--${name})`;
+
+// Utilities resolve to semantic (tier 2) custom properties only. Primitive
+// stops and raw hex are deliberately not reachable from a class name.
+const v = (name) => `var(--color-${name})`;
 
 export default {
   darkMode: ['class', '[data-theme="dark"]'],
@@ -7,64 +10,105 @@ export default {
   theme: {
     extend: {
       colors: {
-        page: { DEFAULT: v('c-page'), subtle: v('c-page-subtle') },
-        surface: { DEFAULT: v('c-surface'), raised: v('c-surface-raised') },
-        line: { DEFAULT: v('c-line'), strong: v('c-line-strong') },
-        fg: {
-          DEFAULT: v('c-fg'),
-          secondary: v('c-fg-secondary'),
-          tertiary: v('c-fg-tertiary'),
-          inverse: v('c-fg-inverse'),
+        page: v('page'),
+        surface: {
+          DEFAULT: v('surface'),
+          raised: v('surface-raised'),
+          overlay: v('surface-overlay'),
+          sunken: v('surface-sunken'),
+          selected: v('surface-selected'),
+          disabled: v('surface-disabled'),
+        },
+        edge: {
+          subtle: v('border-subtle'),
+          strong: v('border-strong'),
+          field: v('border-field'),
+          disabled: v('border-disabled'),
+        },
+        ink: {
+          DEFAULT: v('text-primary'),
+          secondary: v('text-secondary'),
+          muted: v('text-muted'),
+          disabled: v('text-disabled'),
+          onaccent: v('text-on-accent'),
         },
         accent: {
-          DEFAULT: v('c-accent'),
-          hover: v('c-accent-hover'),
-          pressed: v('c-accent-pressed'),
-          subtle: v('c-accent-subtle'),
+          DEFAULT: v('accent'),
+          hover: v('accent-hover'),
+          pressed: v('accent-pressed'),
+          subtle: v('accent-subtle'),
         },
-        success: { DEFAULT: v('c-success'), subtle: v('c-success-subtle') },
-        warning: { DEFAULT: v('c-warning'), subtle: v('c-warning-subtle') },
-        danger: { DEFAULT: v('c-danger'), subtle: v('c-danger-subtle') },
-        info: { DEFAULT: v('c-info'), subtle: v('c-info-subtle') },
-        gold: { DEFAULT: v('c-gold'), subtle: v('c-gold-subtle') },
-        tile: v('c-tile'),
+        success: { DEFAULT: v('success'), subtle: v('success-subtle') },
+        warning: { DEFAULT: v('warning'), subtle: v('warning-subtle') },
+        danger: { DEFAULT: v('danger'), subtle: v('danger-subtle') },
+        info: { DEFAULT: v('info'), subtle: v('info-subtle') },
+        chain: { DEFAULT: v('chain-base'), subtle: v('chain-base-subtle') },
+        ring: v('focus-ring'),
       },
       fontFamily: {
-        serif: ['"Fraunces Variable"', 'Fraunces', 'Georgia', 'serif'],
-        sans: ['"Inter Variable"', 'Inter', 'system-ui', 'sans-serif'],
-        mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+        display: ['var(--font-display)'],
+        sans: ['var(--font-sans)'],
+        mono: ['var(--font-mono)'],
+      },
+      fontSize: {
+        display: ['var(--text-display)', { lineHeight: '1.04', letterSpacing: '-0.03em' }],
+        h1: ['var(--text-h1)', { lineHeight: '1.12', letterSpacing: '-0.02em' }],
+        h2: ['var(--text-h2)', { lineHeight: '1.2', letterSpacing: '-0.015em' }],
+        h3: ['var(--text-h3)', { lineHeight: '1.3', letterSpacing: '-0.01em' }],
+        body: ['var(--text-body)', { lineHeight: '1.55' }],
+        'body-sm': ['var(--text-body-sm)', { lineHeight: '1.5' }],
+        caption: ['var(--text-caption)', { lineHeight: '1.4', letterSpacing: '0.04em' }],
+        mono: ['var(--text-mono)', { lineHeight: '1.45' }],
+      },
+      spacing: {
+        0.5: 'var(--space-2)',
+        1: 'var(--space-4)',
+        2: 'var(--space-8)',
+        3: 'var(--space-12)',
+        4: 'var(--space-16)',
+        6: 'var(--space-24)',
+        8: 'var(--space-32)',
+        12: 'var(--space-48)',
+        16: 'var(--space-64)',
+        24: 'var(--space-96)',
+        32: 'var(--space-128)',
       },
       borderRadius: {
-        sm: '6px',
-        md: '10px',
-        lg: '16px',
-        full: '9999px',
+        xs: 'var(--radius-2)',
+        sm: 'var(--radius-4)',
+        DEFAULT: 'var(--radius-8)',
+        md: 'var(--radius-8)',
+        lg: 'var(--radius-12)',
+        xl: 'var(--radius-16)',
+        full: 'var(--radius-full)',
       },
       boxShadow: {
-        e1: '0 1px 2px rgba(35,29,24,.06)',
-        e2: '0 4px 12px rgba(35,29,24,.10)',
-        e3: '0 12px 32px rgba(35,29,24,.16)',
+        1: 'var(--shadow-1)',
+        2: 'var(--shadow-2)',
+        3: 'var(--shadow-3)',
+        none: 'none',
       },
       maxWidth: {
-        content: '1104px',
-        reading: '600px',
+        content: 'var(--content-max)',
+        reading: '65ch',
       },
       transitionTimingFunction: {
-        brand: 'cubic-bezier(0.2, 0, 0, 1)',
+        out: 'var(--ease-out)',
+        in: 'var(--ease-in)',
+        'in-out': 'var(--ease-in-out)',
       },
-      keyframes: {
-        shimmer: {
-          '0%': { backgroundPosition: '-200% 0' },
-          '100%': { backgroundPosition: '200% 0' },
-        },
-        pulseRing: {
-          '0%': { transform: 'scale(1)', opacity: '0.5' },
-          '100%': { transform: 'scale(2.2)', opacity: '0' },
-        },
+      transitionDuration: {
+        instant: 'var(--duration-instant)',
+        fast: 'var(--duration-fast)',
+        base: 'var(--duration-base)',
+        slow: 'var(--duration-slow)',
       },
-      animation: {
-        shimmer: 'shimmer 1.4s linear infinite',
-        pulseRing: 'pulseRing 1.8s cubic-bezier(0.2,0,0,1) infinite',
+      screens: {
+        xs: '480px',
+        sm: '640px',
+        md: '768px',
+        lg: '1024px',
+        xl: '1440px',
       },
     },
   },
