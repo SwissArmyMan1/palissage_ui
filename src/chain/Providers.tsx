@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom';
 import { WagmiProvider } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { wagmiConfig } from './wagmi';
+import { ChainGuard } from './ChainGuard';
 
 /**
  * A layout route that mounts everything chain-related.
@@ -28,6 +29,7 @@ export default function ChainProviders() {
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
+        <ChainGuard />
         <Outlet />
       </QueryClientProvider>
     </WagmiProvider>

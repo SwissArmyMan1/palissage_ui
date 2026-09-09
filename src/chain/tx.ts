@@ -1,5 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { useAccount, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  useAccount,
+  useSwitchChain,
+  useWaitForTransactionReceipt,
+  useWriteContract,
+} from 'wagmi';
 import { useQueryClient } from '@tanstack/react-query';
 import type { Hex } from 'viem';
 import { BaseError, ContractFunctionRevertedError, UserRejectedRequestError } from 'viem';
@@ -92,14 +97,25 @@ export interface TxState {
 /**
  * One transaction.
  *
- * `send` is wagmi's own `writeContract`, handed back unwrapped on purpose: that
- * keeps full ABI inference at the call site, so a wrong argument type is a
- * compile error rather than a revert. The duplicate-submit guard lives in the
- * confirmation dialog, which disables its button while `busy` is true.
+ * `send` keeps the exact signature of wagmi's `writeContract`, so ABI inference
+ * survives at the call site and a wrong argument is a compile error rather than
+ * a revert. It adds one thing: the wallet is put on the target chain first.
+ *
+ * That step is not cosmetic. A single-chain product should never make someone
+ * find the network picker themselves — some wallets do not even show one — and
+ * `writeContract` asserts the chain and throws rather than switching. The v1
+ * interface switched inside the write path for exactly this reason; dropping it
+ * turned a one-click action into a dead end.
+ *
+ * The duplicate-submit guard lives in the confirmation dialog, which disables
+ * its button while `busy` is true.
  */
 export function useTx() {
   const { chainId } = useAccount();
+  const { switchChainAsync } = useSwitchChain();
   const queryClient = useQueryClient();
+  const [switchError, setSwitchError] = useState<unknown>(null);
+  const [switching, setSwitching] = useState(false);
   const { writeContract, data: hash, error: writeError, isPending, reset: resetWrite } =
     useWriteContract();
 
@@ -121,16 +137,33 @@ export function useTx() {
   }, [receipt.data?.status, hash, queryClient]);
 
   const stage: TxStage = useMemo(() => {
-    if (writeError) return 'rejected';
-    if (isPending) return 'awaitingSignature';
+    if (writeError || switchError) return 'rejected';
+    if (switching || isPending) return 'awaitingSignature';
     if (hash && receipt.isLoading) return 'confirming';
     if (receipt.data?.status === 'success') return 'confirmed';
     if (receipt.data?.status === 'reverted') return 'reverted';
     if (hash && receipt.isError) return 'unknown';
     return 'idle';
-  }, [writeError, isPending, hash, receipt.isLoading, receipt.isError, receipt.data?.status]);
+  }, [
+    writeError,
+    switchError,
+    switching,
+    isPending,
+    hash,
+    receipt.isLoading,
+    receipt.isError,
+    receipt.data?.status,
+  ]);
 
   const error = useMemo<TxError | undefined>(() => {
+    if (switchError) {
+      const described = describeWriteError(switchError);
+      return {
+        ...described,
+        message: `Palissage runs on ${CHAIN_LABEL}, and your wallet stayed on another network. ${described.message}`,
+        action: `Switch to ${CHAIN_LABEL}`,
+      };
+    }
     if (writeError) return describeWriteError(writeError);
     if (receipt.data?.status === 'reverted') {
       return {
@@ -147,19 +180,40 @@ export function useTx() {
         detail: hash,
       };
     }
-    if (chainId && chainId !== CHAIN_ID) {
-      return {
-        message: `Your wallet is on another network. Palissage runs on ${CHAIN_LABEL} for this release.`,
-        action: `Switch to ${CHAIN_LABEL}`,
-      };
-    }
     return undefined;
-  }, [writeError, receipt.data?.status, receipt.isError, hash, chainId]);
+  }, [switchError, writeError, receipt.data?.status, receipt.isError, hash]);
 
   const reset = useCallback(() => {
     resetWrite();
+    setSwitchError(null);
+    setSwitching(false);
     invalidated.current = null;
   }, [resetWrite]);
+
+  /**
+   * Same signature as `writeContract`, so every call site keeps its inference.
+   * The cast is the one place that bridges the wrapper to wagmi's overloads.
+   */
+  const send = useMemo(() => {
+    const wrapped = (variables: never, options: never) => {
+      setSwitchError(null);
+      if (chainId === CHAIN_ID) {
+        writeContract(variables, options);
+        return;
+      }
+      setSwitching(true);
+      switchChainAsync({ chainId: CHAIN_ID })
+        .then(() => {
+          setSwitching(false);
+          writeContract(variables, options);
+        })
+        .catch((cause: unknown) => {
+          setSwitching(false);
+          setSwitchError(cause);
+        });
+    };
+    return wrapped as unknown as typeof writeContract;
+  }, [chainId, switchChainAsync, writeContract]);
 
   return {
     stage,
@@ -167,7 +221,7 @@ export function useTx() {
     error,
     busy: stage === 'awaitingSignature' || stage === 'confirming',
     reset,
-    send: writeContract,
+    send,
   };
 }
 

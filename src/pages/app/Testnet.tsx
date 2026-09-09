@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom';
-import { useAccount, useBalance } from 'wagmi';
-import { CircleCheck, CircleX, Clock, ExternalLink } from 'lucide-react';
+import { useAccount, useBalance, useDisconnect, useSwitchChain } from 'wagmi';
+import { CircleCheck, CircleX, Clock, ExternalLink, LogOut } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { BrandMark } from '@/components/ui/Logo';
 import { Button, ExternalButton } from '@/components/ui/Button';
+import { Callout } from '@/components/ui/Callout';
 import { NetworkChip } from '@/components/ui/NetworkChip';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { AddressValue, ExplorerLink, Mono } from '@/components/ui/Mono';
@@ -36,6 +37,8 @@ export default function Testnet() {
   const participant = useMyParticipant();
   const payment = usePaymentBalance(address);
   const gas = useBalance({ address, chainId: CHAIN_ID, query: { enabled: Boolean(address) } });
+  const { disconnect } = useDisconnect();
+  const { switchChain, isPending: isSwitching } = useSwitchChain();
   const tx = useTx();
 
   const p = participant.data;
@@ -58,7 +61,7 @@ export default function Testnet() {
       <a href="#readiness-main" className="skip-link text-body-sm font-medium">
         Skip to the checks
       </a>
-      <main id="readiness-main" tabIndex={-1} className="mx-auto w-full max-w-3xl px-4 outline-none">
+      <main id="readiness-main" tabIndex={-1} className="mx-auto w-full max-w-5xl px-4 outline-none">
         <div className="flex flex-col items-center">
           <Link to="/" aria-label="Palissage home">
             <BrandMark size={24} />
@@ -74,9 +77,11 @@ export default function Testnet() {
           </p>
         </header>
 
-        <div className="mt-8 space-y-6">
+        <div className="mt-8 grid gap-6 lg:grid-cols-2">
           {/* ---- 1. Deployment ------------------------------------------- */}
           <Check
+            className="lg:col-span-2"
+            columns
             title="Deployment"
             ok={deploymentOk}
             pending={protocol.isLoading}
@@ -164,10 +169,36 @@ export default function Testnet() {
                   label="Network"
                   value={
                     <Mono className={chainId === CHAIN_ID ? undefined : 'text-danger'}>
-                      {chainId === CHAIN_ID ? `${CHAIN_LABEL} · correct` : `chain ${chainId} · wrong network`}
+                      {chainId === CHAIN_ID
+                        ? `${CHAIN_LABEL} · correct`
+                        : `${chainName(chainId)} · wrong network`}
                     </Mono>
                   }
                 />
+
+                {chainId !== CHAIN_ID ? (
+                  <Callout tone="danger" className="my-2" role="alert">
+                    <p>
+                      Your wallet is on {chainName(chainId)}. Palissage runs on {CHAIN_LABEL} for
+                      this release. The switch was offered when you connected and declined, so any
+                      action you take will ask again before it signs.
+                    </p>
+                    <p className="mt-2">
+                      The balances below are still correct: this interface reads them from{' '}
+                      {CHAIN_LABEL} directly, not from whichever network your wallet is pointed at.
+                      That is why they show even while the network is wrong.
+                    </p>
+                    <div className="mt-3">
+                      <Button
+                        size="sm"
+                        pending={isSwitching}
+                        onClick={() => switchChain({ chainId: CHAIN_ID })}
+                      >
+                        Switch to {CHAIN_LABEL}
+                      </Button>
+                    </div>
+                  </Callout>
+                ) : null}
                 <Row
                   label={symbol}
                   value={
@@ -195,6 +226,10 @@ export default function Testnet() {
                     Get Base Sepolia ETH
                     <ExternalLink aria-hidden className="size-4" strokeWidth={1.75} />
                   </ExternalButton>
+                  <Button size="sm" kind="ghost" onClick={() => disconnect()}>
+                    <LogOut aria-hidden className="size-4 shrink-0" strokeWidth={1.75} />
+                    Disconnect this wallet
+                  </Button>
                 </div>
               </>
             )}
@@ -353,16 +388,21 @@ function Check({
   pending,
   badge,
   children,
+  className,
+  columns = false,
 }: {
   title: string;
   ok: boolean;
   pending: boolean;
   badge: string;
   children: React.ReactNode;
+  className?: string;
+  /** Wide cards read better with their rows in two columns on a desktop. */
+  columns?: boolean;
 }) {
   const Icon = pending ? Clock : ok ? CircleCheck : CircleX;
   return (
-    <section className="card p-6" aria-labelledby={`check-${title}`}>
+    <section className={cn('card p-6', className)} aria-labelledby={`check-${title}`}>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 id={`check-${title}`} className="flex items-center gap-2 t-h3">
           <Icon
@@ -377,7 +417,7 @@ function Check({
         </h2>
         <StatusBadge tone={pending ? 'warning' : ok ? 'success' : 'danger'}>{badge}</StatusBadge>
       </div>
-      <dl className="mt-4 space-y-3">{children}</dl>
+      <dl className={cn('mt-4', columns ? 'grid gap-3 sm:grid-cols-2' : 'space-y-3')}>{children}</dl>
     </section>
   );
 }
@@ -389,4 +429,20 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
       <dd className="min-w-0 break-words">{value}</dd>
     </div>
   );
+}
+
+/** A chain id alone tells the reader nothing; the common ones get their name. */
+function chainName(id?: number): string {
+  if (id === undefined) return 'an unknown network';
+  const known: Record<number, string> = {
+    1: 'Ethereum Mainnet',
+    8453: 'Base',
+    84532: 'Base Sepolia',
+    10: 'OP Mainnet',
+    42161: 'Arbitrum One',
+    421614: 'Arbitrum Sepolia',
+    137: 'Polygon',
+    11155111: 'Sepolia',
+  };
+  return known[id] ? `${known[id]} (chain ${id})` : `chain ${id}`;
 }
