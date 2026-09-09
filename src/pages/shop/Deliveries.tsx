@@ -57,7 +57,7 @@ export default function ShopDeliveries() {
       />
 
       <div className="mt-8">
-        {redemptions.isLoading ? (
+        {!redemptions.hasData ? (
           <SkeletonRows count={2} label="Loading your deliveries…" />
         ) : rows.length === 0 ? (
           <EmptyState

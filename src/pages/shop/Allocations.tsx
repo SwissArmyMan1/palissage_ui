@@ -57,7 +57,7 @@ export default function Allocations() {
       />
 
       <div className="mt-8 space-y-12">
-        {allocations.isLoading ? (
+        {!allocations.hasData ? (
           <SkeletonRows count={3} label="Loading your allocations…" />
         ) : total === 0 ? (
           <EmptyState

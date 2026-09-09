@@ -77,7 +77,7 @@ export default function Finance() {
       <PageHeader title="Finance" />
 
       <div className="mt-8 space-y-8">
-        {offers.isLoading ? (
+        {!offers.hasData ? (
           <SkeletonTiles count={2} />
         ) : funded.length === 0 ? (
           <EmptyState

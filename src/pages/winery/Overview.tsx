@@ -80,7 +80,7 @@ export default function WineryOverview() {
     );
   }
 
-  const firstRun = !lots.isLoading && lots.items.length === 0;
+  const firstRun = lots.hasData && lots.items.length === 0;
 
   return (
     <CabinetPage>
@@ -90,7 +90,7 @@ export default function WineryOverview() {
       />
 
       <div className="mt-8 space-y-8">
-        {lots.isLoading ? (
+        {!lots.hasData ? (
           <SkeletonTiles count={3} />
         ) : firstRun ? (
           <EmptyState

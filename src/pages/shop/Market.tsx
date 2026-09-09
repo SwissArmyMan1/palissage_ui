@@ -73,7 +73,7 @@ export default function Market() {
           showFilters={false}
         />
 
-        {offers.isLoading || lots.isLoading ? (
+        {!offers.hasData || !lots.hasData ? (
           <SkeletonCardGrid count={3} />
         ) : rows.length === 0 && search ? (
           <EmptyState

@@ -78,7 +78,10 @@ export default function Catalogue() {
     });
   }, [lots.items, offers.items, search, sort]);
 
-  const loading = lots.isLoading || offers.isLoading;
+  // "Nothing has answered yet" and "there is nothing" are different facts.
+  // React Query clears isLoading on a failed read, so branching on it would
+  // let a blocked RPC render as an empty catalogue.
+  const hasData = lots.hasData && offers.hasData;
   const failed = lots.isError || offers.isError;
 
   return (
@@ -142,10 +145,11 @@ export default function Catalogue() {
           </Select>
         </div>
 
-        {failed ? (
+        {!hasData && failed ? (
           <Callout tone="danger" title="We could not read the catalogue from Base." role="alert">
-            The read model did not answer. Nothing is wrong with your wallet — this is a network
-            read.{' '}
+            The read model did not answer, so this page cannot say what is published. Nothing is
+            wrong with your wallet — this is a network read, and a VPN or a blocked endpoint will
+            stop it.{' '}
             <button
               type="button"
               onClick={() => {
@@ -157,7 +161,7 @@ export default function Catalogue() {
               Try the read again
             </button>
           </Callout>
-        ) : loading ? (
+        ) : !hasData ? (
           <SkeletonCardGrid count={6} />
         ) : rows.length === 0 && lots.items.length === 0 ? (
           <EmptyState
@@ -173,6 +177,22 @@ export default function Catalogue() {
           />
         ) : (
           <>
+            {failed ? (
+              <Callout tone="warning" role="status">
+                These lots are the last successful read from Base. The most recent re-read did not
+                answer, so the figures may have moved.{' '}
+                <button
+                  type="button"
+                  onClick={() => {
+                    void lots.refetch();
+                    void offers.refetch();
+                  }}
+                  className="font-medium underline underline-offset-4"
+                >
+                  Read again
+                </button>
+              </Callout>
+            ) : null}
             <div className="reveal-stagger grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {rows.map((row) => (
                 <LotCard

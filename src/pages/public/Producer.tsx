@@ -53,7 +53,7 @@ export default function Producer() {
           <h2 id="producer-lots" className="t-h1">
             Lots from this producer
           </h2>
-          {lots.isLoading ? (
+          {!lots.hasData ? (
             <div className="mt-12">
               <SkeletonCardGrid count={3} />
             </div>

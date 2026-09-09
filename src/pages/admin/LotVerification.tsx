@@ -72,7 +72,7 @@ export default function LotVerification() {
           </p>
         </div>
 
-        {lots.isLoading ? (
+        {!lots.hasData ? (
           <div className="px-6">
             <SkeletonRows count={4} label="Loading the queue…" />
           </div>

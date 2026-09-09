@@ -55,7 +55,7 @@ export default function AdminRedemptions() {
           </Callout>
         ) : null}
 
-        {redemptions.isLoading ? (
+        {!redemptions.hasData ? (
           <SkeletonRows count={3} label="Loading deliveries…" />
         ) : rows.length === 0 ? (
           <EmptyState

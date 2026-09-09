@@ -125,7 +125,7 @@ export default function Portfolio() {
           </Callout>
         ) : null}
 
-        {lots.isLoading || positions.isLoading ? (
+        {!lots.hasData || (ids.length > 0 && !positions.hasData) ? (
           <SkeletonRows count={4} label="Loading your positions…" />
         ) : holdings.length === 0 ? (
           <EmptyState

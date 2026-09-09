@@ -65,7 +65,7 @@ export default function Secondary() {
           <h2 id="open-listings" className="t-h3">
             Open listings
           </h2>
-          {listings.isLoading ? (
+          {!listings.hasData ? (
             <SkeletonRows count={2} label="Loading listings…" />
           ) : others.length === 0 ? (
             <EmptyState

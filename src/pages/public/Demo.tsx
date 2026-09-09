@@ -51,7 +51,7 @@ export default function Demo() {
               ? `Connect a wallet, take the Winery or Shop role in one transaction, get ${PAYMENT_TOKEN.symbol} from Circle's faucet, and run a real reservation end to end.`
               : 'The gateway’s test mode is closed right now, so roles cannot be self-assigned. Reading still works everywhere.'
           }
-          cta={{ label: 'Check your readiness', to: '/app/testnet' }}
+          cta={{ label: 'Take a role and open a cabinet', to: '/app/testnet' }}
         />
         <Card
           badge={<StatusBadge tone="neutral">Operator role</StatusBadge>}
@@ -59,6 +59,13 @@ export default function Demo() {
           body="Operations carries the verifier role on the token, so it is deliberately not self-assignable — a self-service operator could suspend a live lot. A gateway admin has to grant it."
           cta={{ label: 'What runs on Base', to: '/network' }}
         />
+      </div>
+
+      <div className="mt-12 flex flex-wrap items-center gap-3">
+        <LinkButton to="/app">Go to your cabinet</LinkButton>
+        <span className="text-body-sm text-ink-secondary">
+          If this wallet already holds a role, this is the way straight in.
+        </span>
       </div>
 
       <Callout tone="info" title="What “test assets only” means" className="mt-12 max-w-reading">

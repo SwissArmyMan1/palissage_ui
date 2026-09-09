@@ -53,7 +53,19 @@ export default function Passport() {
             </span>
           </div>
 
-          {isLoading || !lot ? (
+          {isError && !lot ? (
+            <Callout tone="danger" title="We could not read this bottle’s record." className="mt-8" role="alert">
+              The Base Sepolia read did not answer. The code on the label is fine — this is a
+              network read.{' '}
+              <button
+                type="button"
+                onClick={() => window.location.reload()}
+                className="font-medium underline underline-offset-4"
+              >
+                Try again
+              </button>
+            </Callout>
+          ) : !lot ? (
             <LoadingRegion label="Reading this bottle's record…">
               <div className="mt-8 space-y-4">
                 <Skeleton className="mx-auto aspect-[3/4] w-40" />
@@ -62,14 +74,6 @@ export default function Passport() {
                 <Skeleton className="h-24 w-full" />
               </div>
             </LoadingRegion>
-          ) : isError ? (
-            <Callout tone="danger" title="We could not read this bottle’s record." className="mt-8" role="alert">
-              The Base Sepolia read did not answer. The code on the label is fine — this is a
-              network read.{' '}
-              <button type="button" onClick={() => window.location.reload()} className="font-medium underline underline-offset-4">
-                Try again
-              </button>
-            </Callout>
           ) : (
             <PassportBody lot={lot} />
           )}

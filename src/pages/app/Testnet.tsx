@@ -1,9 +1,10 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAccount, useBalance, useDisconnect, useSwitchChain } from 'wagmi';
 import { CircleCheck, CircleX, Clock, ExternalLink, LogOut } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { BrandMark } from '@/components/ui/Logo';
-import { Button, ExternalButton } from '@/components/ui/Button';
+import { Button, ExternalButton, LinkButton } from '@/components/ui/Button';
 import { Callout } from '@/components/ui/Callout';
 import { NetworkChip } from '@/components/ui/NetworkChip';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -16,6 +17,7 @@ import { CHAIN_ID, CHAIN_LABEL, CONTRACTS, PAYMENT_TOKEN } from '@/chain/config'
 import { useTx } from '@/chain/tx';
 import { formatAmount, formatMoney } from '@/lib/format';
 import { GATEWAY_ROLE } from '@/lib/enums';
+import { ROLE_BASE, ROLE_TITLE } from '@/lib/nav';
 
 /**
  * APP-02. Three independent checks, shown separately on purpose: a wallet with
@@ -40,6 +42,7 @@ export default function Testnet() {
   const { disconnect } = useDisconnect();
   const { switchChain, isPending: isSwitching } = useSwitchChain();
   const tx = useTx();
+  const [takenRole, setTakenRole] = useState<'winery' | 'shop' | 'collector' | null>(null);
 
   const p = participant.data;
   const decimals = protocol.data?.paymentDecimals ?? PAYMENT_TOKEN.decimals;
@@ -313,14 +316,15 @@ export default function Testnet() {
                         size="sm"
                         kind="secondary"
                         pending={tx.busy}
-                        onClick={() =>
+                        onClick={() => {
+                          setTakenRole('winery');
                           tx.send({
                             address: CONTRACTS.roleGateway,
                             abi: roleGatewayAbi,
                             functionName: 'assumeRole',
                             args: [2],
-                          })
-                        }
+                          });
+                        }}
                       >
                         Take the Winery role
                       </Button>
@@ -328,14 +332,15 @@ export default function Testnet() {
                         size="sm"
                         kind="secondary"
                         pending={tx.busy}
-                        onClick={() =>
+                        onClick={() => {
+                          setTakenRole('shop');
                           tx.send({
                             address: CONTRACTS.roleGateway,
                             abi: roleGatewayAbi,
                             functionName: 'assumeRole',
                             args: [3],
-                          })
-                        }
+                          });
+                        }}
                       >
                         Take the Shop role
                       </Button>
@@ -343,14 +348,15 @@ export default function Testnet() {
                         size="sm"
                         kind="ghost"
                         pending={tx.busy}
-                        onClick={() =>
+                        onClick={() => {
+                          setTakenRole('collector');
                           tx.send({
                             address: CONTRACTS.roleGateway,
                             abi: roleGatewayAbi,
                             functionName: 'assumeRole',
                             args: [4],
-                          })
-                        }
+                          });
+                        }}
                       >
                         Take the Collector role
                       </Button>
@@ -361,6 +367,23 @@ export default function Testnet() {
                       grants it instead.
                     </p>
                     <TxStatus tx={tx} />
+
+                    {tx.stage === 'confirmed' && takenRole ? (
+                      <Callout tone="success" title="The role is yours" role="status">
+                        <p>
+                          {ROLE_TITLE[takenRole]} is set on the gateway and the claims it needs are
+                          issued. Your cabinet is where you act on it.
+                        </p>
+                        <div className="mt-3 flex flex-wrap gap-3">
+                          <LinkButton to={ROLE_BASE[takenRole]} size="sm">
+                            Open the {ROLE_TITLE[takenRole]} cabinet
+                          </LinkButton>
+                          <LinkButton to="/app" kind="secondary" size="sm">
+                            See every cabinet
+                          </LinkButton>
+                        </div>
+                      </Callout>
+                    ) : null}
                   </div>
                 ) : (
                   <p className="border-t border-edge-subtle pt-4 text-body-sm text-ink-secondary">
@@ -372,7 +395,14 @@ export default function Testnet() {
           </Check>
         </div>
 
-        <p className="mt-8 max-w-reading text-body-sm text-ink-secondary">
+        <div className="mt-8 flex flex-wrap items-center gap-3">
+          <LinkButton to="/app">Go to your cabinet</LinkButton>
+          <LinkButton to="/lots" kind="secondary">
+            Browse the catalogue
+          </LinkButton>
+        </div>
+
+        <p className="mt-6 max-w-reading text-body-sm text-ink-secondary">
           This screen reads. The role buttons above are the one exception, and they are separate,
           explicit actions —{' '}
           <ExplorerLink address={CONTRACTS.roleGateway}>the gateway is on Base</ExplorerLink>.

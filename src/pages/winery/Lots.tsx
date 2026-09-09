@@ -62,7 +62,7 @@ export default function WineryLots() {
       />
 
       <div className="mt-8">
-        {lots.isLoading ? (
+        {!lots.hasData ? (
           <SkeletonRows count={4} label="Loading your lots…" />
         ) : lots.items.length === 0 ? (
           <EmptyState

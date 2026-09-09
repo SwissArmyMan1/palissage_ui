@@ -50,9 +50,11 @@ export default function AdminQueues() {
     (redemption) => redemption.state === 0 || redemption.state === 1,
   );
 
-  const loading = lots.isLoading || offers.isLoading || redemptions.isLoading;
+  // "All queues are clear" is a statement about the chain. It may only be made
+  // once the chain has actually answered.
+  const hasData = lots.hasData && offers.hasData && redemptions.hasData;
   const allClear =
-    !loading && drafts.length === 0 && pendingMilestones === 0 && openRedemptions.length === 0;
+    hasData && drafts.length === 0 && pendingMilestones === 0 && openRedemptions.length === 0;
 
   return (
     <CabinetPage>
@@ -70,7 +72,7 @@ export default function AdminQueues() {
           </Callout>
         ) : null}
 
-        {loading ? (
+        {!hasData ? (
           <SkeletonTiles count={4} />
         ) : allClear ? (
           <EmptyState

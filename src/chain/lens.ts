@@ -24,6 +24,12 @@ import { PAGE_LIMIT } from './types';
  * A block-triggered re-read is a *refresh*, never an initial load: the numbers
  * on screen stay and `isFetching` drives the 2 px progress line under the top
  * bar. That is why `placeholderData` keeps the previous page.
+ *
+ * Every list hook also returns `hasData`. Screens must branch on that, not on
+ * `isLoading`: React Query clears `isLoading` when a read *fails*, so a slow or
+ * blocked RPC would otherwise fall straight through to the empty state and
+ * claim there are no lots. An empty collection and an unanswered read are
+ * different facts and the interface may not confuse them.
  */
 
 const lens = { address: CONTRACTS.palissageLens, abi: palissageLensAbi } as const;
@@ -73,7 +79,7 @@ export function useLots(cursor = 0n, limit = PAGE_LIMIT) {
     query: listQuery,
   });
   const [items, nextCursor] = (query.data as readonly [readonly LotView[], bigint] | undefined) ?? [];
-  return { ...query, items: items ?? [], nextCursor: nextCursor ?? 0n };
+  return { ...query, items: items ?? [], nextCursor: nextCursor ?? 0n, hasData: query.data !== undefined };
 }
 
 export function useLot(id?: bigint) {
@@ -95,7 +101,7 @@ export function useLotsOfWinery(winery?: Address, cursor = 0n, limit = PAGE_LIMI
     query: { ...listQuery, enabled: Boolean(winery) },
   });
   const [items, nextCursor] = (query.data as readonly [readonly LotView[], bigint] | undefined) ?? [];
-  return { ...query, items: items ?? [], nextCursor: nextCursor ?? 0n };
+  return { ...query, items: items ?? [], nextCursor: nextCursor ?? 0n, hasData: query.data !== undefined };
 }
 
 export function useOffers(cursor = 0n, limit = PAGE_LIMIT) {
@@ -107,7 +113,7 @@ export function useOffers(cursor = 0n, limit = PAGE_LIMIT) {
   });
   const [items, nextCursor] =
     (query.data as readonly [readonly OfferView[], bigint] | undefined) ?? [];
-  return { ...query, items: items ?? [], nextCursor: nextCursor ?? 0n };
+  return { ...query, items: items ?? [], nextCursor: nextCursor ?? 0n, hasData: query.data !== undefined };
 }
 
 export function useOffersOfLot(lotId?: bigint, cursor = 0n, limit = PAGE_LIMIT) {
@@ -119,7 +125,7 @@ export function useOffersOfLot(lotId?: bigint, cursor = 0n, limit = PAGE_LIMIT) 
   });
   const [items, nextCursor] =
     (query.data as readonly [readonly OfferView[], bigint] | undefined) ?? [];
-  return { ...query, items: items ?? [], nextCursor: nextCursor ?? 0n };
+  return { ...query, items: items ?? [], nextCursor: nextCursor ?? 0n, hasData: query.data !== undefined };
 }
 
 export function useOffersOfWinery(winery?: Address, cursor = 0n, limit = PAGE_LIMIT) {
@@ -131,7 +137,7 @@ export function useOffersOfWinery(winery?: Address, cursor = 0n, limit = PAGE_LI
   });
   const [items, nextCursor] =
     (query.data as readonly [readonly OfferView[], bigint] | undefined) ?? [];
-  return { ...query, items: items ?? [], nextCursor: nextCursor ?? 0n };
+  return { ...query, items: items ?? [], nextCursor: nextCursor ?? 0n, hasData: query.data !== undefined };
 }
 
 export function useOffer(id?: bigint) {
@@ -163,7 +169,7 @@ export function useAllocationsOfBuyer(buyer?: Address, cursor = 0n, limit = PAGE
   });
   const [items, nextCursor] =
     (query.data as readonly [readonly AllocationView[], bigint] | undefined) ?? [];
-  return { ...query, items: items ?? [], nextCursor: nextCursor ?? 0n };
+  return { ...query, items: items ?? [], nextCursor: nextCursor ?? 0n, hasData: query.data !== undefined };
 }
 
 export function useAllocationsOfOffer(offerId?: bigint, cursor = 0n, limit = PAGE_LIMIT) {
@@ -175,7 +181,7 @@ export function useAllocationsOfOffer(offerId?: bigint, cursor = 0n, limit = PAG
   });
   const [items, nextCursor] =
     (query.data as readonly [readonly AllocationView[], bigint] | undefined) ?? [];
-  return { ...query, items: items ?? [], nextCursor: nextCursor ?? 0n };
+  return { ...query, items: items ?? [], nextCursor: nextCursor ?? 0n, hasData: query.data !== undefined };
 }
 
 export function useActiveListings(cursor = 0n, limit = PAGE_LIMIT) {
@@ -187,7 +193,7 @@ export function useActiveListings(cursor = 0n, limit = PAGE_LIMIT) {
   });
   const [items, nextCursor] =
     (query.data as readonly [readonly ListingView[], bigint] | undefined) ?? [];
-  return { ...query, items: items ?? [], nextCursor: nextCursor ?? 0n };
+  return { ...query, items: items ?? [], nextCursor: nextCursor ?? 0n, hasData: query.data !== undefined };
 }
 
 export function useListingsOfSeller(seller?: Address, cursor = 0n, limit = PAGE_LIMIT) {
@@ -199,7 +205,7 @@ export function useListingsOfSeller(seller?: Address, cursor = 0n, limit = PAGE_
   });
   const [items, nextCursor] =
     (query.data as readonly [readonly ListingView[], bigint] | undefined) ?? [];
-  return { ...query, items: items ?? [], nextCursor: nextCursor ?? 0n };
+  return { ...query, items: items ?? [], nextCursor: nextCursor ?? 0n, hasData: query.data !== undefined };
 }
 
 export function useListing(id?: bigint) {
@@ -231,7 +237,7 @@ export function useRedemptions(cursor = 0n, limit = PAGE_LIMIT) {
   });
   const [items, nextCursor] =
     (query.data as readonly [readonly RedemptionView[], bigint] | undefined) ?? [];
-  return { ...query, items: items ?? [], nextCursor: nextCursor ?? 0n };
+  return { ...query, items: items ?? [], nextCursor: nextCursor ?? 0n, hasData: query.data !== undefined };
 }
 
 export function useRedemptionsOfBuyer(buyer?: Address, cursor = 0n, limit = PAGE_LIMIT) {
@@ -243,7 +249,7 @@ export function useRedemptionsOfBuyer(buyer?: Address, cursor = 0n, limit = PAGE
   });
   const [items, nextCursor] =
     (query.data as readonly [readonly RedemptionView[], bigint] | undefined) ?? [];
-  return { ...query, items: items ?? [], nextCursor: nextCursor ?? 0n };
+  return { ...query, items: items ?? [], nextCursor: nextCursor ?? 0n, hasData: query.data !== undefined };
 }
 
 export function useRedemptionsOfWinery(winery?: Address, cursor = 0n, limit = PAGE_LIMIT) {
@@ -255,7 +261,7 @@ export function useRedemptionsOfWinery(winery?: Address, cursor = 0n, limit = PA
   });
   const [items, nextCursor] =
     (query.data as readonly [readonly RedemptionView[], bigint] | undefined) ?? [];
-  return { ...query, items: items ?? [], nextCursor: nextCursor ?? 0n };
+  return { ...query, items: items ?? [], nextCursor: nextCursor ?? 0n, hasData: query.data !== undefined };
 }
 
 /** Positions are capped at 50 lot ids per call by the Lens. */
@@ -267,7 +273,11 @@ export function usePositions(account?: Address, lotIds: readonly bigint[] = []) 
     args: account && capped.length > 0 ? [account, capped] : undefined,
     query: { ...listQuery, enabled: Boolean(account) && capped.length > 0 },
   });
-  return { ...query, items: (query.data as readonly PositionView[] | undefined) ?? [] };
+  return {
+    ...query,
+    items: (query.data as readonly PositionView[] | undefined) ?? [],
+    hasData: query.data !== undefined,
+  };
 }
 
 export function useSettlement(offerId?: bigint) {

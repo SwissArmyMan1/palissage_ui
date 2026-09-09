@@ -76,7 +76,7 @@ export default function WineryDeliveries() {
       />
 
       <div className="mt-8">
-        {redemptions.isLoading ? (
+        {!redemptions.hasData ? (
           <SkeletonRows count={3} label="Loading delivery requests…" />
         ) : rows.length === 0 ? (
           <EmptyState
