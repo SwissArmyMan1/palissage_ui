@@ -45,7 +45,7 @@ export function AppShell({ role, orgName }: { role: RoleKey; orgName?: string })
           type="button"
           onClick={() => setDrawerOpen(true)}
           aria-expanded={drawerOpen}
-          className="grid size-9 place-items-center rounded-md text-ink lg:hidden"
+          className="grid size-9 shrink-0 place-items-center rounded-md text-ink lg:hidden"
         >
           <span className="sr-only">Open the sections menu</span>
           <Menu aria-hidden className="size-5" strokeWidth={1.75} />
@@ -57,7 +57,7 @@ export function AppShell({ role, orgName }: { role: RoleKey; orgName?: string })
 
         <RoleSwitcher role={role} orgName={orgName} />
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex shrink-0 items-center gap-2">
           <NetworkChip className="hidden sm:inline-flex" />
           <Link
             to="/how-it-works"
@@ -107,6 +107,9 @@ export function AppShell({ role, orgName }: { role: RoleKey; orgName?: string })
               </button>
             </div>
             <SidebarItems role={role} onNavigate={() => setDrawerOpen(false)} />
+            <div className="border-t border-edge-subtle p-3">
+              <WalletChip />
+            </div>
           </nav>
         </div>
       ) : null}
