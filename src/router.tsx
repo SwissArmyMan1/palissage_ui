@@ -44,6 +44,7 @@ const Finance = lazy(() => import('@/pages/winery/Finance'));
 const WineryDeliveries = lazy(() => import('@/pages/winery/Deliveries'));
 const Shipment = lazy(() => import('@/pages/winery/Shipment'));
 
+const ShopOverview = lazy(() => import('@/pages/shop/Overview'));
 const Market = lazy(() => import('@/pages/shop/Market'));
 const Reserve = lazy(() => import('@/pages/shop/Reserve'));
 const Allocations = lazy(() => import('@/pages/shop/Allocations'));
@@ -138,7 +139,7 @@ export function AppRouter() {
               </Route>
 
               <Route path="app/shop" element={<AppShell role="shop" />}>
-                <Route index element={<Market />} />
+                <Route index element={<ShopOverview />} />
                 <Route path="market" element={<Market />} />
                 <Route path="allocations" element={<Allocations />} />
                 <Route path="allocations/:allocationId" element={<AllocationDetail />} />

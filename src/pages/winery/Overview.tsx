@@ -15,8 +15,14 @@ import {
   useRedemptionsOfWinery,
 } from '@/chain/lens';
 import { palissageLensAbi } from '@/chain/abis';
+import { LotThumb } from '@/components/ui/LotThumb';
+import { ActivityFeed } from '@/components/patterns/ActivityFeed';
+import { buildActivity } from '@/components/patterns/activity';
+import { offerPhase } from '@/lib/enums';
+import { tokenMeta } from '@/chain/tokens';
+import type { AllocationView } from '@/chain/types';
 import { CONTRACTS, PAYMENT_TOKEN } from '@/chain/config';
-import { formatCount, formatMoney } from '@/lib/format';
+import { formatBps, formatCount, formatMoney } from '@/lib/format';
 import { nextProductionStage, productionStage } from '@/lib/enums';
 import type { SettlementView } from '@/chain/types';
 
@@ -44,6 +50,57 @@ export default function WineryOverview() {
     })),
     query: { enabled: offers.items.length > 0, refetchInterval: 12_000 },
   });
+
+  const allocationPages = useReadContracts({
+    contracts: offers.items.map((offer) => ({
+      address: CONTRACTS.palissageLens,
+      abi: palissageLensAbi,
+      functionName: 'allocationsOfOffer' as const,
+      args: [offer.id, 0n, 50n] as const,
+    })),
+    query: { enabled: offers.items.length > 0, refetchInterval: 12_000 },
+  });
+
+  const allocations = useMemo<AllocationView[]>(
+    () =>
+      (allocationPages.data ?? []).flatMap((entry) => {
+        const page = entry?.result as readonly [readonly AllocationView[], bigint] | undefined;
+        return page ? [...page[0]] : [];
+      }),
+    [allocationPages.data],
+  );
+
+  const lotName = useMemo(() => {
+    const byId = new Map(lots.items.map((lot) => [String(lot.id), lot.name]));
+    return (id: bigint) => byId.get(String(id)) ?? `Lot #${String(id)}`;
+  }, [lots.items]);
+
+  const activity = useMemo(
+    () =>
+      buildActivity({
+        allocations,
+        redemptions: redemptions.items,
+        lotName,
+        protocol: protocol.data,
+        allocationHref: () => '/app/winery/finance',
+        deliveryHref: (id) => `/app/winery/deliveries/${id}`,
+      }),
+    [allocations, redemptions.items, lotName, protocol.data],
+  );
+
+  // What a producer can still act on comes first; the pre-EURC records last.
+  const orderedOffers = useMemo(
+    () =>
+      offers.items
+        .map((offer, index) => ({ offer, index }))
+        .sort((a, b) => {
+          const rank = (o: typeof a.offer) =>
+            (tokenMeta(o.paymentToken, protocol.data).settlement ? 0 : 2) + (o.phase === 1 ? 0 : 1);
+          const byRank = rank(a.offer) - rank(b.offer);
+          return byRank !== 0 ? byRank : Number(b.offer.id - a.offer.id);
+        }),
+    [offers.items, protocol.data],
+  );
 
   const withdrawable = useMemo(
     () =>
@@ -106,7 +163,7 @@ export default function WineryOverview() {
           </EmptyState>
         ) : (
           <>
-            <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="enter-stagger grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
               <StatTile
                 label="Withdrawable now"
                 value={formatMoney(withdrawable, decimals)}
@@ -158,7 +215,7 @@ export default function WineryOverview() {
                   Nothing is waiting on you right now.
                 </p>
               ) : (
-                <ul className="mt-4 divide-y divide-edge-subtle">
+                <ul className="enter-stagger mt-4 divide-y divide-edge-subtle">
                   {drafts.map((lot) => (
                     <li key={`draft-${lot.id}`} className="flex flex-wrap items-center gap-4 py-4">
                       <StatusBadge tone="neutral">Draft</StatusBadge>
@@ -218,13 +275,78 @@ export default function WineryOverview() {
               )}
             </section>
 
-            <p className="text-body-sm text-ink-secondary">
-              Offers and allocations live on each lot.{' '}
-              <Link to="/app/winery/lots" className="text-accent underline underline-offset-4">
-                See all your lots
-              </Link>
-              .
-            </p>
+            <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+              <section className="card p-6" aria-labelledby="your-offers">
+                <h2 id="your-offers" className="t-h3">
+                  Your offers
+                </h2>
+                {offers.items.length === 0 ? (
+                  <p className="mt-4 text-body-sm text-ink-secondary">
+                    No offer published yet. An offer is what turns a verified lot into something a
+                    buyer can reserve.
+                  </p>
+                ) : (
+                  <ul className="enter-stagger mt-4 divide-y divide-edge-subtle">
+                    {orderedOffers.map(({ offer, index }) => {
+                      const phase = offerPhase(offer.phase);
+                      const settlement = settlements.data?.[index]?.result as
+                        | SettlementView
+                        | undefined;
+                      // Each offer is priced in its own token: this deployment
+                      // still holds records from before the move to EURC.
+                      const meta = tokenMeta(offer.paymentToken, protocol.data);
+                      return (
+                        <li key={String(offer.id)} className="flex flex-wrap items-center gap-4 py-4">
+                          <LotThumb lotId={offer.lotId} size={44} />
+                          <div className="min-w-0 flex-1">
+                            <p className="text-body font-medium">{lotName(offer.lotId)}</p>
+                            <p className="text-body-sm text-ink-secondary tabular-nums">
+                              {meta.known ? formatMoney(offer.pricePerBottle, meta.decimals) : '—'} ·{' '}
+                              {formatCount(offer.reserved)} of {formatCount(offer.quantity)} reserved
+                              {offer.depositBps > 0 ? ` · ${formatBps(offer.depositBps)} deposit` : ''}
+                            </p>
+                            {meta.settlement ? null : (
+                              <p className="text-body-sm text-warning">
+                                Priced in {meta.symbol}, which the markets no longer accept.
+                              </p>
+                            )}
+                          </div>
+                          <div className="text-right">
+                            <p className="text-body-sm tabular-nums">
+                              {meta.known
+                                ? formatMoney(settlement?.settledFunds ?? 0n, meta.decimals)
+                                : '—'}
+                            </p>
+                            <p className="text-body-sm text-ink-secondary">in escrow</p>
+                          </div>
+                          <StatusBadge tone={phase.tone}>{phase.label}</StatusBadge>
+                          <LinkButton
+                            to={`/app/winery/offers/${offer.id}`}
+                            kind="secondary"
+                            size="sm"
+                          >
+                            Open
+                          </LinkButton>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+                <p className="mt-4 text-body-sm text-ink-secondary">
+                  <Link to="/app/winery/lots" className="text-accent underline underline-offset-4">
+                    See all your lots
+                  </Link>
+                </p>
+              </section>
+
+              <aside className="card p-6">
+                <h2 className="t-h3">Recent</h2>
+                <p className="mt-1 text-body-sm text-ink-secondary">
+                  From the records themselves, not from an event log.
+                </p>
+                <ActivityFeed items={activity} className="mt-4" />
+              </aside>
+            </div>
           </>
         )}
       </div>

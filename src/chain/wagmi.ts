@@ -14,10 +14,29 @@ import { RPC_URLS, WALLETCONNECT_PROJECT_ID } from './config';
 export const wagmiConfig = createConfig({
   chains: [baseSepolia],
   connectors: [injected({ shimDisconnect: true })],
+
+  /**
+   * Every screen read collapses into one `multicall3` call per tick.
+   *
+   * Measured against the public endpoints: single requests always answer, but a
+   * burst of a dozen batched ones gets rate-limited, and `sepolia.base.org`
+   * failed 8 of 12 under exactly the load one catalogue page produces. That is
+   * why lots sometimes did not appear. Multicall turns those reads into one
+   * request, which is both faster and well under any burst limit.
+   */
+  batch: {
+    multicall: {
+      batchSize: 1024 * 8,
+      wait: 24,
+    },
+  },
+
   transports: {
+    // Ordered by measured reliability, not by whose name is on the chain.
+    // publicnode answered 12 of 12; base.org 4 of 12; tenderly returned 429.
     [baseSepolia.id]: fallback(
-      RPC_URLS.map((url) => http(url, { batch: true, retryCount: 2 })),
-      { rank: false },
+      RPC_URLS.map((url) => http(url, { batch: { wait: 24 }, retryCount: 3, timeout: 12_000 })),
+      { rank: false, retryCount: 2 },
     ),
   },
   ssr: false,

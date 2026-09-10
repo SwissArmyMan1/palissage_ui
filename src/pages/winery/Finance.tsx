@@ -108,7 +108,7 @@ export default function Finance() {
             </section>
 
             <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-8">
-              <div className="space-y-6">
+              <div className="enter-stagger space-y-6">
                 {funded.map(({ offer, lot, settlement }) => (
                   <section key={String(offer.id)} className="card p-6" aria-labelledby={`offer-${offer.id}`}>
                     <div className="flex flex-wrap items-start justify-between gap-4">

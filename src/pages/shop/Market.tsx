@@ -88,7 +88,7 @@ export default function Market() {
             action={{ label: 'Browse every lot', to: '/lots' }}
           />
         ) : (
-          <ul className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          <ul className="enter-stagger grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
             {rows.map(({ offer, lot }) => {
               const content = lotContent(lot!.id);
               return (

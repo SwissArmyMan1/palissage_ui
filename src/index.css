@@ -272,6 +272,34 @@
   }
 
   /*
+   * Cabinet entrance — added after the owner waived the "cabinets stay
+   * restrained" rule in doc 00 section 2.
+   *
+   * Mount-driven, not scroll-driven. A `view()` timeline resolves against the
+   * nearest scrollport, and the cabinets scroll inside their own container,
+   * which is how five market cards once rendered at opacity 0. An animation
+   * that runs on mount cannot leave content invisible: it starts hidden only
+   * for the frames it is running.
+   */
+  .enter-stagger > * {
+    animation: enter-rise var(--duration-base) var(--ease-out) backwards;
+  }
+  .enter-stagger > *:nth-child(1) { animation-delay: 0ms; }
+  .enter-stagger > *:nth-child(2) { animation-delay: 40ms; }
+  .enter-stagger > *:nth-child(3) { animation-delay: 80ms; }
+  .enter-stagger > *:nth-child(4) { animation-delay: 120ms; }
+  .enter-stagger > *:nth-child(n + 5) { animation-delay: 160ms; }
+
+  .enter { animation: enter-rise var(--duration-base) var(--ease-out) backwards; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .enter,
+    .enter-stagger > * {
+      animation: none !important;
+    }
+  }
+
+  /*
    * Reduced motion removes the staggered cascade outright rather than only
    * neutralising its travel. Zeroing --motion-scale left the opacity half of
    * the reveal still bound to the scroll timeline, which meant every section
@@ -483,6 +511,16 @@
 @keyframes slide-indeterminate {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(350%); }
+}
+@keyframes enter-rise {
+  from {
+    opacity: 0;
+    transform: translateY(calc(8px * var(--motion-scale)));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 @keyframes reveal-in {
   from { opacity: 0; transform: translateY(calc(var(--travel) * var(--motion-scale))); }

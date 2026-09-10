@@ -26,7 +26,16 @@ export function AppShell({ role, orgName }: { role: RoleKey; orgName?: string })
 
   return (
     <div
-      className="app-shell min-h-dvh bg-page lg:grid"
+      /*
+       * On a desktop this is a fixed frame, not a tall page: the grid is
+       * exactly the viewport and the content region is the only scroller.
+       * It used to be `min-h-dvh`, so the grid grew with its content and
+       * `main` never scrolled — while `overscroll-behavior: contain` stopped
+       * the wheel reaching the document. The page then only moved when the
+       * pointer was over the sidebar. Below `lg` the document scrolls, as it
+       * should on a phone.
+       */
+      className="app-shell min-h-dvh bg-page lg:grid lg:h-dvh lg:min-h-0 lg:overflow-hidden"
       style={{
         gridTemplateAreas: '"topbar topbar" "sidenav content"',
         gridTemplateColumns: 'var(--sidenav-w) 1fr',
@@ -82,7 +91,7 @@ export function AppShell({ role, orgName }: { role: RoleKey; orgName?: string })
       <nav
         aria-label="Sections"
         style={{ gridArea: 'sidenav' }}
-        className="hidden border-r border-edge-subtle bg-surface lg:flex lg:flex-col"
+        className="hidden border-r border-edge-subtle bg-surface lg:flex lg:flex-col lg:overflow-y-auto"
       >
         <SidebarItems role={role} />
       </nav>
@@ -118,7 +127,7 @@ export function AppShell({ role, orgName }: { role: RoleKey; orgName?: string })
         id="app-main"
         tabIndex={-1}
         style={{ gridArea: 'content' }}
-        className="min-w-0 pb-24 outline-none lg:overflow-y-auto lg:pb-0 lg:[overscroll-behavior:contain]"
+        className="min-w-0 pb-24 outline-none lg:min-h-0 lg:overflow-y-auto lg:pb-0 lg:[overscroll-behavior:contain]"
       >
         <Outlet />
       </main>

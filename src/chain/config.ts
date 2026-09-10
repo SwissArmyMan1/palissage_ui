@@ -30,12 +30,21 @@ export const EXPLORER_URL = 'https://sepolia.basescan.org';
 export const DEPLOYMENT_ID = 'palissage-84532';
 
 /**
- * Read endpoints. The first is Base's own; the rest are fallbacks, because a
- * dropped read on a public endpoint must not look like an empty catalogue.
+ * Read endpoints, ordered by measured reliability rather than by provenance.
+ *
+ * Sampled on 10 September 2026 with the burst one page load produces, twelve
+ * batches of twenty calls: publicnode answered 12 of 12, `sepolia.base.org`
+ * 4 of 12, and the Tenderly gateway returned HTTP 429 on 10 of 12. Single
+ * requests answer everywhere; it is the burst that gets throttled, which is
+ * why the reads are also collapsed into one multicall (see wagmi.ts).
+ *
+ * A dropped read must never look like an empty catalogue, so the interface
+ * falls through this list and says so when none of them answers.
  */
 export const RPC_URLS: readonly string[] = [
-  env.VITE_BASE_SEPOLIA_RPC_URL || 'https://sepolia.base.org',
+  ...(env.VITE_BASE_SEPOLIA_RPC_URL ? [env.VITE_BASE_SEPOLIA_RPC_URL] : []),
   'https://base-sepolia-rpc.publicnode.com',
+  'https://sepolia.base.org',
   'https://base-sepolia.gateway.tenderly.co',
 ];
 

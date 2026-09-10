@@ -47,11 +47,12 @@ export const NAV: Record<RoleKey, NavItem[]> = {
     { to: 'deliveries', label: 'Deliveries', Icon: Truck, tab: true },
   ],
   shop: [
-    { to: 'market', label: 'Market', Icon: LayoutGrid, tab: true },
+    { to: '', label: 'Overview', Icon: LayoutGrid, tab: true, end: true },
+    { to: 'market', label: 'Market', Icon: Wine, tab: true },
     { to: 'allocations', label: 'Allocations', Icon: FileText, tab: true },
     { to: 'portfolio', label: 'Portfolio', Icon: Package, tab: true },
     { to: 'secondary', label: 'Secondary', Icon: Coins },
-    { to: 'deliveries', label: 'Deliveries', Icon: Truck, tab: true },
+    { to: 'deliveries', label: 'Deliveries', Icon: Truck },
   ],
   admin: [
     { to: '', label: 'Queues', Icon: LayoutGrid, tab: true, end: true },

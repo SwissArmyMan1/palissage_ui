@@ -5,12 +5,14 @@ import { LinkButton } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonRows } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { LotThumb } from '@/components/ui/LotThumb';
 import { CabinetPage, PageHeader } from '@/components/layout/PageHeader';
 import { ConnectPrompt } from '@/components/layout/ConnectPrompt';
 import { useAllocationsOfBuyer, useLots, useProtocol } from '@/chain/lens';
-import { PAYMENT_TOKEN } from '@/chain/config';
+import type { ProtocolView } from '@/chain/types';
 import { formatCount, formatDeadline, formatMoney } from '@/lib/format';
 import { allocationState } from '@/lib/enums';
+import { tokenMeta } from '@/chain/tokens';
 
 /**
  * SHO-05. `Dense list` grouped by required action, because the buyer's question
@@ -22,7 +24,6 @@ export default function Allocations() {
   const allocations = useAllocationsOfBuyer(address);
   const lots = useLots();
   const protocol = useProtocol();
-  const decimals = protocol.data?.paymentDecimals ?? PAYMENT_TOKEN.decimals;
 
   const groups = useMemo(() => {
     const byLot = new Map(lots.items.map((lot) => [String(lot.id), lot]));
@@ -70,17 +71,17 @@ export default function Allocations() {
             <Group
               title="Needs payment"
               rows={groups.needsPayment}
-              decimals={decimals}
+              protocol={protocol.data}
               emptyNote="Nothing is outstanding."
             />
             <Group
               title="Paid in full"
               rows={groups.settled}
-              decimals={decimals}
+              protocol={protocol.data}
               emptyNote="Nothing paid in full yet."
             />
             {groups.closed.length > 0 ? (
-              <Group title="Closed" rows={groups.closed} decimals={decimals} emptyNote="" />
+              <Group title="Closed" rows={groups.closed} protocol={protocol.data} emptyNote="" />
             ) : null}
           </>
         )}
@@ -97,12 +98,12 @@ interface Row {
 function Group({
   title,
   rows,
-  decimals,
+  protocol,
   emptyNote,
 }: {
   title: string;
   rows: Row[];
-  decimals: number;
+  protocol?: ProtocolView;
   emptyNote: string;
 }) {
   return (
@@ -117,11 +118,13 @@ function Group({
       {rows.length === 0 ? (
         <p className="mt-3 text-body-sm text-ink-secondary">{emptyNote}</p>
       ) : (
-        <ul className="mt-4 divide-y divide-edge-subtle">
+        <ul className="enter-stagger mt-4 divide-y divide-edge-subtle">
           {rows.map(({ allocation, lot }) => {
             const state = allocationState(allocation.state);
+            const meta = tokenMeta(allocation.paymentToken, protocol);
             return (
               <li key={String(allocation.id)} className="flex flex-wrap items-center gap-4 py-4">
+                <LotThumb lotId={allocation.lotId} size={44} />
                 <div className="min-w-0 flex-1">
                   <Link
                     to={`/app/shop/allocations/${allocation.id}`}
@@ -138,9 +141,11 @@ function Group({
                 </div>
                 <div className="text-right">
                   <p className="text-body font-medium tabular-nums">
-                    {allocation.remaining > 0n
-                      ? formatMoney(allocation.remaining, decimals)
-                      : formatMoney(allocation.totalDue, decimals)}
+                    {!meta.known
+                      ? '—'
+                      : allocation.remaining > 0n
+                        ? formatMoney(allocation.remaining, meta.decimals)
+                        : formatMoney(allocation.totalDue, meta.decimals)}
                   </p>
                   <p className="text-body-sm text-ink-secondary">
                     {allocation.remaining > 0n ? 'outstanding' : 'paid'}

@@ -6,6 +6,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { DataTable, DenseList, DenseRow, type Column } from '@/components/ui/DataTable';
 import { CabinetPage, PageHeader } from '@/components/layout/PageHeader';
 import { ConnectPrompt } from '@/components/layout/ConnectPrompt';
+import { LotThumb } from '@/components/ui/LotThumb';
 import { useLotsOfWinery } from '@/chain/lens';
 import { formatCount } from '@/lib/format';
 import { lotState, productionStage } from '@/lib/enums';
@@ -29,7 +30,16 @@ export default function WineryLots() {
   }
 
   const columns: Column<LotView>[] = [
-    { id: 'lot', header: 'Lot', cell: (lot) => lot.name },
+    {
+      id: 'lot',
+      header: 'Lot',
+      cell: (lot) => (
+        <span className="flex items-center gap-3">
+          <LotThumb lotId={lot.id} />
+          {lot.name}
+        </span>
+      ),
+    },
     { id: 'vintage', header: 'Vintage', numeric: true, cell: (lot) => String(lot.vintage) },
     {
       id: 'bottles',
@@ -80,11 +90,12 @@ export default function WineryLots() {
             rowHref={(lot) => `/app/winery/lots/${lot.id}`}
           />
         ) : (
-          <DenseList>
+          <DenseList className="enter-stagger">
             {lots.items.map((lot) => {
               const state = lotState(lot.status);
               return (
                 <DenseRow key={String(lot.id)}>
+                  <LotThumb lotId={lot.id} size={44} />
                   <div className="min-w-0 flex-1">
                     <p className="text-body font-medium">{lot.name}</p>
                     <p className="text-body-sm text-ink-secondary tabular-nums">

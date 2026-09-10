@@ -6,6 +6,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Field, TextInput } from '@/components/ui/Field';
 import { SkeletonRows } from '@/components/ui/Skeleton';
 import { DataTable, type Column } from '@/components/ui/DataTable';
+import { LotThumb } from '@/components/ui/LotThumb';
 import { CabinetPage, PageHeader } from '@/components/layout/PageHeader';
 import { ConnectPrompt } from '@/components/layout/ConnectPrompt';
 import { ActionReview } from '@/components/patterns/ActionReview';
@@ -60,7 +61,16 @@ export default function Portfolio() {
   }
 
   const columns: Column<Holding>[] = [
-    { id: 'lot', header: 'Lot', cell: (row) => row.lot.name },
+    {
+      id: 'lot',
+      header: 'Lot',
+      cell: (row) => (
+        <span className="flex items-center gap-3">
+          <LotThumb lotId={row.lot.id} />
+          {row.lot.name}
+        </span>
+      ),
+    },
     { id: 'vintage', header: 'Vintage', numeric: true, cell: (row) => String(row.lot.vintage) },
     {
       id: 'balance',

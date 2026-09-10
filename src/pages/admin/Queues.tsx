@@ -81,7 +81,7 @@ export default function AdminQueues() {
             body="Nothing is waiting for a decision."
           />
         ) : (
-          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="enter-stagger grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
             <StatTile
               label="Lots awaiting verification"
               value={String(drafts.length)}

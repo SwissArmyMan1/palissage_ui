@@ -8,6 +8,7 @@ import { Field, TextInput } from '@/components/ui/Field';
 import { SkeletonRows } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { AddressValue } from '@/components/ui/Mono';
+import { LotThumb } from '@/components/ui/LotThumb';
 import { CabinetPage } from '@/components/layout/PageHeader';
 import { ActionReview } from '@/components/patterns/ActionReview';
 import { EvidencePanel } from '@/components/patterns/EvidencePanel';
@@ -93,7 +94,10 @@ export default function LotVerification() {
                       ].join(' ')
                     }
                   >
-                    <p className="text-body font-medium">{lot.name}</p>
+                    <span className="flex items-center gap-3">
+                      <LotThumb lotId={lot.id} size={36} />
+                      <span className="text-body font-medium">{lot.name}</span>
+                    </span>
                     <p className="mt-1 text-body-sm text-ink-secondary">
                       Lot #{String(lot.id)} · {productionStage(lot.production)}
                     </p>

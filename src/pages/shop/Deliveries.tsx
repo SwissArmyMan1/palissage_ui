@@ -7,6 +7,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonRows } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { HashValue } from '@/components/ui/Mono';
+import { LotThumb } from '@/components/ui/LotThumb';
 import { CabinetPage, PageHeader } from '@/components/layout/PageHeader';
 import { ConnectPrompt } from '@/components/layout/ConnectPrompt';
 import { ActionReview } from '@/components/patterns/ActionReview';
@@ -66,14 +67,15 @@ export default function ShopDeliveries() {
             action={{ label: 'Open your portfolio', to: '/app/shop/portfolio' }}
           />
         ) : (
-          <ul className="space-y-4">
+          <ul className="enter-stagger space-y-4">
             {rows.map(({ redemption, lot }) => {
               const state = redemptionState(redemption.state);
               const shipped = !isZeroHash(redemption.shipmentDocsHash);
               return (
                 <li key={String(redemption.id)} className="card p-6">
                   <div className="flex flex-wrap items-start justify-between gap-4">
-                    <div className="min-w-0">
+                    <LotThumb lotId={redemption.lotId} size={52} />
+                    <div className="min-w-0 flex-1">
                       <p className="text-body-sm text-ink-secondary">
                         Request #{String(redemption.id)} · requested{' '}
                         {formatDeadline(redemption.requestedAt)}
