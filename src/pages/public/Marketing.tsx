@@ -146,7 +146,8 @@ export function HowItWorks() {
 
 /**
  * PUB-10. There is no backend to receive a form, so this page does not pretend
- * to collect one — it gives the reader the one channel that actually exists.
+ * to collect one. The contact address is not published yet, so it is left as a
+ * dash rather than a placeholder that would bounce.
  */
 export function Pilot() {
   return (
@@ -156,21 +157,17 @@ export function Pilot() {
         <p className="mt-6 text-body text-ink-secondary">{PILOT.lede}</p>
 
         <Callout tone="info" title="No form yet, on purpose" className="mt-8">
-          This prototype has no server, so there is nothing here that could store your details. A
-          message reaches a person directly instead.
+          This prototype has no server, so there is nothing here that could store your details. The
+          contact address is not published yet.
         </Callout>
 
         <dl className="mt-8 divide-y divide-edge-subtle">
           <div className="flex flex-wrap items-baseline gap-4 py-4">
             <dt className="w-40 shrink-0 text-body-sm text-ink-secondary">Email</dt>
-            <dd className="text-body">
-              <a href="mailto:pilot@palissage.net" className="text-accent underline underline-offset-4">
-                pilot@palissage.net
-              </a>
-            </dd>
+            <dd className="text-body text-ink-secondary">—</dd>
           </div>
           <div className="flex flex-wrap items-baseline gap-4 py-4">
-            <dt className="w-40 shrink-0 text-body-sm text-ink-secondary">What helps</dt>
+            <dt className="w-40 shrink-0 text-body-sm text-ink-secondary">What will help</dt>
             <dd className="max-w-reading text-body text-ink-secondary">
               What you make or buy, roughly how many bottles a year, and whether you already sell
               or buy across a border.

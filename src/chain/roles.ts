@@ -21,6 +21,14 @@ export interface RoleOffer {
   tone: 'success' | 'warning' | 'neutral';
   /** True when the contracts would accept this role's core action. */
   qualified: boolean;
+  /**
+   * The `RoleGateway.Role` value `assumeRole` takes for this cabinet, or null
+   * where the contract refuses a self-grant. Operations is null on purpose: it
+   * carries the token's verifier role, so it is granted by a gateway admin.
+   */
+  assumable: number | null;
+  /** True when the gateway already records this role for the wallet. */
+  isGatewayRole: boolean;
 }
 
 /** RoleGateway.Role -> our route key. */
@@ -94,26 +102,32 @@ export function useRoleOffers(): { offers: RoleOffer[]; participant?: Participan
         key: 'winery',
         title: 'Winery',
         purpose: 'Publish lots, run En Primeur, follow finance',
+        assumable: 2,
+        isGatewayRole: gateway === 'winery',
         qualified: caps.canPublishLot,
         tone: caps.canPublishLot ? 'success' : 'neutral',
         standing: caps.canPublishLot
           ? 'Winery claim issued — you can create lots and publish offers.'
-          : 'Needs the winery claim. Take the role on the readiness screen while test mode is open.',
+          : 'Needs the winery claim. Take the role below while the sandbox is open.',
       },
       {
         key: 'shop',
         title: 'Shop',
         purpose: 'Buy verified lots, track your portfolio',
+        assumable: 3,
+        isGatewayRole: gateway === 'shop',
         qualified: caps.canReserve,
         tone: caps.canReserve ? 'success' : 'neutral',
         standing: caps.canReserve
           ? 'B2B buyer claim issued and bottles can be minted to this wallet.'
-          : 'Needs the B2B buyer claim. Take the role on the readiness screen while test mode is open.',
+          : 'Needs the B2B buyer claim. Take the role below while the sandbox is open.',
       },
       {
         key: 'admin',
         title: 'Operations',
         purpose: 'Verify lots, confirm milestones, manage members',
+        assumable: null,
+        isGatewayRole: gateway === 'admin',
         qualified: caps.canVerifyLot || caps.canConfirmMilestone || caps.canAssignRoles,
         tone:
           caps.canVerifyLot && caps.canConfirmMilestone && caps.canResolveRedemption
@@ -127,6 +141,8 @@ export function useRoleOffers(): { offers: RoleOffer[]; participant?: Participan
         key: 'collector',
         title: 'Collector',
         purpose: 'Scan bottles, keep a shelf',
+        assumable: 4,
+        isGatewayRole: gateway === 'collector',
         qualified: true,
         tone: 'neutral',
         standing:

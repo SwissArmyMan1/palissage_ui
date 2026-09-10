@@ -7,6 +7,7 @@ import { NetworkChip } from '@/components/ui/NetworkChip';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { NAV, ROLE_BASE, ROLE_TITLE, navHref } from '@/lib/nav';
 import { WalletChip } from './WalletChip';
+import { WalletBalance } from './WalletBalance';
 import { useRoleOffers, type RoleKey } from '@/chain/roles';
 import { useProtocol } from '@/chain/lens';
 
@@ -165,7 +166,7 @@ export function AppShell({ role, orgName }: { role: RoleKey; orgName?: string })
 function SidebarItems({ role, onNavigate }: { role: RoleKey; onNavigate?: () => void }) {
   return (
     <>
-      <ul className="flex-1 space-y-1 p-3">
+      <ul className="min-h-0 flex-1 space-y-1 overflow-y-auto p-3">
         {NAV[role].map((item) => (
           <li key={item.to}>
             <NavLink
@@ -191,6 +192,8 @@ function SidebarItems({ role, onNavigate }: { role: RoleKey; onNavigate?: () => 
           </li>
         ))}
       </ul>
+
+      <WalletBalance onNavigate={onNavigate} />
 
       <ul className="space-y-1 border-t border-edge-subtle p-3">
         <li>
