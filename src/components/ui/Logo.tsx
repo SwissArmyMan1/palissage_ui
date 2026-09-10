@@ -5,19 +5,34 @@ import { useTheme } from '@/lib/theme';
 /**
  * Brand handling per doc 08 §1.
  *
- * The vine mark is the primary symbol. The header wordmark is set in the type
- * system — Fraunces, SOFT 0 WONK 0, 600, −0.02em — never the ornate lettering,
- * which is beautiful at 400 px and unreadable at 32 px.
+ * The vine mark is the primary symbol. Doc 08 set the header wordmark in
+ * Fraunces and reserved the ornate lettering for large surfaces, on the
+ * argument that it is unreadable at 32 px. Measured rather than assumed, that
+ * threshold is wrong for this artwork: the twig serifs resolve as texture, and
+ * the silhouette stays distinctive down to about 18 px of cap height. The
+ * header now carries the real lettering, cropped out of the seal, at 22 px in
+ * the tall bar and 18 px in the condensed one.
  *
- * The mark ships as the two alpha rasters that exist today. BR-01 (`mark.svg`,
- * single path, currentColor) is still outstanding; when it lands, only this file
- * changes.
+ * The mark and the wordmark ship as the alpha rasters that exist today. BR-01
+ * (`mark.svg`, single path, currentColor) is still outstanding; when it lands,
+ * only this file changes.
  */
 function markSrc(theme: 'light' | 'dark'): string {
   return theme === 'dark' ? '/img/brand/mark-on-dark.png' : '/img/brand/mark-on-light.png';
 }
 
-export function BrandMark({ className, size = 26 }: { className?: string; size?: number }) {
+function wordmarkSrc(theme: 'light' | 'dark'): string {
+  return theme === 'dark' ? '/img/brand/wordmark-on-dark.webp' : '/img/brand/wordmark-on-light.webp';
+}
+
+export function BrandMark({
+  className,
+  size = 26,
+}: {
+  className?: string;
+  /** A number of pixels, or any CSS length — including a custom property. */
+  size?: number | string;
+}) {
   const { resolved } = useTheme();
   return (
     <img
@@ -32,25 +47,47 @@ export function BrandMark({ className, size = 26 }: { className?: string; size?:
   );
 }
 
-/** Mark plus wordmark. The link home on every public page. */
+/**
+ * The horizontal lockup: one vine span, then the ornate lettering. The link
+ * home on every public page.
+ *
+ * `size` is the mark's height; the wordmark is set at 0.68 of it, which puts
+ * the cap height just under the mark's top wire and reads as one object rather
+ * than two stacked images. The seal proper is the stacked arrangement with the
+ * tagline — that one is `BrandSeal`, and it does not belong in a 66 px bar at
+ * any size that leaves its lettering legible.
+ */
 export function Logo({
   to = '/',
   className,
-  size = 26,
+  height = 'var(--logo-h, 26px)',
 }: {
   to?: string;
   className?: string;
-  size?: number;
+  /**
+   * A CSS length. The public bar sets `--logo-h` per breakpoint and per
+   * condensed state, so the lockup shrinks with the bar instead of snapping,
+   * and nothing about its size depends on a media query read in JavaScript —
+   * which would size it wrong on the first paint and shift the header.
+   */
+  height?: string;
 }) {
+  const { resolved } = useTheme();
   return (
-    <Link to={to} className={cn('inline-flex items-center gap-3', className)}>
-      <BrandMark size={size} />
-      <span
-        className="font-display font-semibold tracking-[-0.02em] text-ink"
-        style={{ fontSize: size * 0.85, fontVariationSettings: "'SOFT' 0, 'WONK' 0" }}
-      >
-        Palissage
-      </span>
+    <Link
+      to={to}
+      className={cn('site-logo inline-flex shrink-0 items-center gap-2 sm:gap-3', className)}
+    >
+      <BrandMark size={height} />
+      <img
+        src={wordmarkSrc(resolved)}
+        alt="Palissage"
+        width={654}
+        height={110}
+        decoding="async"
+        className="w-auto shrink-0"
+        style={{ height: `calc(${height} * 0.68)` }}
+      />
     </Link>
   );
 }

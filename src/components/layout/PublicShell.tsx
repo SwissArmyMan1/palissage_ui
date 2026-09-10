@@ -39,7 +39,7 @@ export function PublicShell() {
 
       <header className="site-nav" data-condensed={condensed}>
         <div className="shell flex h-full items-center gap-6">
-          <Logo size={condensed ? 22 : 26} />
+          <Logo />
 
           <nav aria-label="Main" className="hidden flex-1 justify-center gap-8 lg:flex">
             {LINKS.map((link) => (

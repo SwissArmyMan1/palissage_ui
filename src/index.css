@@ -395,6 +395,22 @@
     background-color: color-mix(in srgb, var(--color-page) 94%, transparent);
   }
 
+  /* The lockup is sized by the bar, not by a prop: it has to shrink with the
+     bar rather than snap, and at 320 px the full-width lockup would push the
+     menu button off the edge. */
+  .site-nav { --logo-h: 32px; }
+  .site-nav[data-condensed='true'] { --logo-h: 26px; }
+  @media (max-width: 639px) {
+    .site-nav { --logo-h: 24px; }
+    .site-nav[data-condensed='true'] { --logo-h: 22px; }
+  }
+  .site-logo img {
+    transition: block-size var(--duration-base) var(--ease-in-out);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .site-logo img { transition: none; }
+  }
+
   /* ---- Tab indicator ---------------------------------------------------- */
   .tab-rail { position: relative; }
   .tab-rail::after {
