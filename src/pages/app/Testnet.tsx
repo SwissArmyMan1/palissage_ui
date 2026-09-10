@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAccount, useBalance, useDisconnect, useSwitchChain } from 'wagmi';
 import { CircleCheck, CircleX, Clock, ExternalLink, LogOut } from 'lucide-react';
 import { cn } from '@/lib/cn';
-import { BrandMark } from '@/components/ui/Logo';
+import { BrandSeal } from '@/components/ui/Logo';
 import { Button, ExternalButton, LinkButton } from '@/components/ui/Button';
 import { Callout } from '@/components/ui/Callout';
 import { NetworkChip } from '@/components/ui/NetworkChip';
@@ -65,9 +65,12 @@ export default function Testnet() {
         Skip to the checks
       </a>
       <main id="readiness-main" tabIndex={-1} className="mx-auto w-full max-w-5xl px-4 outline-none">
+        {/* The full seal, not the 24 px mark. A standalone screen with no app
+            chrome above it has nothing else to say whose product this is, and
+            one vine span at that size reads as an icon that failed to load. */}
         <div className="flex flex-col items-center">
-          <Link to="/" aria-label="Palissage home">
-            <BrandMark size={24} />
+          <Link to="/" aria-label="Palissage home" className="block w-full max-w-[420px]">
+            <BrandSeal priority width="100%" />
           </Link>
         </div>
 

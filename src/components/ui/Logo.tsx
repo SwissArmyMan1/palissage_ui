@@ -56,18 +56,41 @@ export function Logo({
 }
 
 /**
- * The ornate lockup. A seal, not a logo: footer, passport header, documents.
- * Never at a small size.
+ * The ornate lockup. A seal, not a logo: footer, passport header, the top of a
+ * standalone screen. Never at a small size — the vine detail and the ornate
+ * lettering are the point, and both are mud below about 200 px.
+ *
+ * The two rasters are one alpha mask under two tints, `--stone-100` for a dark
+ * ground and `--stone-900` for a light one. WebP rather than PNG because the
+ * seal now sits above the fold on the readiness screen, where 262 KB of vine
+ * would be the LCP element.
+ *
+ * `width` is a CSS length rather than a class: `cn` is plain clsx with no
+ * tailwind-merge, so a width passed through `className` would collide with the
+ * default instead of replacing it.
  */
-export function BrandSeal({ className }: { className?: string }) {
+export function BrandSeal({
+  className,
+  width = 'min(340px, 70%)',
+  priority = false,
+}: {
+  className?: string;
+  width?: string;
+  /** Set this on the one instance that is a page's largest paint. */
+  priority?: boolean;
+}) {
   const { resolved } = useTheme();
   return (
     <img
-      src={resolved === 'dark' ? '/img/brand/lockup-on-dark.png' : '/img/brand/lockup-on-light.png'}
+      src={resolved === 'dark' ? '/img/brand/lockup-on-dark.webp' : '/img/brand/lockup-on-light.webp'}
       alt="Palissage"
       width={1100}
       height={433}
-      className={cn('h-auto w-[min(340px,70%)]', className)}
+      fetchPriority={priority ? 'high' : undefined}
+      loading={priority ? 'eager' : 'lazy'}
+      decoding="async"
+      style={{ width }}
+      className={cn('h-auto', className)}
     />
   );
 }

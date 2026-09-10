@@ -12,7 +12,7 @@ import { ROLE_BASE } from '@/lib/nav';
 import { useRoleOffers, useTestMode, type RoleOffer } from '@/chain/roles';
 import { roleGatewayAbi } from '@/chain/abis';
 import { CHAIN_LABEL, CONTRACTS } from '@/chain/config';
-import { useTx } from '@/chain/tx';
+import { useTx, type TxState } from '@/chain/tx';
 
 /**
  * APP-01. Resolve what this wallet is, and take a role from here.
@@ -21,6 +21,10 @@ import { useTx } from '@/chain/tx';
  * decision that motivates it. It is the same `assumeRole` write, moved to
  * where the reader already is: the card that says the claim is missing is the
  * card that issues it.
+ *
+ * The gateway records exactly one role per wallet, so the card matching it is
+ * marked and its grant is disabled — re-taking a role you hold burns gas to
+ * write the value that is already there.
  *
  * Every cabinet still opens regardless of standing, because entering grants
  * nothing — each action re-reads the wallet's real contract capabilities
@@ -32,6 +36,8 @@ export default function RoleSelect() {
   const testMode = useTestMode();
   const tx = useTx();
   const [taking, setTaking] = useState<RoleOffer | null>(null);
+
+  const held = offers.find((offer) => offer.isGatewayRole);
 
   const closeReview = () => {
     setTaking(null);
@@ -53,6 +59,22 @@ export default function RoleSelect() {
             Any cabinet opens from here. What the wallet may actually do inside it is read from
             the role gateway and the identity claims on {CHAIN_LABEL}.
           </p>
+
+          {/* The gateway's answer in one line, before the reader compares four
+              cards to work out which one is theirs. */}
+          {isConnected && !loading ? (
+            <p className="mt-3 text-body-sm text-ink-secondary">
+              {held ? (
+                <>
+                  This wallet holds the{' '}
+                  <span className="font-semibold text-ink">{held.title}</span> role on the gateway.
+                </>
+              ) : (
+                'This wallet holds no role on the gateway yet.'
+              )}
+            </p>
+          ) : null}
+
           <NetworkChip className="mt-4" />
         </div>
 
@@ -83,81 +105,18 @@ export default function RoleSelect() {
           </div>
         ) : (
           <div className="mt-12 grid gap-6 sm:grid-cols-2">
-            {offers.map((offer) => {
-              /*
-               * Operations is `assumable: null` — the contract refuses a
-               * self-grant because the role carries the token's verifier
-               * capability. Offering a button that always reverts would be a
-               * lie, so the card sends the reader to a gateway admin instead.
-               */
-              const canTake = testMode && offer.assumable !== null && !offer.qualified;
-
-              return (
-                <article key={offer.key} className="card flex flex-col p-6 shadow-1">
-                  <StatusBadge tone={offer.tone === 'neutral' ? 'neutral' : offer.tone}>
-                    {offer.key === 'collector'
-                      ? 'No claim needed'
-                      : offer.qualified
-                        ? offer.tone === 'warning'
-                          ? 'Partial capabilities'
-                          : 'Claims verified'
-                        : 'Not qualified yet'}
-                  </StatusBadge>
-                  <h2 className="mt-4 t-h2">{offer.title}</h2>
-                  <p className="mt-2 text-body-sm text-ink-secondary">{offer.purpose}</p>
-                  <p className="mt-3 flex-1 text-body-sm text-ink-secondary">{offer.standing}</p>
-
-                  {canTake ? (
-                    <>
-                      <Button
-                        fullWidth
-                        className="mt-6"
-                        disabled={tx.busy}
-                        onClick={() => {
-                          tx.reset();
-                          setTaking(offer);
-                        }}
-                      >
-                        Take the {offer.title} role
-                      </Button>
-                      <LinkButton
-                        to={ROLE_BASE[offer.key]}
-                        kind="ghost"
-                        size="sm"
-                        className="mt-3 self-start"
-                      >
-                        Open it read-only instead
-                      </LinkButton>
-                    </>
-                  ) : (
-                    <>
-                      <LinkButton
-                        to={ROLE_BASE[offer.key]}
-                        kind="secondary"
-                        fullWidth
-                        className="mt-6"
-                      >
-                        Continue as {offer.title}
-                      </LinkButton>
-                      {offer.key === 'collector' ? (
-                        <LinkButton to="/lots" kind="ghost" size="sm" className="mt-3 self-start">
-                          Read a lot record
-                        </LinkButton>
-                      ) : offer.qualified ? null : (
-                        <LinkButton
-                          to="/app/testnet"
-                          kind="ghost"
-                          size="sm"
-                          className="mt-3 self-start"
-                        >
-                          What this needs
-                        </LinkButton>
-                      )}
-                    </>
-                  )}
-                </article>
-              );
-            })}
+            {offers.map((offer) => (
+              <RoleCard
+                key={offer.key}
+                offer={offer}
+                testMode={testMode}
+                tx={tx}
+                onTake={() => {
+                  tx.reset();
+                  setTaking(offer);
+                }}
+              />
+            ))}
           </div>
         )}
 
@@ -191,7 +150,8 @@ export default function RoleSelect() {
             </p>
             <p>
               A wallet holds one role at a time. Taking this one removes the claims of whatever
-              role it holds now, including any verifier capability.
+              role it holds now{held ? `, which is ${held.title}` : ''}, including any verifier
+              capability.
             </p>
           </div>
         }
@@ -216,5 +176,121 @@ export default function RoleSelect() {
         }
       />
     </div>
+  );
+}
+
+/**
+ * One card, one primary action, one supporting action. Keeping that shape
+ * fixed across four different standings is what makes the disabled grant on
+ * the held card read as *this one is already yours* rather than as a bug.
+ */
+function RoleCard({
+  offer,
+  testMode,
+  tx,
+  onTake,
+}: {
+  offer: RoleOffer;
+  testMode: boolean;
+  tx: TxState;
+  onTake: () => void;
+}) {
+  const held = offer.isGatewayRole;
+  /*
+   * Operations is `assumable: null` — the contract refuses a self-grant
+   * because the role carries the token's verifier capability. Offering a
+   * button that always reverts would be a lie, so the card sends the reader
+   * to a gateway admin instead.
+   */
+  const grantable = testMode && offer.assumable !== null;
+  const noteId = `role-${offer.key}-note`;
+
+  const enter = (
+    <LinkButton to={ROLE_BASE[offer.key]} kind="secondary" fullWidth className="mt-6">
+      Continue as {offer.title}
+    </LinkButton>
+  );
+
+  return (
+    <article className="card flex flex-col p-6 shadow-1">
+      <div className="flex flex-wrap items-center gap-2">
+        <StatusBadge tone={offer.tone === 'neutral' ? 'neutral' : offer.tone}>
+          {offer.key === 'collector'
+            ? 'No claim needed'
+            : offer.qualified
+              ? offer.tone === 'warning'
+                ? 'Partial capabilities'
+                : 'Claims verified'
+              : 'Not qualified yet'}
+        </StatusBadge>
+        {held ? <StatusBadge tone="info">Current role</StatusBadge> : null}
+      </div>
+
+      <h2 className="mt-4 t-h2">{offer.title}</h2>
+      <p className="mt-2 text-body-sm text-ink-secondary">{offer.purpose}</p>
+      <p className="mt-3 flex-1 text-body-sm text-ink-secondary">{offer.standing}</p>
+
+      {held ? (
+        <>
+          {enter}
+          {grantable ? (
+            <>
+              <Button
+                kind="secondary"
+                fullWidth
+                disabled
+                aria-describedby={noteId}
+                className="mt-3"
+              >
+                Take the {offer.title} role
+              </Button>
+              <p id={noteId} className="mt-2 text-body-sm text-ink-secondary">
+                Already yours. Taking it again would write the value the gateway already holds.
+              </p>
+            </>
+          ) : null}
+        </>
+      ) : grantable && !offer.qualified ? (
+        <>
+          <Button fullWidth className="mt-6" disabled={tx.busy} onClick={onTake}>
+            Take the {offer.title} role
+          </Button>
+          <LinkButton
+            to={ROLE_BASE[offer.key]}
+            kind="ghost"
+            size="sm"
+            className="mt-3 self-start"
+          >
+            Open it read-only instead
+          </LinkButton>
+        </>
+      ) : grantable ? (
+        <>
+          {enter}
+          <Button
+            kind="ghost"
+            size="sm"
+            className="mt-3 self-start"
+            disabled={tx.busy}
+            onClick={onTake}
+          >
+            Switch this wallet to {offer.title}
+          </Button>
+        </>
+      ) : (
+        <>
+          {enter}
+          {offer.key === 'collector' ? (
+            <LinkButton to="/lots" kind="ghost" size="sm" className="mt-3 self-start">
+              Read a lot record
+            </LinkButton>
+          ) : offer.qualified ? null : (
+            <LinkButton to="/app/testnet" kind="ghost" size="sm" className="mt-3 self-start">
+              What this needs
+            </LinkButton>
+          )}
+        </>
+      )}
+    </article>
   );
 }
