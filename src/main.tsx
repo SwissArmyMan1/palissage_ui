@@ -11,6 +11,7 @@ import '@fontsource/jetbrains-mono/400.css';
 // preflight. Everything else is inside Tailwind's own layers.
 import './styles/tokens.css';
 import './index.css';
+import './styles/editorial.css';
 
 import App from './App';
 

@@ -1,19 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { useLocation } from 'react-router-dom';
 
-/**
- * Motion support helpers.
- *
- * There is no `scroll` event handler anywhere in this codebase (doc 06 section 4).
- * Scroll-linked movement is CSS `animation-timeline: view()` / `scroll()`, which runs
- * on the compositor. Where a browser lacks it, an IntersectionObserver adds a class
- * once — an observer, not a scroll listener.
- */
-
-export function supportsScrollTimeline(): boolean {
-  return typeof CSS !== 'undefined' && CSS.supports?.('animation-timeline', 'view()') === true;
-}
-
+/** Decorative parallax uses native scroll timelines; section reveals run once. */
 export function prefersReducedMotion(): boolean {
   return (
     typeof window !== 'undefined' &&
@@ -21,52 +9,92 @@ export function prefersReducedMotion(): boolean {
   );
 }
 
-/**
- * Fallback for `.reveal` / `.reveal-stagger` / `.vine-animated` in browsers without
- * scroll-driven animation. Mounted once by the app; re-scans on navigation.
- * Content is never gated on the animation firing: if there is no observer, every
- * candidate is marked visible immediately.
- */
+const motionQuery = '(prefers-reduced-motion: reduce)';
+function subscribeMotion(callback: () => void) {
+  const query = window.matchMedia(motionQuery);
+  query.addEventListener('change', callback);
+  return () => query.removeEventListener('change', callback);
+}
+
+/** Late lazy routes and fetched cards are observed too. The baseline is visible;
+ * only offscreen nodes with an attached observer receive the entrance state. */
 export function useRevealFallback(): void {
   const location = useLocation();
 
   useEffect(() => {
-    if (supportsScrollTimeline()) return;
-
-    const selector = '.reveal, .reveal-stagger, .vine-animated';
-    const nodes = Array.from(document.querySelectorAll<HTMLElement>(selector));
-
-    if (typeof IntersectionObserver === 'undefined') {
-      nodes.forEach((node) => node.classList.add('is-visible'));
-      return;
-    }
-
+    if (typeof IntersectionObserver === 'undefined') return;
+    const selector = '.reveal, .reveal-stagger > *, .vine-animated';
+    const observed = new Set<Element>();
+    const query = window.matchMedia(motionQuery);
+    const show = (node: Element) => {
+      node.classList.add('is-visible');
+      node.classList.remove('reveal-ready');
+    };
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
           if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible');
+            show(entry.target);
             observer.unobserve(entry.target);
           }
         }
       },
-      { rootMargin: '0px 0px -12% 0px', threshold: 0.08 },
+      { rootMargin: '0px 0px -32px 0px', threshold: 0 },
     );
 
-    nodes.forEach((node) => {
-      if (node.classList.contains('is-visible')) return;
-      observer.observe(node);
+    const scan = () => {
+      document.querySelectorAll<HTMLElement>(selector).forEach((node) => {
+        if (observed.has(node) || node.closest('.app-shell')) return;
+        observed.add(node);
+        const rect = node.getBoundingClientRect();
+        if (query.matches || rect.top < window.innerHeight - 32) show(node);
+        else {
+          node.classList.add('reveal-ready');
+          observer.observe(node);
+        }
+      });
+    };
+    scan();
+    const mutations = new MutationObserver(scan);
+    mutations.observe(document.getElementById('root') ?? document.body, {
+      childList: true,
+      subtree: true,
     });
-
-    return () => observer.disconnect();
-  }, [location.pathname, location.search]);
+    const revealAll = () => {
+      if (query.matches) {
+        observed.forEach(show);
+        observer.disconnect();
+      }
+    };
+    const revealFocused = (event: FocusEvent) => {
+      if (!(event.target instanceof Element)) return;
+      observed.forEach((node) => {
+        if (node.contains(event.target as Node)) {
+          show(node);
+          observer.unobserve(node);
+        }
+      });
+    };
+    query.addEventListener('change', revealAll);
+    document.addEventListener('focusin', revealFocused);
+    return () => {
+      mutations.disconnect();
+      observer.disconnect();
+      query.removeEventListener('change', revealAll);
+      document.removeEventListener('focusin', revealFocused);
+      observed.forEach(show);
+    };
+  }, [location.pathname]);
 }
 
 /**
  * The public nav condenses past a sentinel placed at the top of the document.
  * IntersectionObserver, so scrolling costs nothing.
  */
-export function useNavCondense(): { sentinelRef: React.RefObject<HTMLDivElement | null>; condensed: boolean } {
+export function useNavCondense(): {
+  sentinelRef: React.RefObject<HTMLDivElement | null>;
+  condensed: boolean;
+} {
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const [condensed, setCondensed] = useState(false);
 
@@ -88,16 +116,37 @@ export function useNavCondense(): { sentinelRef: React.RefObject<HTMLDivElement 
  * Counts up to `target` once, on first view. Never on refetch — the ref latch is
  * deliberate. Under reduced motion the final value is returned immediately.
  */
-export function useCountUp(target: number, durationMs = 600): {
+export function useCountUp(
+  target: number,
+  durationMs = 600,
+): {
   ref: React.RefObject<HTMLSpanElement | null>;
   value: number;
 } {
   const ref = useRef<HTMLSpanElement | null>(null);
-  const hasRun = useRef(false);
+  const hasRun = useRef(prefersReducedMotion());
   // The final value is the initial value wherever the count-up must not run,
   // so no state is set from inside the effect for those cases.
-  const immediate = prefersReducedMotion() || typeof IntersectionObserver === 'undefined';
+  const reducedMotion = useSyncExternalStore(
+    subscribeMotion,
+    prefersReducedMotion,
+    () => true,
+  );
+  const immediate =
+    reducedMotion || typeof IntersectionObserver === 'undefined';
   const [value, setValue] = useState(() => (immediate ? target : 0));
+
+  useEffect(() => {
+    const query = window.matchMedia(motionQuery);
+    const finish = () => {
+      if (query.matches) {
+        hasRun.current = true;
+        setValue(target);
+      }
+    };
+    query.addEventListener('change', finish);
+    return () => query.removeEventListener('change', finish);
+  }, [target]);
 
   useEffect(() => {
     if (hasRun.current || immediate) return;
@@ -129,5 +178,5 @@ export function useCountUp(target: number, durationMs = 600): {
     };
   }, [target, durationMs, immediate]);
 
-  return { ref, value };
+  return { ref, value: immediate ? target : value };
 }

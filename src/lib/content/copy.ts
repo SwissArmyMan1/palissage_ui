@@ -1,15 +1,16 @@
 /**
- * Public-site copy, taken verbatim from specifications/ui-v2/07-content-and-copy.md
- * section 6. English is authoritative. The honesty rules in section 1 of that
+ * Public-site copy, based on specifications/ui-v2/07-content-and-copy.md
+ * section 6, with a direct-trade lead for the editorial landing page.
+ * English is authoritative. The honesty rules in section 1 of that
  * document are what make this a fixed asset rather than placeholder text: no
  * investment language, no unmeasured metric, no "partner" without an agreement.
  */
 
 export const LANDING = {
   eyebrow: 'Cabardès, southern France',
-  h1: 'Wine sold before it is bottled.',
+  h1: 'Good wine. Direct from the source.',
   lede:
-    'Palissage lets independent producers sell lots directly to shops, importers and restaurants — including part of a vintage that is still on the vine. Buyers secure their inventory at a fixed price. Producers get paid while the wine is still ageing.',
+    'Buy directly from independent wineries. A shorter path means better prices for your business and more value for the people who make the wine. Discover bottled wines, or secure a vintage still on the vine.',
   ctaPrimary: 'Explore the lots',
   ctaSecondary: 'Try the demo — no wallet needed',
 

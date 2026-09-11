@@ -80,8 +80,7 @@ function RouteFallback() {
 }
 
 function Frame({ children }: { children: React.ReactNode }) {
-  // Adds the reveal class in browsers without scroll-driven animation. It runs
-  // inside the router because it re-scans on navigation.
+  // Observe one-shot entrances, including content mounted by lazy routes.
   useRevealFallback();
   return <>{children}</>;
 }

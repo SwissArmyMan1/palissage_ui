@@ -26,10 +26,12 @@ export function ForWineries() {
             </LinkButton>
           </div>
           <Plate
-            asset={ASSETS.estateRissacVineyard}
-            alt="Hands working a vine trained on wire"
+            asset={ASSETS.heroEstate}
+            alt="Vineyard rows trained on a trellis in the Cabardès"
             ratio="4 / 3"
             sizes="(min-width: 1024px) 560px, 92vw"
+            priority
+            drift
           />
         </div>
       </section>

@@ -5,8 +5,8 @@ import { cn } from '@/lib/cn';
  * the card surface, which is what gives the public pages their structure
  * without a card around every block.
  *
- * `reveal` is the ambient one-shot entrance: 16 px and a fade, 350 ms, scroll
- * driven. It is never applied to the hero, whose headline is the LCP element.
+ * `reveal` is a one-shot entrance observed as the section enters the viewport.
+ * It is never applied to the hero, whose headline is immediately readable.
  */
 export function Section({
   tone = 'page',

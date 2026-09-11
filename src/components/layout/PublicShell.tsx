@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Suspense, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { cn } from '@/lib/cn';
@@ -7,6 +7,7 @@ import { Logo, BrandSeal, TrellisRule } from '@/components/ui/Logo';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { LinkButton } from '@/components/ui/Button';
 import { LANDING } from '@/lib/content/copy';
+import { PublicRoute } from './PublicRoute';
 
 /**
  * `Top navigation bar` — five destinations and one CTA. `Connect wallet` is
@@ -24,6 +25,7 @@ const LINKS = [
 export function PublicShell() {
   const { sentinelRef, condensed } = useNavCondense();
   const location = useLocation();
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
   // The menu belongs to the route it was opened on, so navigating closes it
   // without an effect and without a cascading render.
   const [menu, setMenu] = useState({ open: false, path: location.pathname });
@@ -31,7 +33,7 @@ export function PublicShell() {
   const setMenuOpen = (open: boolean) => setMenu({ open, path: location.pathname });
 
   return (
-    <>
+    <div className="public-site">
       <a href="#main" className="skip-link text-body-sm font-medium">
         Skip to the main content
       </a>
@@ -48,7 +50,7 @@ export function PublicShell() {
                 to={link.to}
                 className={({ isActive }) =>
                   cn(
-                    'text-body-sm transition-colors duration-fast ease-out',
+                    'public-nav-link text-body-sm transition-colors duration-fast ease-out',
                     isActive ? 'font-medium text-ink' : 'text-ink-secondary hover:text-ink',
                   )
                 }
@@ -65,6 +67,7 @@ export function PublicShell() {
               Try it on Base Sepolia
             </LinkButton>
             <button
+              ref={menuButtonRef}
               type="button"
               aria-expanded={menuOpen}
               aria-controls="public-menu"
@@ -80,12 +83,20 @@ export function PublicShell() {
             </button>
           </div>
         </div>
+        <div className="reading-progress" aria-hidden="true" />
       </header>
 
       {menuOpen ? (
         <div
           id="public-menu"
-          className="sticky top-[56px] z-30 border-b border-edge-subtle bg-surface lg:hidden"
+          className="public-menu sticky z-30 border-b border-edge-subtle bg-surface lg:hidden"
+          style={{ top: condensed ? 56 : 'var(--publicnav-h)' }}
+          onKeyDown={(event) => {
+            if (event.key === 'Escape') {
+              setMenuOpen(false);
+              menuButtonRef.current?.focus();
+            }
+          }}
         >
           <nav aria-label="Main, expanded" className="shell flex flex-col py-2">
             {LINKS.map((link) => (
@@ -107,11 +118,13 @@ export function PublicShell() {
         </div>
       ) : null}
 
-      <main id="main" tabIndex={-1} className="outline-none">
-        <Outlet />
-      </main>
+      <PublicRoute>
+        <Suspense fallback={<div className="shell py-24" role="status">Loading the next page…</div>}>
+          <Outlet />
+        </Suspense>
+      </PublicRoute>
 
-      <footer className="border-t border-edge-subtle bg-surface-sunken">
+      <footer className="public-footer border-t border-edge-subtle bg-surface-sunken">
         <div className="shell py-16">
           <div className="flex flex-col items-center gap-4 text-center">
             <BrandSeal />
@@ -138,7 +151,7 @@ export function PublicShell() {
           </nav>
         </div>
       </footer>
-    </>
+    </div>
   );
 }
 

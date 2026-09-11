@@ -46,7 +46,8 @@ export function CountUpMoney({ target, fractionDigits = 0 }: { target: number; f
   const { ref, value } = useCountUp(target);
   return (
     <span ref={ref} className="t-num">
-      {formatMoneyNumber(value, fractionDigits)}
+      <span aria-hidden="true">{formatMoneyNumber(value, fractionDigits)}</span>
+      <span className="sr-only">{formatMoneyNumber(target, fractionDigits)}</span>
     </span>
   );
 }

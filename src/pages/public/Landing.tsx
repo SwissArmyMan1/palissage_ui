@@ -1,129 +1,327 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import {
+  ArrowDown,
+  ArrowUpRight,
+  ArrowRight,
+  Fingerprint,
+  Grape,
+  Wine,
+} from 'lucide-react';
 import { LinkButton } from '@/components/ui/Button';
 import { Plate } from '@/components/ui/Plate';
-import { StatTile, CountUpMoney } from '@/components/ui/StatTile';
+import { CountUpMoney } from '@/components/ui/StatTile';
 import { Section, SectionHead } from '@/components/layout/Section';
 import { TrellisLifecycle } from '@/components/patterns/TrellisLifecycle';
 import { ASSETS } from '@/lib/content/assets';
 import { LANDING } from '@/lib/content/copy';
 
-/**
- * PUB-01. `Content page template` with an editorial split hero — not a centred
- * hero, and not three equal feature cards.
- *
- * The headline and the photograph carry **no** entrance animation: the headline
- * is the LCP element and the `Kinetic type` entry vetoes animating it. The
- * photograph's only movement is an ambient scroll-linked drift under 3%, which
- * starts after paint and runs on the compositor.
- *
- * The page's one signature moment is the trellis vine, below the fold.
- */
+function Chapter({
+  number,
+  children,
+}: {
+  number: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <p className="chapter-label">
+      <span>{number}</span>
+      {children}
+    </p>
+  );
+}
+
+/** Public storytelling only: decorative motion never represents live lot state. */
 export default function Landing() {
   return (
-    <>
-      {/* ---- Hero: no reveal, no entrance animation ------------------------ */}
-      <section className="bg-page py-12 md:py-20">
-        <div className="shell grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
-          <div className="max-w-reading">
-            <p className="t-caption text-accent">{LANDING.eyebrow}</p>
-            <h1 className="mt-4 t-display">{LANDING.h1}</h1>
-            <p className="mt-6 text-body text-ink-secondary">{LANDING.lede}</p>
-            <div className="mt-8 flex flex-wrap items-center gap-6">
-              <LinkButton to="/lots">{LANDING.ctaPrimary}</LinkButton>
-              <Link
-                to="/demo"
-                className="inline-flex items-center gap-1.5 text-body-sm font-medium text-accent underline decoration-transparent underline-offset-4 transition-colors duration-fast ease-out hover:decoration-current"
-              >
+    <div className="landing-editorial">
+      <section className="editorial-hero" aria-labelledby="hero-heading">
+        <div className="shell hero-grid">
+          <div className="hero-copy">
+            <p className="hero-eyebrow">
+              <span aria-hidden />
+              {LANDING.eyebrow}
+            </p>
+            <h1 id="hero-heading" className="hero-title">
+              Good wine.
+              <br />
+              <em>Direct</em> from
+              <br />
+              the source.
+            </h1>
+            <p className="hero-lede">{LANDING.lede}</p>
+            <div className="hero-actions">
+              <LinkButton to="/lots" className="editorial-cta">
+                {LANDING.ctaPrimary}
+                <ArrowUpRight aria-hidden size={18} />
+              </LinkButton>
+              <Link to="/demo" className="text-link">
                 Try it on Base Sepolia
-                <ArrowRight aria-hidden className="size-4" strokeWidth={1.75} />
+                <ArrowRight aria-hidden size={16} />
               </Link>
             </div>
+            <div className="hero-bottom">
+              <a href="#journey" className="scroll-cue">
+                <span>
+                  <ArrowDown aria-hidden size={17} />
+                </span>
+                Follow the journey
+              </a>
+              <span className="hero-note">
+                Rooted in the Cabardès.
+                <br />
+                Built for direct trade.
+              </span>
+            </div>
           </div>
-
-          <Plate
-            asset={ASSETS.heroEstate}
-            alt="Vineyard rows running to the hills, with a trellis post in the foreground"
-            ratio="9 / 10"
-            priority
-            drift
-            sizes="(min-width: 1024px) 560px, 92vw"
-            className="lg:justify-self-end lg:w-[min(560px,100%)]"
-          />
+          <div className="hero-composition">
+            <div className="hero-photo">
+              <Plate
+                asset={ASSETS.heroEstate}
+                alt="Vineyard rows and a wooden trellis post on the limestone slopes of the Cabardès"
+                ratio="4 / 5"
+                priority
+                drift
+                sizes="(min-width: 1024px) 620px, 92vw"
+              />
+              <div className="photo-caption">
+                <span>THE CABARDÈS</span>
+                <span>Southern France ↗</span>
+              </div>
+            </div>
+            <div className="origin-tag" aria-hidden="true">
+              <Fingerprint size={25} strokeWidth={1.2} />
+              <span>
+                Every wine
+                <br />
+                <strong>has a beginning.</strong>
+              </span>
+            </div>
+            <figure className="bottle-study">
+              <div className="bottle-study-image">
+                <Plate
+                  asset={ASSETS.cazabanA1353}
+                  alt="A.1353 wine bottle from Domaine de Cazaban"
+                  ratio="3 / 4"
+                  fit="contain"
+                />
+              </div>
+              <figcaption>
+                <span className="bottle-study-kicker">FROM THE CABARDÈS</span>
+                <strong>A.1353</strong>
+                <span>Domaine de Cazaban</span>
+                <small>Producer bottle · illustration</small>
+              </figcaption>
+            </figure>
+            <span className="hero-side-note" aria-hidden="true">
+              THE VINE. THE WINE. THE PEOPLE.
+            </span>
+          </div>
         </div>
       </section>
 
-      {/* ---- The signature moment ----------------------------------------- */}
-      <Section tone="surface" labelledBy="lifecycle-heading">
-        <SectionHead
-          id="lifecycle-heading"
-          title={LANDING.lifecycleTitle}
-          lede={LANDING.lifecycleLede}
-        />
-        <div className="mt-12">
-          <TrellisLifecycle stage={4} variant="animated" label="How a lot moves from vine to shelf" />
+      <div
+        className="trade-ribbon"
+        aria-label="Direct trade, from independent wineries to your business"
+      >
+        <div className="shell trade-ribbon-inner">
+          <span>Independent wineries</span>
+          <span className="ribbon-line" aria-hidden />
+          <span className="ribbon-center">
+            <Grape aria-hidden size={20} />A shorter path. A fairer trade.
+          </span>
+          <span className="ribbon-line" aria-hidden />
+          <span>Your business</span>
         </div>
-        <p className="mt-8 max-w-reading text-body-sm text-ink-secondary">
-          Every lot records its stage on Base, and it only moves forward. Where you join depends on
-          whether the wine already exists.
-        </p>
+      </div>
+
+      <Section
+        id="journey"
+        tone="surface"
+        labelledBy="lifecycle-heading"
+        className="journey-section"
+      >
+        <Chapter number="01">A wine’s journey</Chapter>
+        <div className="section-heading-row">
+          <SectionHead
+            id="lifecycle-heading"
+            title={LANDING.lifecycleTitle}
+            lede={LANDING.lifecycleLede}
+          />
+          <Link to="/how-it-works" className="text-link">
+            See how it works
+            <ArrowUpRight aria-hidden size={17} />
+          </Link>
+        </div>
+        <div className="journey-rail">
+          <TrellisLifecycle
+            stage={6}
+            variant="animated"
+            label="The seven stages of a wine’s journey, illustrated"
+          />
+        </div>
+        <div className="journey-notes">
+          <p>
+            Buy wine that’s ready today.
+            <br />
+            <strong>Or be part of the next vintage.</strong>
+          </p>
+          <p>
+            Every lot records its production stage on Base.
+            <br />
+            From the first allocation to the last delivery.
+          </p>
+        </div>
       </Section>
 
-      {/* ---- Two audiences ------------------------------------------------ */}
-      <Section labelledBy="audiences-heading">
+      <Section labelledBy="audiences-heading" className="audience-section">
+        <Chapter number="02">Closer to each other</Chapter>
         <SectionHead id="audiences-heading" title={LANDING.audiencesTitle} />
-        <div className="reveal-stagger mt-12 grid gap-6 lg:grid-cols-2">
+        <div className="reveal-stagger audience-grid">
           {LANDING.audiences.map((audience, index) => (
-            <article key={audience.title} className="card overflow-hidden p-6 shadow-1">
-              <Plate
-                asset={index === 0 ? ASSETS.estateRissacVineyard : ASSETS.estateRissacDomain}
-                alt=""
-                ratio="16 / 6"
-              />
-              <h3 className="mt-6 t-h2">{audience.title}</h3>
-              <p className="mt-3 text-body text-ink-secondary">{audience.body}</p>
-              <LinkButton to={audience.to} kind="secondary" size="sm" className="mt-6">
-                {audience.cta}
-                <ArrowRight aria-hidden className="size-4" strokeWidth={1.75} />
-              </LinkButton>
+            <article
+              key={audience.title}
+              className={`audience-card audience-card-${index}`}
+            >
+              <div className="audience-art" aria-hidden="true">
+                <span className="audience-art-label">
+                  {index === 0 ? 'AT THE ORIGIN' : 'AT YOUR TABLE'}
+                </span>
+                <span className="audience-art-word">
+                  {index === 0 ? 'Cultivate.' : 'Discover.'}
+                </span>
+                <div className="audience-orbit orbit-one" />
+                <div className="audience-orbit orbit-two" />
+                <div className="audience-symbol">
+                  {index === 0 ? (
+                    <Grape size={54} strokeWidth={1} />
+                  ) : (
+                    <Wine size={54} strokeWidth={1} />
+                  )}
+                </div>
+                <span className="audience-art-number">0{index + 1}</span>
+              </div>
+              <div className="audience-card-copy">
+                <h3 className="t-h2">{audience.title}</h3>
+                <p>{audience.body}</p>
+                <Link to={audience.to} className="audience-link">
+                  {audience.cta}
+                  <span>
+                    <ArrowUpRight aria-hidden size={20} />
+                  </span>
+                </Link>
+              </div>
             </article>
           ))}
         </div>
       </Section>
 
-      {/* ---- The margin comparison ---------------------------------------- */}
-      <Section tone="surface" labelledBy="margin-heading">
-        <SectionHead id="margin-heading" title={LANDING.marginTitle} lede={LANDING.marginLede} />
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {LANDING.marginTiles.map((tile) => (
-            <StatTile key={tile.label} label={tile.label} value={<CountUpMoney target={tile.value} />} />
-          ))}
+      <Section
+        tone="surface"
+        labelledBy="margin-heading"
+        className="margin-section"
+      >
+        <Chapter number="03">Better on both sides</Chapter>
+        <div className="margin-layout">
+          <div>
+            <SectionHead
+              id="margin-heading"
+              title={LANDING.marginTitle}
+              lede={LANDING.marginLede}
+            />
+            <p className="margin-footnote">{LANDING.marginFootnote}</p>
+          </div>
+          <div className="margin-stats reveal-stagger">
+            {LANDING.marginTiles.map((tile, index) => (
+              <div className="margin-stat" key={tile.label}>
+                <span className="margin-stat-index" aria-hidden>
+                  0{index + 1}
+                </span>
+                <div>
+                  <p>{tile.label}</p>
+                  <strong>
+                    <CountUpMoney target={tile.value} />
+                  </strong>
+                </div>
+                <ArrowUpRight aria-hidden size={23} />
+              </div>
+            ))}
+          </div>
         </div>
-        <p className="mt-8 max-w-reading text-body-sm text-ink-secondary">{LANDING.marginFootnote}</p>
       </Section>
 
-      {/* ---- What verified means ------------------------------------------ */}
-      <Section labelledBy="trust-heading">
-        <SectionHead id="trust-heading" title={LANDING.trustTitle} />
-        <div className="reveal-stagger mt-12 grid gap-x-12 gap-y-10 lg:grid-cols-2">
-          {LANDING.trust.map((item) => (
-            <div key={item.title}>
-              <span aria-hidden className="block h-0.5 w-10 rounded-full bg-accent" />
-              <h3 className="mt-3 text-body font-semibold">{item.title}</h3>
-              <p className="mt-2 text-body-sm text-ink-secondary">{item.body}</p>
-            </div>
-          ))}
+      <section className="terroir-interlude" aria-labelledby="terroir-heading">
+        <Plate
+          asset={ASSETS.heroEstate}
+          alt="The landscape of the Cabardès wine region"
+          ratio="21 / 9"
+          className="terroir-image"
+          sizes="100vw"
+        />
+        <div className="terroir-shade" />
+        <div className="shell terroir-content">
+          <p className="t-caption">Real places. Real people. Real wine.</p>
+          <h2 id="terroir-heading">
+            The origin
+            <br />
+            <em>stays with it.</em>
+          </h2>
+          <span>
+            From a hillside in southern France
+            <br />
+            to the story behind every bottle.
+          </span>
+        </div>
+        <div className="terroir-word" aria-hidden="true">
+          Cabardès
+        </div>
+      </section>
+
+      <Section labelledBy="trust-heading" className="trust-section">
+        <Chapter number="04">A little more transparency</Chapter>
+        <div className="trust-layout">
+          <div className="trust-intro">
+            <Fingerprint aria-hidden size={42} strokeWidth={1} />
+            <SectionHead id="trust-heading" title={LANDING.trustTitle} />
+            <Link to="/network" className="text-link">
+              Explore the infrastructure
+              <ArrowUpRight aria-hidden size={17} />
+            </Link>
+          </div>
+          <div className="trust-list reveal-stagger">
+            {LANDING.trust.map((item, index) => (
+              <div className="trust-item" key={item.title}>
+                <span aria-hidden>0{index + 1}</span>
+                <div>
+                  <h3>{item.title}</h3>
+                  <p>{item.body}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </Section>
 
-      {/* ---- Where the project is ------------------------------------------ */}
-      <Section tone="surface" labelledBy="stage-heading">
-        <SectionHead id="stage-heading" title={LANDING.stageTitle} />
-        <p className="mt-6 max-w-reading text-body text-ink-secondary">{LANDING.stageBody}</p>
-        <LinkButton to="/pilot" className="mt-8">
-          {LANDING.stageCta}
-        </LinkButton>
+      <Section labelledBy="stage-heading" className="pilot-section">
+        <div className="pilot-panel">
+          <div className="pilot-watermark" aria-hidden="true">
+            <Grape strokeWidth={0.6} />
+          </div>
+          <div className="pilot-copy">
+            <p className="chapter-label">THE NEXT CHAPTER</p>
+            <h2 id="stage-heading">{LANDING.stageTitle}</h2>
+            <p>{LANDING.stageBody}</p>
+            <LinkButton to="/pilot" className="pilot-cta">
+              {LANDING.stageCta}
+              <ArrowUpRight aria-hidden size={18} />
+            </LinkButton>
+          </div>
+          <span className="pilot-caption">
+            Growing something
+            <br />
+            <em>worth sharing.</em>
+          </span>
+        </div>
       </Section>
-    </>
+    </div>
   );
 }

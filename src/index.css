@@ -238,38 +238,20 @@
     transition: none !important;
   }
 
-  .reveal { --travel: 16px; }
-  .reveal-stagger > * { --travel: 12px; }
-
-  @supports (animation-timeline: view()) {
-    .reveal {
-      animation: reveal-in var(--duration-slow) var(--ease-out) both;
-      animation-timeline: view();
-      animation-range: entry 15% cover 35%;
-    }
-    .reveal-stagger > * {
-      animation: reveal-in var(--duration-base) var(--ease-out) both;
-      animation-timeline: view();
-      animation-range: entry 10% cover 30%;
-    }
+  /* Visible by default. JS only arms offscreen elements after observation. */
+  .reveal { --travel: 24px; }
+  .reveal-stagger > * { --travel: 18px; }
+  .reveal, .reveal-stagger > * {
+    transition: opacity 650ms var(--ease-out), transform 650ms var(--ease-out);
   }
-  @supports not (animation-timeline: view()) {
-    .reveal,
-    .reveal-stagger > * {
-      opacity: 0;
-      transform: translateY(calc(var(--travel) * var(--motion-scale)));
-      transition:
-        opacity var(--duration-slow) var(--ease-out),
-        transform var(--duration-slow) var(--ease-out);
-    }
-    .reveal.is-visible,
-    .reveal-stagger.is-visible > * { opacity: 1; transform: none; }
-    .reveal-stagger.is-visible > *:nth-child(2) { transition-delay: 40ms; }
-    .reveal-stagger.is-visible > *:nth-child(3) { transition-delay: 80ms; }
-    .reveal-stagger.is-visible > *:nth-child(4) { transition-delay: 120ms; }
-    .reveal-stagger.is-visible > *:nth-child(5) { transition-delay: 160ms; }
-    .reveal-stagger.is-visible > *:nth-child(n + 6) { transition-delay: 160ms; }
+  .reveal-ready:not(.vine-animated) {
+    opacity: 0;
+    transform: translateY(calc(var(--travel, 18px) * var(--motion-scale)));
   }
+  .reveal.is-visible, .reveal-stagger > .is-visible { opacity: 1; transform: none; }
+  .reveal-stagger > :nth-child(2) { transition-delay: 60ms; }
+  .reveal-stagger > :nth-child(3) { transition-delay: 120ms; }
+  .reveal-stagger > :nth-child(n + 4) { transition-delay: 180ms; }
 
   /*
    * Cabinet entrance — added after the owner waived the "cabinets stay
@@ -341,8 +323,10 @@
     }
   }
   @supports not (animation-timeline: view()) {
-    .vine-animated .vine-path {
+    .vine-animated.reveal-ready .vine-path {
       stroke-dashoffset: var(--vine-len);
+    }
+    .vine-animated .vine-path {
       transition: stroke-dashoffset 900ms linear;
     }
     .vine-animated.is-visible .vine-path { stroke-dashoffset: var(--vine-draw-to); }
