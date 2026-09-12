@@ -1,3 +1,4 @@
+import { useLocale } from '@/lib/i18n/context';
 import { cn } from '@/lib/cn';
 import { PRODUCTION_STAGES, PRODUCTION_STAGES_SHORT } from '@/lib/enums';
 
@@ -129,15 +130,13 @@ export function TrellisLifecycle({
   className,
   label = 'Production stage',
 }: TrellisLifecycleProps) {
+  const { t } = useLocale();
   const current = Math.min(Math.max(stage, 0), LAST);
 
   return (
     <div className={cn('lifecycle', variant === 'animated' && 'vine-animated', className)}>
       {/* ---- Horizontal presentation --------------------------------------- */}
-      <div
-        className="lifecycle-h"
-        style={vineVars(H_PATH, current)}
-      >
+      <div className="lifecycle-h" style={vineVars(H_PATH, current)}>
         <svg
           aria-hidden
           viewBox={`0 0 ${H.width} ${H.height}`}
@@ -187,7 +186,7 @@ export function TrellisLifecycle({
         <ol
           className="mt-3 grid list-none gap-1 p-0"
           style={{ gridTemplateColumns: `repeat(${STAGE_COUNT}, minmax(0, 1fr))` }}
-          aria-label={label}
+          aria-label={t(label)}
         >
           {PRODUCTION_STAGES.map((name, index) => (
             <li
@@ -200,12 +199,18 @@ export function TrellisLifecycle({
                 index > current && 'text-ink-secondary',
               )}
             >
-              <span className="block">{name}</span>
+              <span className="block">{t(name)}</span>
               <span className="sr-only">
-                {index < current ? ' — complete' : index === current ? ' — current stage' : ' — upcoming'}
+                {index < current
+                  ? t(' — complete')
+                  : index === current
+                    ? t(' — current stage')
+                    : t(' — upcoming')}
               </span>
               {dates?.[index] ? (
-                <span className="block truncate text-caption text-ink-secondary">{dates[index]}</span>
+                <span className="block truncate text-caption text-ink-secondary">
+                  {dates[index]}
+                </span>
               ) : null}
             </li>
           ))}
@@ -224,7 +229,14 @@ export function TrellisLifecycle({
           >
             <g stroke="var(--color-border-strong)" fill="none">
               {V.wires.map((x) => (
-                <line key={x} x1={x} y1="0" x2={x} y2={V_HEIGHT} vectorEffect="non-scaling-stroke" />
+                <line
+                  key={x}
+                  x1={x}
+                  y1="0"
+                  x2={x}
+                  y2={V_HEIGHT}
+                  vectorEffect="non-scaling-stroke"
+                />
               ))}
               {PRODUCTION_STAGES.map((_, index) => (
                 <line
@@ -258,7 +270,7 @@ export function TrellisLifecycle({
           <ol
             className="grid min-w-0 flex-1 list-none p-0"
             style={{ gridTemplateRows: `repeat(${STAGE_COUNT}, ${V.row}px)` }}
-            aria-label={label}
+            aria-label={t(label)}
           >
             {PRODUCTION_STAGES.map((name, index) => (
               <li
@@ -271,11 +283,15 @@ export function TrellisLifecycle({
                   index > current && 'text-ink-secondary',
                 )}
               >
-                <span aria-hidden>{PRODUCTION_STAGES_SHORT[index]}</span>
+                <span aria-hidden>{t(PRODUCTION_STAGES_SHORT[index])}</span>
                 {/* The full label always stays in the accessible name. */}
                 <span className="sr-only">
-                  {name}
-                  {index < current ? ' — complete' : index === current ? ' — current stage' : ' — upcoming'}
+                  {t(name)}
+                  {index < current
+                    ? t(' — complete')
+                    : index === current
+                      ? t(' — current stage')
+                      : t(' — upcoming')}
                 </span>
                 {dates?.[index] ? (
                   <span className="ml-2 text-caption text-ink-secondary">{dates[index]}</span>

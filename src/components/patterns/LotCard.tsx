@@ -1,6 +1,8 @@
+import { useFormat } from '@/lib/i18n/useFormat';
+import { useLocale } from '@/lib/i18n/context';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/cn';
-import { formatCount, formatMoney } from '@/lib/format';
+import { formatCount } from '@/lib/format';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Plate } from '@/components/ui/Plate';
 import { lotContent, lotProducer } from '@/lib/content/lots';
@@ -25,6 +27,8 @@ export function LotCard({
   paymentDecimals: number;
   className?: string;
 }) {
+  const { t } = useLocale();
+  const { formatMoney } = useFormat();
   const content = lotContent(lot.id);
   const producer = lotProducer(lot.id);
   const soldOut = offer ? offer.phase === 2 || offer.available === 0 : false;
@@ -42,19 +46,19 @@ export function LotCard({
           ratio="4 / 3"
           className="rounded-none"
           sizes="(min-width: 1024px) 380px, (min-width: 640px) 45vw, 92vw"
-        fit="contain"
+          fit="contain"
         />
 
         <div className="space-y-3 p-4">
           <div className="flex flex-wrap items-center gap-2">
             {enPrimeur ? (
-              <StatusBadge tone="info">En Primeur</StatusBadge>
+              <StatusBadge tone="info">{t('En Primeur')}</StatusBadge>
             ) : soldOut ? (
-              <StatusBadge tone="neutral">Sold out</StatusBadge>
+              <StatusBadge tone="neutral">{t('Sold out')}</StatusBadge>
             ) : lot.status === 1 ? (
-              <StatusBadge tone="success">Verified</StatusBadge>
+              <StatusBadge tone="success">{t('Verified')}</StatusBadge>
             ) : (
-              <StatusBadge tone="neutral">Draft</StatusBadge>
+              <StatusBadge tone="neutral">{t('Draft')}</StatusBadge>
             )}
           </div>
 
@@ -62,7 +66,7 @@ export function LotCard({
             <p className="text-body-sm text-ink-secondary">{producer.name}</p>
             <h2 className="t-h2 text-[clamp(1.125rem,0.9rem+0.9cqi,1.5rem)]">{lot.name}</h2>
             <p className="text-body-sm text-ink-secondary">
-              {[content?.appellation ?? lot.region, content?.grapes].filter(Boolean).join(' · ')}
+              {[t(content?.appellation ?? lot.region), content?.grapes].filter(Boolean).join(' · ')}
             </p>
           </div>
 
@@ -72,15 +76,19 @@ export function LotCard({
                 {offer ? formatMoney(offer.pricePerBottle, paymentDecimals) : '—'}
               </p>
               <p className="text-body-sm text-ink-secondary">
-                per bottle · {formatCount(lot.bottleSizeMl)} ml
+                {t('per bottle · ')}
+                {formatCount(lot.bottleSizeMl)} {t(' ml')}
               </p>
             </div>
             <p className="text-body-sm text-ink-secondary tabular-nums">
               {soldOut
-                ? 'Sold out'
+                ? t('Sold out')
                 : offer
-                  ? `${formatCount(offer.available)} of ${formatCount(lot.totalBottles)} available`
-                  : 'No open offer'}
+                  ? t('{available} of {total} available', {
+                      available: formatCount(offer.available),
+                      total: formatCount(lot.totalBottles),
+                    })
+                  : t('No open offer')}
             </p>
           </div>
         </div>

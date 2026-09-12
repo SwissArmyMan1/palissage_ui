@@ -1,6 +1,6 @@
+import { useFormat } from '@/lib/i18n/useFormat';
 import { cn } from '@/lib/cn';
 import { useCountUp } from '@/lib/motion';
-import { formatMoneyNumber } from '@/lib/format';
 
 /**
  * A stat tile states its comparison basis in text, or it is decoration and gets
@@ -42,7 +42,14 @@ export function StatTile({
 }
 
 /** Counts up once, on first view. Never on refetch — marketing pages only. */
-export function CountUpMoney({ target, fractionDigits = 0 }: { target: number; fractionDigits?: number }) {
+export function CountUpMoney({
+  target,
+  fractionDigits = 0,
+}: {
+  target: number;
+  fractionDigits?: number;
+}) {
+  const { formatMoneyNumber } = useFormat();
   const { ref, value } = useCountUp(target);
   return (
     <span ref={ref} className="t-num">

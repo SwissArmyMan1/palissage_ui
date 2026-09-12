@@ -1,3 +1,4 @@
+import { useLocale } from '@/lib/i18n/context';
 import { useMemo, useState, useTransition } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -33,6 +34,7 @@ const SORTS: { id: Sort; label: string }[] = [
  * typing never blocks (doc 06 §4).
  */
 export default function Catalogue() {
+  const { t } = useLocale();
   const [params, setParams] = useSearchParams();
   const [cursor, setCursor] = useState(0n);
   const [, startTransition] = useTransition();
@@ -57,7 +59,12 @@ export default function Catalogue() {
     const needle = search.trim().toLowerCase();
     const filtered = needle
       ? joined.filter((row) =>
-          [row.lot.name, row.producer.name, row.content?.appellation ?? row.lot.region, row.content?.grapes]
+          [
+            row.lot.name,
+            row.producer.name,
+            row.content?.appellation ?? row.lot.region,
+            row.content?.grapes,
+          ]
             .filter(Boolean)
             .some((value) => value!.toLowerCase().includes(needle)),
         )
@@ -87,8 +94,8 @@ export default function Catalogue() {
   return (
     <div className="shell py-12 md:py-16">
       <header className="max-w-reading">
-        <h1 className="t-h1">{CATALOGUE.title}</h1>
-        <p className="mt-4 text-body text-ink-secondary">{CATALOGUE.lede}</p>
+        <h1 className="t-h1">{t(CATALOGUE.title)}</h1>
+        <p className="mt-4 text-body text-ink-secondary">{t(CATALOGUE.lede)}</p>
       </header>
 
       <div className="mt-12 space-y-8">
@@ -124,8 +131,11 @@ export default function Catalogue() {
         />
 
         <div className="flex flex-wrap items-center justify-end gap-3">
-          <label htmlFor="catalogue-sort" className="whitespace-nowrap text-body-sm text-ink-secondary">
-            Sort by
+          <label
+            htmlFor="catalogue-sort"
+            className="whitespace-nowrap text-body-sm text-ink-secondary"
+          >
+            {t('Sort by')}
           </label>
           <Select
             id="catalogue-sort"
@@ -139,17 +149,21 @@ export default function Catalogue() {
           >
             {SORTS.map((option) => (
               <option key={option.id} value={option.id}>
-                {option.label}
+                {t(option.label)}
               </option>
             ))}
           </Select>
         </div>
 
         {!hasData && failed ? (
-          <Callout tone="danger" title="We could not read the catalogue from Base." role="alert">
-            The read model did not answer, so this page cannot say what is published. Nothing is
-            wrong with your wallet — this is a network read, and a VPN or a blocked endpoint will
-            stop it.{' '}
+          <Callout
+            tone="danger"
+            title={t('We could not read the catalogue from Base.')}
+            role="alert"
+          >
+            {t(
+              'The read model did not answer, so this page cannot say what is published. Nothing is wrong with your wallet — this is a network read, and a VPN or a blocked endpoint will stop it.',
+            )}{' '}
             <button
               type="button"
               onClick={() => {
@@ -158,29 +172,30 @@ export default function Catalogue() {
               }}
               className="font-medium underline underline-offset-4"
             >
-              Try the read again
+              {t('Try the read again')}
             </button>
           </Callout>
         ) : !hasData ? (
           <SkeletonCardGrid count={6} />
         ) : rows.length === 0 && lots.items.length === 0 ? (
           <EmptyState
-            title={CATALOGUE.emptyFirstRunTitle}
-            body={CATALOGUE.emptyFirstRunBody}
+            title={t(CATALOGUE.emptyFirstRunTitle)}
+            body={t(CATALOGUE.emptyFirstRunBody)}
             action={{ label: CATALOGUE.emptyFirstRunCta, to: '/for-wineries' }}
           />
         ) : rows.length === 0 ? (
           <EmptyState
             variant="filtered"
-            title={CATALOGUE.emptyFilteredTitle}
+            title={t(CATALOGUE.emptyFilteredTitle)}
             onClear={() => setParams(new URLSearchParams(), { replace: true })}
           />
         ) : (
           <>
             {failed ? (
               <Callout tone="warning" role="status">
-                These lots are the last successful read from Base. The most recent re-read did not
-                answer, so the figures may have moved.{' '}
+                {t(
+                  'These lots are the last successful read from Base. The most recent re-read did not answer, so the figures may have moved.',
+                )}{' '}
                 <button
                   type="button"
                   onClick={() => {
@@ -189,7 +204,7 @@ export default function Catalogue() {
                   }}
                   className="font-medium underline underline-offset-4"
                 >
-                  Read again
+                  {t('Read again')}
                 </button>
               </Callout>
             ) : null}

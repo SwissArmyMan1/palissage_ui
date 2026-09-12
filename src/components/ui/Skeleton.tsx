@@ -1,24 +1,26 @@
+import { useLocale } from '@/lib/i18n/context';
 import { cn } from '@/lib/cn';
 
 /**
  * Geometry-matched loaders. Skeletons are aria-hidden with one polite message
  * for the region — not dozens of announced boxes (doc 05 §2).
  */
-export function Skeleton({ className, style }: { className?: string; style?: React.CSSProperties }) {
+export function Skeleton({
+  className,
+  style,
+}: {
+  className?: string;
+  style?: React.CSSProperties;
+}) {
   return <div aria-hidden className={cn('skeleton', className)} style={style} />;
 }
 
-export function LoadingRegion({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
+export function LoadingRegion({ label, children }: { label: string; children: React.ReactNode }) {
+  const { t } = useLocale();
   return (
     <div>
       <p className="sr-only" role="status">
-        {label}
+        {t(label)}
       </p>
       {children}
     </div>
@@ -26,8 +28,9 @@ export function LoadingRegion({
 }
 
 export function SkeletonCardGrid({ count = 6 }: { count?: number }) {
+  const { t } = useLocale();
   return (
-    <LoadingRegion label="Loading lots…">
+    <LoadingRegion label={t('Loading lots…')}>
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: count }, (_, i) => (
           <div key={i} className="card overflow-hidden">
@@ -46,7 +49,13 @@ export function SkeletonCardGrid({ count = 6 }: { count?: number }) {
   );
 }
 
-export function SkeletonRows({ count = 5, label = 'Loading rows…' }: { count?: number; label?: string }) {
+export function SkeletonRows({
+  count = 5,
+  label = 'Loading rows…',
+}: {
+  count?: number;
+  label?: string;
+}) {
   return (
     <LoadingRegion label={label}>
       <div className="divide-y divide-edge-subtle">
@@ -64,8 +73,9 @@ export function SkeletonRows({ count = 5, label = 'Loading rows…' }: { count?:
 }
 
 export function SkeletonTiles({ count = 3 }: { count?: number }) {
+  const { t } = useLocale();
   return (
-    <LoadingRegion label="Loading figures…">
+    <LoadingRegion label={t('Loading figures…')}>
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: count }, (_, i) => (
           <div key={i} className="card p-6">

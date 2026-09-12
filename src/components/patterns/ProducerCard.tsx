@@ -1,11 +1,16 @@
+import { useLocale } from '@/lib/i18n/context';
 import { Link } from 'react-router-dom';
 import { Plate } from '@/components/ui/Plate';
 import type { Producer } from '@/lib/content/producers';
 
 export function ProducerCard({ producer, lotCount }: { producer: Producer; lotCount: number }) {
+  const { t } = useLocale();
   return (
     <article className="[container-type:inline-size]">
-      <Link to={`/producers/${producer.slug}`} className="card hoverable block h-full overflow-hidden shadow-1">
+      <Link
+        to={`/producers/${producer.slug}`}
+        className="card hoverable block h-full overflow-hidden shadow-1"
+      >
         <Plate
           asset={producer.hero}
           alt={producer.name}
@@ -15,12 +20,16 @@ export function ProducerCard({ producer, lotCount }: { producer: Producer; lotCo
         />
         <div className="space-y-2 p-4">
           <p className="text-body-sm text-ink-secondary">
-            {[producer.place, `${lotCount} ${lotCount === 1 ? 'lot' : 'lots'}`, producer.appellation]
+            {[
+              t(producer.place),
+              `${lotCount} ${lotCount === 1 ? t('lot') : t('lots')}`,
+              t(producer.appellation),
+            ]
               .filter(Boolean)
               .join(' · ')}
           </p>
           <h2 className="t-h2 text-[clamp(1.25rem,1rem+1cqi,1.75rem)]">{producer.name}</h2>
-          <p className="text-body-sm text-ink-secondary">{producer.lede}</p>
+          <p className="text-body-sm text-ink-secondary">{t(producer.lede)}</p>
         </div>
       </Link>
     </article>

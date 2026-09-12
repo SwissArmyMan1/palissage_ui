@@ -1,3 +1,4 @@
+import { useLocale } from '@/lib/i18n/context';
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/cn';
 
@@ -17,6 +18,7 @@ export function Tabs({
   onChange: (id: string) => void;
   className?: string;
 }) {
+  const { t } = useLocale();
   const listRef = useRef<HTMLDivElement | null>(null);
   const [indicator, setIndicator] = useState({ x: 0, w: 0 });
 
@@ -26,7 +28,7 @@ export function Tabs({
     const active = list.querySelector<HTMLElement>(`[data-tab-id="${value}"]`);
     if (!active) return;
     setIndicator({ x: active.offsetLeft, w: active.offsetWidth });
-  }, [value, tabs]);
+  }, [value, tabs, t]);
 
   const move = (delta: number) => {
     const index = tabs.findIndex((tab) => tab.id === value);
@@ -39,8 +41,14 @@ export function Tabs({
     <div
       ref={listRef}
       role="tablist"
-      className={cn('tab-rail flex gap-6 border-b border-edge-subtle', className)}
-      style={{ ['--tab-x' as string]: `${indicator.x}px`, ['--tab-w' as string]: `${indicator.w}px` }}
+      className={cn(
+        'tab-rail flex max-w-full overflow-x-auto gap-6 border-b border-edge-subtle',
+        className,
+      )}
+      style={{
+        ['--tab-x' as string]: `${indicator.x}px`,
+        ['--tab-w' as string]: `${indicator.w}px`,
+      }}
       onKeyDown={(event) => {
         if (event.key === 'ArrowRight') {
           event.preventDefault();
@@ -73,11 +81,11 @@ export function Tabs({
             tabIndex={selected ? 0 : -1}
             onClick={() => onChange(tab.id)}
             className={cn(
-              'relative -mb-px min-h-[42px] border-b-2 border-transparent pb-2 pt-1 text-body-sm transition-colors duration-fast ease-out',
+              'relative shrink-0 -mb-px min-h-[42px] border-b-2 border-transparent pb-2 pt-1 text-body-sm transition-colors duration-fast ease-out',
               selected ? 'font-semibold text-ink' : 'text-ink-secondary hover:text-ink',
             )}
           >
-            {tab.label}
+            {t(tab.label)}
           </button>
         );
       })}
@@ -96,7 +104,13 @@ export function TabPanel({
 }) {
   if (!active) return null;
   return (
-    <div role="tabpanel" id={`panel-${id}`} aria-labelledby={`tab-${id}`} tabIndex={0} className="outline-none">
+    <div
+      role="tabpanel"
+      id={`panel-${id}`}
+      aria-labelledby={`tab-${id}`}
+      tabIndex={0}
+      className="outline-none"
+    >
       {children}
     </div>
   );

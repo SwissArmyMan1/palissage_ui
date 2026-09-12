@@ -1,3 +1,4 @@
+import { useLocale } from '@/lib/i18n/context';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/cn';
@@ -31,6 +32,7 @@ export function Dialog({
   size?: 'md' | 'lg';
   labelledBy?: string;
 }) {
+  const { t } = useLocale();
   const ref = useRef<HTMLDialogElement | null>(null);
   const headingRef = useRef<HTMLHeadingElement | null>(null);
   const compact = useIsCompact();
@@ -110,7 +112,7 @@ export function Dialog({
           <button
             type="button"
             onClick={close}
-            aria-label="Close"
+            aria-label={t('Close')}
             className="-m-2 grid size-9 shrink-0 place-items-center rounded-md text-ink-secondary transition-colors duration-fast ease-out hover:bg-surface-sunken hover:text-ink"
           >
             <X aria-hidden className="size-5" strokeWidth={1.75} />

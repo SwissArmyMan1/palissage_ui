@@ -1,0 +1,595 @@
+// Public website copy. Keys are the original English text; technical values remain unchanged.
+export const FR: Record<string, string> = {
+  'Cabardès AOC · organic': 'AOC Cabardès · bio',
+  'Sort by': 'Trier par',
+  'We could not read the catalogue from Base.': 'Impossible de charger le catalogue depuis Base.',
+  'The read model did not answer, so this page cannot say what is published. Nothing is wrong with your wallet — this is a network read, and a VPN or a blocked endpoint will stop it.':
+    'Le service de lecture n’a pas répondu : cette page ne peut donc pas indiquer les lots publiés. Votre portefeuille n’est pas en cause. Il s’agit d’une lecture réseau qu’un VPN ou un point d’accès bloqué peut empêcher.',
+  'Try the read again': 'Réessayer',
+  'These lots are the last successful read from Base. The most recent re-read did not answer, so the figures may have moved.':
+    'Ces lots correspondent à la dernière lecture réussie sur Base. La dernière actualisation a échoué : les chiffres peuvent avoir changé.',
+  'Read again': 'Actualiser',
+  'Get in touch': 'Nous contacter',
+  Contacts: 'Contacts',
+  'A question about Palissage, direct wine trade or the pilot? We’d love to hear from you.':
+    'Une question sur Palissage, la vente directe de vin ou le projet pilote ? Écrivez-nous.',
+  Email: 'E-mail',
+  'Write to the team.': 'Écrivez à l’équipe.',
+  'Find us on X': 'Retrouvez-nous sur X',
+  'Follow the project and join the conversation.':
+    'Suivez le projet et participez à la conversation.',
+  'Try it': 'Essayer',
+  'Three ways in, and one that is honest about its limits.':
+    'Trois façons de découvrir la plateforme, avec ses limites clairement expliquées.',
+  'There is no wallet-free simulator yet. What exists is the real deployment on':
+    'Il n’existe pas encore de simulateur sans portefeuille. Vous pouvez utiliser le déploiement réel sur',
+  ', with a public sandbox open on the role gateway — so you can hold a role and send real transactions against test assets.':
+    ', avec un environnement de test public accessible via la passerelle de rôles. Vous pouvez ainsi obtenir un rôle et effectuer de vraies transactions avec des actifs de test.',
+  'No wallet needed': 'Sans portefeuille',
+  'Read everything': 'Tout consulter',
+  'The catalogue, every lot record, the verification state and a bottle passport all read without a wallet or an account.':
+    'Le catalogue, les fiches des lots, leur état de vérification et les passeports des bouteilles sont consultables sans portefeuille ni compte.',
+  'Sandbox open': 'Environnement de test ouvert',
+  'Sandbox closed': 'Environnement de test fermé',
+  'Take a role and trade': 'Choisir un rôle et échanger',
+  'The gateway’s test mode is closed right now, so roles cannot be self-assigned. Reading still works everywhere.':
+    'Le mode test de la passerelle est actuellement fermé : vous ne pouvez pas vous attribuer un rôle. Toutes les pages restent consultables.',
+  'Operator role': 'Rôle d’opérateur',
+  'See the operator cabinet': 'Découvrir l’espace opérateur',
+  'Operations carries the verifier role on the token, so it is deliberately not self-assignable — a self-service operator could suspend a live lot. A gateway admin has to grant it.':
+    'L’espace opérateur donne accès au rôle de vérificateur sur le contrat du jeton. Ce rôle ne peut pas être attribué en libre-service, car il permet notamment de suspendre un lot. Un administrateur de la passerelle doit l’accorder.',
+  'Go to your cabinet': 'Accéder à votre espace',
+  'If this wallet already holds a role, this is the way straight in.':
+    'Si ce portefeuille possède déjà un rôle, accédez directement à votre espace.',
+  'What “test assets only” means': 'Ce que signifie « actifs de test uniquement »',
+  'Everything on': 'Tous les actifs sur',
+  'is a test asset with no monetary value, including the':
+    'sont des actifs de test sans valeur monétaire, y compris les',
+  'used for settlement. No real wine changes hands, and no real money settles.':
+    'utilisés pour le règlement. Aucun vin réel n’est échangé et aucun argent réel n’est transféré.',
+  'Good wine.': 'Du bon vin.',
+  Direct: 'En direct',
+  from: 'depuis',
+  'the source.': 'le domaine.',
+  'Try it on Base Sepolia': 'Essayer sur Base Sepolia',
+  'Follow the journey': 'Suivre le parcours',
+  'Rooted in the Cabardès.': 'Ancré dans le Cabardès.',
+  'Built for direct trade.': 'Pensé pour la vente directe.',
+  'Vineyard rows and a wooden trellis post on the limestone slopes of the Cabardès':
+    'Rangs de vigne et piquet de palissage sur les coteaux calcaires du Cabardès',
+  'THE CABARDÈS': 'LE CABARDÈS',
+  'Southern France ↗': 'Sud de la France ↗',
+  'Every wine': 'Chaque vin',
+  'has a beginning.': 'a une origine.',
+  'A.1353 wine bottle from Domaine de Cazaban': 'Bouteille A.1353 du Domaine de Cazaban',
+  'FROM THE CABARDÈS': 'DU CABARDÈS',
+  'Producer bottle · illustration': 'Bouteille du producteur · illustration',
+  'THE VINE. THE WINE. THE PEOPLE.': 'LA VIGNE. LE VIN. LES FEMMES ET LES HOMMES.',
+  'Direct trade, from independent wineries to your business':
+    'La vente directe, des vignerons indépendants à votre entreprise',
+  'Independent wineries': 'Vignerons indépendants',
+  'A shorter path. A fairer trade.': 'Moins d’intermédiaires. Un échange plus équitable.',
+  'Your business': 'Votre entreprise',
+  'A wine’s journey': 'Le parcours d’un vin',
+  'See how it works': 'Découvrir le fonctionnement',
+  'The seven stages of a wine’s journey, illustrated':
+    'Les sept étapes du parcours d’un vin, illustrées',
+  'Buy wine that’s ready today.': 'Achetez un vin disponible dès aujourd’hui.',
+  'Or be part of the next vintage.': 'Ou prenez part au prochain millésime.',
+  'Every lot records its production stage on Base.':
+    'Chaque lot enregistre son stade de production sur Base.',
+  'From the first allocation to the last delivery.':
+    'De la première allocation à la dernière livraison.',
+  'Closer to each other': 'Plus proches les uns des autres',
+  'AT THE ORIGIN': 'À L’ORIGINE',
+  'AT YOUR TABLE': 'À VOTRE TABLE',
+  'Cultivate.': 'Cultiver.',
+  'Discover.': 'Découvrir.',
+  'Better on both sides': 'Chacun y gagne',
+  'The landscape of the Cabardès wine region': 'Paysage viticole du Cabardès',
+  'Real places. Real people. Real wine.': 'Des lieux. Des personnes. Du vrai vin.',
+  'The origin': 'Son origine',
+  'stays with it.': 'l’accompagne.',
+  'From a hillside in southern France': 'D’un coteau du sud de la France',
+  'to the story behind every bottle.': 'à l’histoire de chaque bouteille.',
+  'A little more transparency': 'Un peu plus de transparence',
+  'Explore the infrastructure': 'Découvrir l’infrastructure',
+  'THE NEXT CHAPTER': 'LE PROCHAIN CHAPITRE',
+  'Growing something': 'Faire grandir un projet',
+  'worth sharing.': 'qui se partage.',
+  'Loading the lot…': 'Chargement du lot…',
+  'En Primeur': 'En primeur',
+  'Current release': 'Vin disponible',
+  '(Producer-supplied description. Not recorded on Base.)':
+    '(Description fournie par le producteur. Non enregistrée sur Base.)',
+  'Bottles in this lot': 'Bouteilles dans ce lot',
+  'Minted so far': 'Jetons émis à ce jour',
+  'In circulation': 'En circulation',
+  'Delivered and burned': 'Livrées, jetons détruits',
+  'Committed to offers': 'Engagées dans des offres',
+  'Producer royalty on resale': 'Redevance du producteur à la revente',
+  Vintage: 'Millésime',
+  'Export eligibility': 'Éligibilité à l’exportation',
+  'Marked as export eligible': 'Éligible à l’exportation',
+  'Not marked for export': 'Non indiqué comme éligible à l’exportation',
+  'What this record is': 'Ce que contient cette fiche',
+  'The lot, its bottle count and its verification are on Base. The description, photograph and grape blend are supplied by the producer and held off-chain.':
+    'Le lot, son nombre de bouteilles et sa vérification sont enregistrés sur Base. La description, la photographie et l’assemblage sont fournis par le producteur et conservés hors chaîne.',
+  'Offers on this lot': 'Offres pour ce lot',
+  'No offer is open on this lot in': 'Aucune offre n’est actuellement ouverte pour ce lot en',
+  'right now.': '.',
+  'Offer #': 'Offre n°',
+  'per bottle ·': 'par bouteille ·',
+  of: 'sur',
+  left: 'restantes',
+  'Reserve bottles': 'Réserver des bouteilles',
+  Production: 'Production',
+  'This lot is marked ready for delivery, so a holder can request physical delivery of their bottles.':
+    'Ce lot est déclaré prêt à être livré. Un détenteur peut donc demander la livraison physique de ses bouteilles.',
+  Activity: 'Activité',
+  'This interface reads current state, not an event history — it does not run an indexer, so it will not show you a timeline it has not verified. The token’s full transfer and mint history is on Base.':
+    'Cette interface consulte l’état actuel, pas l’historique des événements. Sans indexeur, elle n’affiche pas de chronologie qu’elle n’a pas vérifiée. L’historique complet des transferts et des émissions du jeton est disponible sur Base.',
+  'Token id': 'Identifiant du jeton',
+  'Producer wallet': 'Portefeuille du producteur',
+  'producer wallet': 'portefeuille du producteur',
+  'See every transfer of this lot on Basescan': 'Voir tous les transferts de ce lot sur Basescan',
+  'See the producer': 'Voir le producteur',
+  'Price per bottle': 'Prix par bouteille',
+  'ml · whole bottles only': 'ml · bouteilles entières uniquement',
+  Available: 'Disponibles',
+  'Offer opens': 'Ouverture de l’offre',
+  'Offer closes': 'Clôture de l’offre',
+  Payment: 'Paiement',
+  'Full payment at reservation': 'Paiement intégral à la réservation',
+  'Settled in': 'Règlement en',
+  Delivery: 'Livraison',
+  'Available now': 'Disponible maintenant',
+  'Opens at Ready for delivery': 'Possible à l’étape « Prêt à livrer »',
+  'No open offer': 'Aucune offre ouverte',
+  'Reserving requires a wallet qualified as a B2B buyer. Shipping, duties and taxes are not included.':
+    'La réservation nécessite un portefeuille qualifié comme acheteur professionnel. Transport, droits et taxes ne sont pas inclus.',
+  'Producer wallet on Base': 'Portefeuille du producteur sur Base',
+  'For wineries': 'Vignerons',
+  'Talk to us about the pilot': 'Parlons du projet pilote',
+  'Vineyard rows trained on a trellis in the Cabardès': 'Rangs de vigne palissés dans le Cabardès',
+  'What the platform does for you': 'Ce que la plateforme vous apporte',
+  'For shops and importers': 'Cavistes et importateurs',
+  'Explore the lots': 'Découvrir les lots',
+  'What you can rely on': 'Ce sur quoi vous pouvez compter',
+  'The seven production stages': 'Les sept étapes de production',
+  'The seven steps': 'Les sept étapes',
+  'What runs on Base': 'Ce qui fonctionne sur Base',
+  'Interested in the pilot? Email us about your winery or business.':
+    'Le projet pilote vous intéresse ? Présentez-nous votre domaine ou votre entreprise par e-mail.',
+  'What will help': 'Informations utiles',
+  'What you make or buy, roughly how many bottles a year, and whether you already sell or buy across a border.':
+    'Ce que vous produisez ou achetez, votre volume annuel approximatif et si vous vendez ou achetez déjà à l’international.',
+  'Or read': 'Vous pouvez aussi découvrir',
+  'what runs on Base': 'ce qui fonctionne sur Base',
+  'first.': '.',
+  'Palissage is a prototype. The contracts in this release are deployed to Base Sepolia, a test network. The settlement asset is a test asset with no monetary value.':
+    'Palissage est un prototype. Les contrats de cette version sont déployés sur Base Sepolia, un réseau de test. L’actif de règlement est un actif de test sans valeur monétaire.',
+  'No real wine has been traded through the platform, no real money has settled, and no commercial agreement with any producer named on this site is in place. Producers shown here are in discussion about a closed pilot.':
+    'Aucun vin réel n’a été échangé sur la plateforme, aucun argent réel n’a été transféré et aucun accord commercial n’est conclu avec les producteurs présentés sur ce site. Des discussions sont en cours avec eux pour un projet pilote fermé.',
+  'The contracts have not been audited by an independent security reviewer. Base mainnet is not reachable from this build.':
+    'Les contrats n’ont pas fait l’objet d’un audit de sécurité indépendant. Cette version ne permet pas d’accéder au réseau principal Base.',
+  'Verification, where the interface shows it, means an operator reviewed documents a producer supplied and recorded their hash on Base. It is not a guarantee of quality, authenticity, or legal compliance, and it is not an inspection of the physical wine.':
+    'Lorsqu’une vérification est affichée, cela signifie qu’un opérateur a examiné les documents fournis par un producteur et enregistré leur empreinte sur Base. Ce n’est ni une garantie de qualité, d’authenticité ou de conformité juridique, ni une inspection physique du vin.',
+  'This interface has no server of its own and no analytics. It does not set a tracking cookie, does not load a font, script or image from a third party, and does not send your address anywhere.':
+    'Cette interface n’a ni serveur propre ni outil d’analyse d’audience. Elle ne dépose aucun cookie de suivi, ne charge aucune police, aucun script ni aucune image depuis un tiers, et n’envoie votre adresse nulle part.',
+  'One cookie is set, and only if you change the theme: it records light or dark so the page renders the way you chose.':
+    'Les préférences de thème et de langue sont enregistrées dans des cookies fonctionnels lorsque vous les modifiez.',
+  'Reading the catalogue requires reading the Base Sepolia network. Those reads go to public RPC endpoints, which can see your IP address like any web request. Connecting a wallet shares your address with this page and with the network.':
+    'La consultation du catalogue nécessite des lectures sur le réseau Base Sepolia. Elles passent par des points d’accès RPC publics qui peuvent voir votre adresse IP, comme pour toute requête web. La connexion d’un portefeuille partage votre adresse avec cette page et le réseau.',
+  'This prototype is provided as it is, for evaluation. Nothing on this site is an offer to sell wine, a financial product, or an invitation to invest.':
+    'Ce prototype est fourni en l’état, à des fins d’évaluation. Aucun élément de ce site ne constitue une offre de vente de vin, un produit financier ou une invitation à investir.',
+  'Bottle balances recorded on Base represent a claim described by the producer against a physical lot. Whether that claim can be enforced is a matter of the agreement between the parties, not of this software.':
+    'Les soldes de bouteilles enregistrés sur Base représentent un droit défini par le producteur sur un lot physique. La possibilité de faire valoir ce droit dépend de l’accord entre les parties, et non de ce logiciel.',
+  'Transfers are restricted at the contract level to wallets an operator has qualified. An operator can suspend a lot and, where the contracts allow it, freeze or move balances. That authority is described on the network page rather than hidden here.':
+    'Les transferts sont limités, au niveau des contrats, aux portefeuilles qualifiés par un opérateur. Un opérateur peut suspendre un lot et, lorsque les contrats le permettent, geler ou déplacer des soldes. Ces pouvoirs sont décrits sur la page consacrée au réseau.',
+  'The name is the French viticultural term for the trellis of posts and wires that carries a vineyard row. The mark is a vine growing across three wires.':
+    'Le nom désigne le palissage : les piquets et les fils qui soutiennent les rangs de vigne. Le symbole représente une vigne qui court sur trois fils.',
+  'Type is Fraunces and Inter, both variable and both open source, with JetBrains Mono for addresses and hashes. Icons are Lucide.':
+    'Les polices sont Fraunces et Inter, toutes deux variables et libres, ainsi que JetBrains Mono pour les adresses et les empreintes. Les icônes proviennent de Lucide.',
+  'Photographs of the estates and the bottles belong to the producers and their photographers. Files whose rights are not yet cleared are not published — where you see a plate instead of a photograph, that is why.':
+    'Les photographies des domaines et des bouteilles appartiennent aux producteurs et à leurs photographes. Les fichiers dont les droits ne sont pas encore autorisés ne sont pas publiés : c’est pourquoi certaines photographies sont remplacées par un emplacement réservé.',
+  'yes — primary and secondary': 'oui — marchés primaire et secondaire',
+  'no — check the allowlist': 'non — vérifier la liste autorisée',
+  yes: 'oui',
+  no: 'non',
+  'yes — roles are self-service': 'oui — attribution des rôles en libre-service',
+  'What is on-chain and what is not': 'Ce qui est sur la chaîne et ce qui ne l’est pas',
+  'On-chain': 'Sur la chaîne',
+  'Off-chain': 'Hors chaîne',
+  Deployment: 'Déploiement',
+  'We could not read the deployment from Base just now, so nothing is shown here. This page never prints a remembered value.':
+    'Impossible de lire le déploiement sur Base pour le moment : aucune donnée n’est donc affichée ici. Cette page n’utilise jamais de valeur mémorisée.',
+  Contracts: 'Contrats',
+  'Each address links to its verified source on Basescan.':
+    'Chaque adresse renvoie au code source vérifié sur Basescan.',
+  'Not found': 'Introuvable',
+  'We could not find that page.': 'Cette page est introuvable.',
+  'It may have been removed, or the link may be wrong. Nothing has been substituted for it — the catalogue below is the full published list.':
+    'Cet élément a peut-être été supprimé ou le lien est incorrect. Rien ne l’a remplacé : le catalogue ci-dessous présente la liste complète des lots publiés.',
+  'The link may be wrong, or the page may have moved.':
+    'Le lien est peut-être incorrect ou la page a été déplacée.',
+  'Browse the lots': 'Parcourir les lots',
+  'Go to the home page': 'Retour à l’accueil',
+  '· certified organic': '· certifié bio',
+  'Lots from this producer': 'Lots de ce producteur',
+  'No lot from this producer is published on Base Sepolia right now.':
+    'Aucun lot de ce producteur n’est actuellement publié sur Base Sepolia.',
+  Producers: 'Producteurs',
+  'Four estates in the Cabardès and Limoux, working the limestone slopes north of Carcassonne. Each is in discussion about the first pilot; none has traded on the platform yet.':
+    'Quatre domaines du Cabardès et de Limoux cultivent les coteaux calcaires au nord de Carcassonne. Chacun participe aux discussions sur le premier projet pilote ; aucun n’a encore réalisé de vente sur la plateforme.',
+  'Skip to the main content': 'Aller au contenu principal',
+  Main: 'Navigation principale',
+  'Close the menu': 'Fermer le menu',
+  'Open the menu': 'Ouvrir le menu',
+  'Main, expanded': 'Navigation principale, menu ouvert',
+  'Loading the next page…': 'Chargement de la page…',
+  Footer: 'Pied de page',
+  'Prototype on a test network': 'Prototype sur un réseau de test',
+  'On Base': 'Sur Base',
+  Privacy: 'Confidentialité',
+  Terms: 'Conditions d’utilisation',
+  'Prototype disclosure': 'Informations sur le prototype',
+  Credits: 'Crédits',
+  'Contact Palissage': 'Contacter Palissage',
+  'Connect a wallet to see': 'Connectez un portefeuille pour consulter',
+  'This screen reads records that belong to one wallet, so there is nothing to show until a wallet is connected. Connecting submits nothing.':
+    'Cet écran affiche les données d’un portefeuille précis. Connectez-en un pour les consulter. La connexion n’envoie aucune transaction.',
+  'Browse the catalogue instead': 'Parcourir le catalogue',
+  'Write to Palissage': 'Écrire à Palissage',
+  'Choose your email service to write a message.':
+    'Choisissez votre service de messagerie pour rédiger un message.',
+  'To:': 'À :',
+  '(opens in a new tab)': '(s’ouvre dans un nouvel onglet)',
+  'Open my email app': 'Ouvrir mon application de messagerie',
+  'You may need to sign in to your email service.':
+    'Vous devrez peut-être vous connecter à votre messagerie.',
+  'Palissage on X (opens in a new tab)': 'Palissage sur X (s’ouvre dans un nouvel onglet)',
+  'Switch to the light theme': 'Passer au thème clair',
+  'Switch to the dark theme': 'Passer au thème sombre',
+  Close: 'Fermer',
+  'Search lots and producers': 'Rechercher des lots et des producteurs',
+  Filters: 'Filtres',
+  'Clear filters': 'Effacer les filtres',
+  Previous: 'Précédent',
+  'Next 50': '50 suivants',
+  Breadcrumb: 'Fil d’Ariane',
+  '(opens Basescan in a new tab)': '(ouvre Basescan dans un nouvel onglet)',
+  'Loading lots…': 'Chargement des lots…',
+  'Loading figures…': 'Chargement des chiffres…',
+  'Network:': 'Réseau :',
+  '— complete': '— terminé',
+  '— current stage': '— étape actuelle',
+  '— upcoming': '— à venir',
+  'Sold out': 'Épuisé',
+  Verified: 'Vérifié',
+  Draft: 'Brouillon',
+  lot: 'lot',
+  lots: 'lots',
+  'What was verified': 'Ce qui a été vérifié',
+  'Verification records the hash of the producer’s documents on Base together with the operator who checked them. It states what was checked; it is not a guarantee of quality or legal compliance.':
+    'La vérification enregistre sur Base l’empreinte des documents du producteur et l’identité de l’opérateur qui les a examinés. Elle indique les éléments contrôlés, sans garantir la qualité ni la conformité juridique.',
+  'Production documents': 'Documents de production',
+  'Held by the operator · hash recorded on Base · files not published':
+    'Conservés par l’opérateur · empreinte enregistrée sur Base · fichiers non publiés',
+  'document hash': 'empreinte des documents',
+  '— none recorded with this verification':
+    '— aucune empreinte enregistrée lors de cette vérification',
+  Recorded: 'Enregistré',
+  'No hash recorded': 'Aucune empreinte enregistrée',
+  'Not verified': 'Non vérifié',
+  'Checked by': 'Vérifié par',
+  'verifier address': 'adresse du vérificateur',
+  'Awaiting an operator': 'En attente d’un opérateur',
+  'In the queue': 'En attente de traitement',
+  'Cabardès, southern France': 'Cabardès, sud de la France',
+  'Good wine. Direct from the source.': 'Du bon vin. En direct du domaine.',
+  'Buy directly from independent wineries. A shorter path means better prices for your business and more value for the people who make the wine. Discover bottled wines, or secure a vintage still on the vine.':
+    'Achetez directement auprès de vignerons indépendants. Moins d’intermédiaires, c’est un meilleur prix pour votre entreprise et plus de valeur pour ceux qui font le vin. Découvrez des vins en bouteille ou réservez un millésime encore sur pied.',
+  'Try the demo — no wallet needed': 'Essayer la démo — sans portefeuille',
+  'One lot, from the vine to the shelf.': 'Un lot, de la vigne au caviste.',
+  'Every lot follows the same path. What changes is where you join it.':
+    'Chaque lot suit le même parcours. À vous de choisir à quelle étape le rejoindre.',
+  'Two sides of the same trade.': 'Les deux côtés d’un même échange.',
+  'For producers': 'Producteurs',
+  'Sell direct at your price. Finance the vintage with advance purchases instead of a loan. Keep a royalty when an allocation is resold.':
+    'Vendez en direct à votre prix. Financez le millésime grâce aux achats anticipés plutôt qu’à un emprunt. Recevez une redevance lorsqu’une allocation est revendue.',
+  'Buy closer to the source, at terms you can see. Secure next year’s inventory before it is allocated elsewhere. Resell what you no longer need.':
+    'Achetez au plus près du producteur, à des conditions transparentes. Réservez vos stocks pour l’an prochain avant leur allocation ailleurs. Revendez ce dont vous n’avez plus besoin.',
+  'For buyers': 'Acheteurs',
+  'The same margin, shared differently.': 'La même marge, mieux répartie.',
+  'A 10 000-bottle lot, sold direct at €7.20 instead of through a distributor at €8.57.':
+    'Un lot de 10 000 bouteilles vendu en direct à 7,20 € plutôt qu’à 8,57 € via un distributeur.',
+  'The shop pays less': 'Le caviste paie moins',
+  'The producer receives more': 'Le producteur reçoit plus',
+  'Protocol fee': 'Frais du protocole',
+  'An illustration using the demo lot’s figures, not measured platform activity. Shipping, duties and taxes are not included.':
+    'Illustration fondée sur les chiffres du lot de démonstration, et non sur une activité mesurée de la plateforme. Transport, droits et taxes non inclus.',
+  'What “verified” actually means here.': 'Ce que « vérifié » signifie ici.',
+  'Every lot is checked before it can be sold.': 'Chaque lot est contrôlé avant sa mise en vente.',
+  'An operator reviews the producer’s documents and records their hash on Base. The lot page shows who checked it, when, and against which documents.':
+    'Un opérateur examine les documents du producteur et enregistre leur empreinte sur Base. La fiche du lot indique qui les a vérifiés, quand et sur quels documents la vérification repose.',
+  'Only qualified businesses can hold a lot.':
+    'Seules les entreprises qualifiées peuvent détenir un lot.',
+  'Transfers are restricted at the contract level. A buyer who is not verified cannot receive bottles — the interface will not let a sale start that the contract would reject.':
+    'Les transferts sont restreints au niveau des contrats. Un acheteur non qualifié ne peut pas recevoir de bouteilles : l’interface ne permet pas de lancer une vente que le contrat refuserait.',
+  'Money is released against confirmed production.':
+    'Les fonds sont débloqués selon la production confirmée.',
+  'Buyer payments sit in escrow. Each production milestone a verifier confirms releases the share of the payment agreed in the offer.':
+    'Les paiements des acheteurs sont placés sous séquestre. Chaque étape de production confirmée par un vérificateur libère la part du paiement prévue dans l’offre.',
+  'Bottles are burned on delivery.': 'Les jetons sont détruits à la livraison.',
+  'When a buyer confirms they received the wine, the matching bottles are destroyed on-chain. What remains on-chain matches what remains in the cellar.':
+    'Lorsque l’acheteur confirme la réception du vin, les jetons correspondant aux bouteilles sont détruits sur la chaîne. Les soldes restants correspondent aux bouteilles encore en cave.',
+  'Where the project is.': 'Où en est le projet.',
+  'The contracts are written, tested and deployed to Base Sepolia. The interface runs against that deployment. No real wine has been traded and no real money has settled. We are preparing a closed pilot with producers in the Cabardès, in the south of France.':
+    'Les contrats sont écrits, testés et déployés sur Base Sepolia. L’interface utilise ce déploiement. Aucun vin réel n’a été échangé et aucun argent réel n’a été transféré. Nous préparons un projet pilote fermé avec des producteurs du Cabardès, dans le sud de la France.',
+  'The trellis that carries the vine — and the structure that carries the trade.':
+    'Le palissage soutient la vigne. Notre structure soutient les échanges.',
+  'Lots open now': 'Lots disponibles',
+  'Verified lots from producers in the Cabardès. Prices are per 750 ml bottle, with the protocol fee shown before you commit.':
+    'Des lots vérifiés proposés par les producteurs du Cabardès. Les prix sont indiqués par bouteille de 750 ml et les frais du protocole sont présentés avant tout engagement.',
+  'No lots are published yet.': 'Aucun lot n’est encore publié.',
+  'Producers are being onboarded for the first pilot.':
+    'Les producteurs rejoignent progressivement le premier projet pilote.',
+  'Are you a producer?': 'Vous êtes producteur ?',
+  'No lots match these filters.': 'Aucun lot ne correspond à ces filtres.',
+  'Get paid before the wine leaves the cellar.': 'Soyez payé avant que le vin quitte la cave.',
+  'Production costs money now; the wine sells later. Palissage lets buyers pay for part of a vintage in advance, so a share of the revenue arrives while the wine is still ageing.':
+    'La production se finance aujourd’hui, le vin se vend plus tard. Palissage permet aux acheteurs de payer une partie d’un millésime à l’avance : une part des recettes arrive pendant l’élevage du vin.',
+  'Publish a lot.': 'Publiez un lot.',
+  'Describe the batch, attach your documents, get it verified.':
+    'Décrivez la cuvée, joignez vos documents et faites vérifier le lot.',
+  'Set your terms.': 'Fixez vos conditions.',
+  'Price, quantity, and how much a buyer pays up front.':
+    'Prix, quantité et montant payé à la réservation.',
+  'Choose your milestones.': 'Choisissez vos étapes.',
+  'Harvest, vinification, bottling — you decide which confirmed steps release which share of the payment.':
+    'Vendanges, vinification, mise en bouteille : vous choisissez les étapes confirmées qui déclenchent le déblocage de chaque part du paiement.',
+  'Get paid as you go.': 'Percevez les fonds au fil de la production.',
+  'Money moves as production is confirmed, not all at the end.':
+    'Les fonds sont débloqués à mesure que la production est confirmée, pas seulement à la fin.',
+  'Keep earning on resale.': 'Continuez à percevoir des revenus à la revente.',
+  'When a buyer resells an allocation, a royalty you set returns to you.':
+    'Lorsqu’un acheteur revend une allocation, vous recevez la redevance que vous avez définie.',
+  'You keep your customer relationship. Palissage is the channel, not the buyer.':
+    'Vous gardez votre relation client. Palissage est le canal de vente, pas l’acheteur.',
+  'Buy closer to the source, on terms you can see.':
+    'Achetez au plus près du producteur, à des conditions transparentes.',
+  'Every lot on Palissage is verified before it is sold, priced per bottle, and settled in a euro stablecoin on Base.':
+    'Chaque lot sur Palissage est vérifié avant sa mise en vente, tarifé à la bouteille et réglé en stablecoin euro sur Base.',
+  'Every lot is verified before it is sold': 'Chaque lot est vérifié avant sa mise en vente',
+  'with the documents and the verification date on the page.':
+    'avec les documents et la date de vérification indiqués sur sa fiche.',
+  'Prices are per bottle, with the fee shown': 'Les prix par bouteille et les frais sont présentés',
+  'before you commit.': 'avant votre engagement.',
+  'Deadlines are dates, not surprises.': 'Des échéances précises, sans surprise.',
+  'What you owe and when is on your allocation.':
+    'Votre allocation indique les montants à payer et leurs échéances.',
+  'Reserve next year’s stock now.': 'Réservez dès maintenant vos stocks pour l’an prochain.',
+  'En Primeur lets you secure a vintage at a fixed price before it is allocated elsewhere.':
+    'La vente en primeur vous permet de réserver un millésime à prix fixe avant son allocation à d’autres acheteurs.',
+  'Resell what you no longer need': 'Revendez ce dont vous n’avez plus besoin',
+  'to other qualified buyers, with the producer’s royalty handled automatically.':
+    'à d’autres acheteurs qualifiés, avec versement automatique de la redevance du producteur.',
+  'Ask for the bottles when you want them.': 'Demandez vos bouteilles quand vous en avez besoin.',
+  'Delivery opens when the producer marks the lot ready.':
+    'La livraison devient possible lorsque le producteur déclare le lot prêt.',
+  'How a lot becomes bottles in your cellar.': 'Du lot aux bouteilles dans votre cave.',
+  'The same seven stages carry every lot. This page follows one from the producer’s description to the moment the bottles are burned on delivery.':
+    'Chaque lot passe par les mêmes sept étapes. Suivez son parcours, de la description du producteur à la destruction des jetons lors de la livraison.',
+  'The producer describes the batch': 'Le producteur décrit la cuvée',
+  'A lot is one batch of wine: a name, an appellation, a vintage, a bottle count and a bottle size. The bottle count is fixed when the lot is created — minting is capped by it and it cannot be raised later.':
+    'Un lot représente une cuvée : un nom, une appellation, un millésime, un nombre de bouteilles et un format. Le nombre de bouteilles est fixé à la création du lot. Il plafonne l’émission des jetons et ne peut plus être augmenté.',
+  'An operator verifies it': 'Un opérateur vérifie le lot',
+  'The producer attaches production documents. An operator reviews them and records their hash on Base together with their own address. Verification records what was checked; it is not a guarantee of quality or legal compliance.':
+    'Le producteur joint les documents de production. Un opérateur les examine et enregistre leur empreinte sur Base avec sa propre adresse. La vérification indique les éléments contrôlés ; elle ne garantit ni la qualité ni la conformité juridique.',
+  'The producer publishes an offer': 'Le producteur publie une offre',
+  'An offer sets price per bottle, quantity, the window it is open, and how much a buyer pays at reservation. A current-release offer sells wine that exists. An En Primeur offer sells a vintage that is still on the vine.':
+    'L’offre définit le prix par bouteille, la quantité, la période d’ouverture et le montant à régler à la réservation. Une offre de vin disponible concerne du vin déjà produit. Une offre en primeur concerne un millésime encore sur pied.',
+  'A qualified buyer reserves': 'Un acheteur qualifié réserve',
+  'Only a wallet carrying the B2B buyer claim can reserve. Payment goes into escrow. Bottles are minted only when the allocation is paid in full — a deposit reserves them, it does not mint them.':
+    'Seul un portefeuille disposant de l’attestation d’acheteur professionnel peut réserver. Le paiement est placé sous séquestre. Les jetons ne sont émis qu’après paiement intégral de l’allocation : un acompte réserve les bouteilles sans créer de jetons.',
+  'Milestones release the money': 'Les étapes débloquent les fonds',
+  'The producer defines milestones as shares of the offer in basis points. When a verifier confirms a milestone, that share becomes withdrawable, less the protocol fee.':
+    'Le producteur définit la part de l’offre associée à chaque étape, en points de base. Lorsqu’un vérificateur confirme une étape, cette part peut être retirée, déduction faite des frais du protocole.',
+  'Bottles can be resold': 'Les bouteilles peuvent être revendues',
+  'A buyer can list bottles they hold to other qualified buyers. The sale price splits into the protocol fee, the producer’s royalty and the seller’s proceeds. The tokens stay in the seller’s wallet until the sale settles.':
+    'Un acheteur peut proposer ses bouteilles à d’autres acheteurs qualifiés. Le prix de vente est réparti entre les frais du protocole, la redevance du producteur et le montant revenant au vendeur. Les jetons restent dans le portefeuille du vendeur jusqu’au règlement.',
+  'Delivery burns the bottles': 'La livraison entraîne la destruction des jetons',
+  'When the lot reaches Ready for delivery, a holder can request physical delivery. The bottles move into escrow, the producer attaches shipment documents, and the buyer confirms receipt — at which point the bottles are destroyed on-chain.':
+    'Lorsque le lot atteint le stade « Prêt à livrer », un détenteur peut demander la livraison physique. Les jetons sont placés sous séquestre, le producteur joint les documents d’expédition et l’acheteur confirme la réception. Les jetons sont alors détruits sur la chaîne.',
+  'What runs on Base.': 'Ce qui fonctionne sur Base.',
+  'Palissage settles on Base. Base Sepolia today; Base mainnet after an independent security review and pilot preparation.':
+    'Palissage utilise Base pour les règlements. Base Sepolia aujourd’hui ; le réseau principal Base après un audit de sécurité indépendant et la préparation du pilote.',
+  'Lot issuance and bottle balances': 'Émission des lots et soldes de bouteilles',
+  'Participant eligibility and transfer restrictions':
+    'Éligibilité des participants et restrictions de transfert',
+  'Primary purchases and stablecoin escrow': 'Achats primaires et séquestre des stablecoins',
+  'Milestone-based release of funds': 'Déblocage des fonds par étapes',
+  'Secondary sales and producer royalties': 'Ventes secondaires et redevances des producteurs',
+  'Redemption records, and the burn on confirmed delivery':
+    'Enregistrements des livraisons et destruction des jetons à réception confirmée',
+  'Business verification and legal agreements':
+    'Vérification des entreprises et accords juridiques',
+  'Private documents — their hashes are on-chain':
+    'Documents privés — leurs empreintes sont sur la chaîne',
+  'Physical inspection, storage and shipping': 'Inspection physique, stockage et transport',
+  'Authorised participants submit the attestations and document hashes that connect these to the on-chain record':
+    'Les participants autorisés soumettent les attestations et les empreintes documentaires qui relient ces éléments aux enregistrements sur la chaîne',
+  'Why Base': 'Pourquoi Base',
+  'Low, predictable fees matter when a single lot generates a reservation, a balance payment, a milestone release and a redemption — four transactions per buyer per lot. Stablecoin settlement matters when the two sides are in different countries. And a business that has never held crypto has to be able to complete a purchase without learning what a gas token is.':
+    'Des frais faibles et prévisibles comptent lorsqu’un lot génère une réservation, un paiement du solde, un déblocage d’étape et une livraison : quatre transactions par acheteur et par lot. Le règlement en stablecoin facilite les échanges entre pays. Une entreprise qui n’a jamais détenu de crypto doit pouvoir acheter sans devoir comprendre les jetons servant à payer les frais réseau.',
+  'Rendered from the deployment the interface is reading, never hand-typed.':
+    'Affiché à partir du déploiement lu par l’interface, jamais saisi à la main.',
+  'Earlier prototype contracts were deployed to Arbitrum Sepolia. Those addresses are historical and are not the deployment this interface reads.':
+    'Des versions antérieures du prototype ont été déployées sur Arbitrum Sepolia. Ces adresses sont historiques et ne correspondent pas au déploiement utilisé par cette interface.',
+  'Talk to us about the pilot.': 'Parlons du projet pilote.',
+  'We are preparing a closed pilot with a small number of producers and buyers in the Cabardès. If that is you, or you work with them, tell us what you make or what you buy.':
+    'Nous préparons un pilote fermé avec un petit groupe de producteurs et d’acheteurs du Cabardès. Si vous êtes concerné ou travaillez avec eux, dites-nous ce que vous produisez ou achetez.',
+  'This passport describes the lot this bottle came from. It does not prove that this individual bottle is genuine, unopened, or yours.':
+    'Ce passeport décrit le lot dont cette bouteille est issue. Il ne prouve pas que cette bouteille est authentique, non ouverte ou qu’elle vous appartient.',
+  'No wallet or account needed to read this page.':
+    'Aucun portefeuille ni compte n’est nécessaire pour consulter cette page.',
+  'Base Sepolia · test assets only': 'Base Sepolia · actifs de test uniquement',
+  'Demo · sample data': 'Démo · données fictives',
+  'Roadmap — this programme is not implemented. Nothing on this screen is recorded on Base.':
+    'Feuille de route — ce programme n’est pas implémenté. Rien sur cet écran n’est enregistré sur Base.',
+  'Working the parcels with the vine trained on wire — the palissage this platform is named after.':
+    'Des parcelles aux vignes palissées sur fil : le palissage dont cette plateforme porte le nom.',
+  'On the limestone slopes north of Carcassonne, where Atlantic and Mediterranean weather meet in the same vineyard. The vines are trained on wire — the palissage this platform takes its name from.':
+    'Sur les coteaux calcaires au nord de Carcassonne, où les influences atlantiques et méditerranéennes se rencontrent. Les vignes sont palissées sur fil, à l’origine du nom de cette plateforme.',
+  'Domaine de Cazaban is in discussion about joining the first Palissage pilot. No commercial agreement is in place, and no wine has been traded on the platform.':
+    'Des discussions sont en cours avec le Domaine de Cazaban pour le premier pilote Palissage. Aucun accord commercial n’est conclu et aucun vin n’a été échangé sur la plateforme.',
+  'Two estates, one team; the Limoux parcels supply the En Primeur offers.':
+    'Deux domaines, une équipe ; les parcelles de Limoux alimentent les offres en primeur.',
+  'Two estates worked by one team. The Cabardès parcels at Rissac give the structured reds; the Limoux parcels north of the Aude supply the fruit behind the En Primeur offers.':
+    'Deux domaines cultivés par la même équipe. Les parcelles de Rissac, dans le Cabardès, donnent des rouges structurés ; celles de Limoux, au nord de l’Aude, fournissent les raisins destinés aux offres en primeur.',
+  'Domaines Botica Galy is in discussion about joining the first Palissage pilot. No commercial agreement is in place, and no wine has been traded on the platform.':
+    'Des discussions sont en cours avec les Domaines Botica Galy pour le premier pilote Palissage. Aucun accord commercial n’est conclu et aucun vin n’a été échangé sur la plateforme.',
+  'Merlot, Grenache Noir and Cabernet Franc on clay-limestone.':
+    'Merlot, Grenache noir et Cabernet franc sur sols argilo-calcaires.',
+  'A small certified-organic estate on clay-limestone, planted to Merlot, Grenache Noir and Cabernet Franc, with a white parcel high enough to keep its acidity.':
+    'Un petit domaine certifié bio sur sols argilo-calcaires, planté de Merlot, Grenache noir et Cabernet franc, avec une parcelle de blanc en altitude qui préserve son acidité.',
+  'Domaine La Mijane is in discussion about joining the first Palissage pilot. No commercial agreement is in place, and no wine has been traded on the platform.':
+    'Des discussions sont en cours avec le Domaine La Mijane pour le premier pilote Palissage. Aucun accord commercial n’est conclu et aucun vin n’a été échangé sur la plateforme.',
+  'A Cabardès blend across the Atlantic and Mediterranean grape families.':
+    'Un assemblage du Cabardès réunissant les familles de cépages atlantiques et méditerranéennes.',
+  'At Bagnoles, on the eastern edge of the appellation. The house style blends across both grape families the Cabardès allows — Atlantic Cabernet and Merlot against Mediterranean Grenache and Syrah.':
+    'À Bagnoles, à l’est de l’appellation. Le style du domaine associe les deux familles de cépages autorisées dans le Cabardès : Cabernet et Merlot atlantiques, Grenache et Syrah méditerranéens.',
+  'Domaine Parazols Bertrou is in discussion about joining the first Palissage pilot. No commercial agreement is in place, and no wine has been traded on the platform.':
+    'Des discussions sont en cours avec le Domaine Parazols Bertrou pour le premier pilote Palissage. Aucun accord commercial n’est conclu et aucun vin n’a été échangé sur la plateforme.',
+  'The terraced parcels at the top of the estate, picked last.':
+    'Les parcelles en terrasses au sommet du domaine, vendangées en dernier.',
+  'Stony ground at Rissac; the wine that gave the estate its reputation.':
+    'Les sols caillouteux de Rissac ; le vin qui a fait la réputation du domaine.',
+  'The high white parcel, kept for acidity.':
+    'La parcelle de blanc en altitude, préservée pour son acidité.',
+  'Pressed at dawn, which is where the name comes from.': 'Pressé à l’aube, d’où son nom.',
+  'Still on the vine. Sold as En Primeur to finance the vintage.':
+    'Encore sur pied. Vendu en primeur pour financer le millésime.',
+  'The row that runs the length of the estate.':
+    'Le rang qui traverse le domaine sur toute sa longueur.',
+  'Vineyard rows on the limestone slopes, Cabardès':
+    'Rangs de vigne sur les coteaux calcaires du Cabardès',
+  'Estate photograph · rights pending': 'Photographie du domaine · autorisation en attente',
+  'Packshot · Domaine de Cazaban': 'Photographie de bouteille · Domaine de Cazaban',
+  'Packshot · photographer credit not yet cleared':
+    'Photographie de bouteille · autorisation du photographe en attente',
+  'Packshot · awaiting producer permission':
+    'Photographie de bouteille · autorisation du producteur en attente',
+  'Packshot · original file too small to publish':
+    'Photographie de bouteille · fichier original trop petit pour être publié',
+  Suspended: 'Suspendu',
+  Closed: 'Clôturé',
+  Announced: 'Annoncé',
+  'In the vineyard': 'À la vigne',
+  Harvested: 'Vendangé',
+  Vinification: 'Vinification',
+  Ageing: 'Élevage',
+  Bottled: 'Mis en bouteille',
+  'Ready for delivery': 'Prêt à livrer',
+  Vineyard: 'Vigne',
+  Ready: 'Prêt',
+  Scheduled: 'Programmé',
+  Open: 'Ouvert',
+  Cancelled: 'Annulé',
+  'Deposit paid': 'Acompte payé',
+  'Paid in full': 'Payé intégralement',
+  Defaulted: 'Défaut de paiement',
+  Requested: 'Demandé',
+  Shipped: 'Expédié',
+  Delivered: 'Livré',
+  Returned: 'Retourné',
+  None: 'Aucun',
+  Admin: 'Administrateur',
+  Winery: 'Domaine viticole',
+  Shop: 'Acheteur',
+  Collector: 'Collectionneur',
+  Unknown: 'Inconnu',
+  Language: 'Langue',
+  'Theme and language preferences are stored in functional cookies when you change them.':
+    'Vos préférences de thème et de langue sont enregistrées dans des cookies fonctionnels lorsque vous les modifiez.',
+  'the page “{name}”': 'la page « {name} »',
+  'the producer “{name}”': 'le producteur « {name} »',
+  'lot {id}': 'le lot {id}',
+  'We could not find {what}.': 'Nous n’avons pas trouvé {what}.',
+  'Photograph pending': 'Photographie en attente',
+  'Showing {count} {noun}': '{count} {noun} affichés',
+  'Showing all {count} {noun}': 'Tous les {noun} sont affichés ({count})',
+  'Remove filter {label}': 'Supprimer le filtre {label}',
+  'Copy {label}': 'Copier : {label}',
+  '{label} copied': 'Copié : {label}',
+  '{label} copied to the clipboard': 'Copié dans le presse-papiers : {label}',
+  address: 'adresse',
+  hash: 'empreinte',
+  'View on Base': 'Voir sur Base',
+  'Loading rows…': 'Chargement des lignes…',
+  Loading: 'Chargement',
+  'Loading…': 'Chargement…',
+  'Production stage': 'Étape de production',
+  '{available} of {total} available': '{available} disponibles sur {total}',
+  'Rissac and Villemartin': 'Rissac et Villemartin',
+  'Cabardès and Limoux AOP': 'AOP Cabardès et Limoux',
+  Overview: 'Vue d’ensemble',
+  Offers: 'Offres',
+  Evidence: 'Justificatifs',
+  '· {percent} deposit': ' · acompte de {percent}',
+  'Production stage of {name}': 'Étape de production de {name}',
+  'This lot is at {stage}. Delivery opens when the producer marks the lot ready for delivery. Production moves forward only.':
+    'Ce lot est à l’étape « {stage} ». La livraison devient possible lorsque le producteur indique que le lot est prêt à livrer. La production ne peut qu’avancer.',
+  '{available} of {total} bottles': '{available} bouteilles sur {total}',
+  'Full payment, or {percent} deposit': 'Paiement intégral ou acompte de {percent}',
+  'No offer is open on this lot in {symbol} right now.':
+    'Aucune offre en {symbol} n’est ouverte sur ce lot actuellement.',
+  "Connect a wallet, take the Winery or Shop role in one transaction, get {symbol} from Circle's faucet, and run a real reservation end to end.":
+    'Connectez un portefeuille, choisissez le rôle Domaine viticole ou Acheteur en une transaction, obtenez des {symbol} via le robinet de test de Circle, puis effectuez une réservation de bout en bout.',
+  'Take a role and open a cabinet': 'Choisir un rôle et ouvrir un espace',
+  '{network} · chain id {id}': '{network} · identifiant de chaîne {id}',
+  '{symbol} · {decimals} decimals · issued by {issuer}':
+    '{symbol} · {decimals} décimales · émis par {issuer}',
+  '{primary} primary · {secondary} secondary':
+    '{primary} sur le marché primaire · {secondary} sur le marché secondaire',
+  '{lots} lots · {offers} offers · {allocations} allocations · {deliveries} deliveries':
+    '{lots} lots · {offers} offres · {allocations} allocations · {deliveries} livraisons',
+  '{name} address': 'adresse de {name}',
+  'Protocol version': 'Version du protocole',
+  'Settlement asset': 'Actif de règlement',
+  'Accepted on both markets': 'Accepté sur les deux marchés',
+  'Markets paused': 'Marchés en pause',
+  'Public sandbox open': 'Bac à sable public ouvert',
+  'Records on chain': 'Enregistrements sur la chaîne',
+  'Deployment id': 'Identifiant du déploiement',
+  'Price, lowest first': 'Prix croissant',
+  'Price, highest first': 'Prix décroissant',
+  'Most available': 'Disponibilité décroissante',
+  'Newest vintage': 'Millésime le plus récent',
+  'Cabardès AOP · organic': 'AOP Cabardès · bio',
+  Lots: 'Lots',
+  Network: 'Réseau',
+  'How it works': 'Fonctionnement',
+  'the bottle code “{id}”': 'le code de bouteille « {id} »',
+  'Skip to this bottle’s record': 'Aller à la fiche de cette bouteille',
+  'We could not read this bottle’s record.':
+    'Nous n’avons pas pu lire la fiche de cette bouteille.',
+  'The Base Sepolia read did not answer. The code on the label is fine — this is a network read.':
+    'La requête vers Base Sepolia n’a pas abouti. Le problème concerne la lecture du réseau.',
+  "Reading this bottle's record…": 'Lecture de la fiche de cette bouteille…',
+  'An operator reviewed the producer’s documents and recorded their hash on Base.':
+    'Un opérateur a examiné les documents du producteur et enregistré leur empreinte sur Base.',
+  'An operator marked this lot verified on Base. No document hash was recorded with that decision.':
+    'Un opérateur a indiqué que ce lot est vérifié sur Base. Aucune empreinte de document n’a été enregistrée lors de cette décision.',
+  'This lot has not been verified by an operator, so it cannot be sold on the platform.':
+    'Ce lot n’a pas été vérifié par un opérateur et ne peut donc pas être vendu sur la plateforme.',
+  'See what was checked': 'Voir les éléments vérifiés',
+  'Where this lot is': 'Avancement de ce lot',
+  'On the record': 'Données enregistrées',
+  'Lot id': 'Identifiant du lot',
+  '— none recorded': '— aucune empreinte enregistrée',
+  'View this lot on Base': 'Voir ce lot sur Base',
+  'How verification works': 'Comment fonctionne la vérification',
+  'Read {date} from Base Sepolia.': 'Données lues le {date} sur Base Sepolia.',
+};

@@ -1,3 +1,4 @@
+import { useLocale } from '@/lib/i18n/context';
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { useRevealFallback } from '@/lib/motion';
@@ -62,17 +63,22 @@ const AdminParticipants = lazy(() => import('@/pages/admin/Participants'));
 const AdminSettings = lazy(() => import('@/pages/admin/Settings'));
 
 const Marketing = {
-  ForWineries: lazy(() => import('@/pages/public/Marketing').then((m) => ({ default: m.ForWineries }))),
+  ForWineries: lazy(() =>
+    import('@/pages/public/Marketing').then((m) => ({ default: m.ForWineries })),
+  ),
   ForBuyers: lazy(() => import('@/pages/public/Marketing').then((m) => ({ default: m.ForBuyers }))),
-  HowItWorks: lazy(() => import('@/pages/public/Marketing').then((m) => ({ default: m.HowItWorks }))),
+  HowItWorks: lazy(() =>
+    import('@/pages/public/Marketing').then((m) => ({ default: m.HowItWorks })),
+  ),
   Pilot: lazy(() => import('@/pages/public/Marketing').then((m) => ({ default: m.Pilot }))),
   Legal: lazy(() => import('@/pages/public/Marketing').then((m) => ({ default: m.Legal }))),
 };
 
 /** A route-level fallback whose geometry matches an ordinary page header. */
 function RouteFallback() {
+  const { t } = useLocale();
   return (
-    <div className="shell py-12" role="status" aria-label="Loading">
+    <div className="shell py-12" role="status" aria-label={t('Loading')}>
       <Skeleton className="h-4 w-48" />
       <Skeleton className="mt-6 h-10 w-80" />
       <Skeleton className="mt-8 h-64 w-full" />

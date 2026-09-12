@@ -1,3 +1,5 @@
+import { useFormat } from '@/lib/i18n/useFormat';
+import { useLocale } from '@/lib/i18n/context';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Breadcrumb } from '@/components/ui/Breadcrumb';
@@ -14,12 +16,7 @@ import { useLot, useOffersOfLot, useProtocol } from '@/chain/lens';
 import { isPayable, primaryOffer } from '@/chain/select';
 import { PAYMENT_TOKEN, tokenUrl } from '@/chain/config';
 import { lotContent, lotProducer } from '@/lib/content/lots';
-import {
-  formatBps,
-  formatCount,
-  formatDeadline,
-  formatMoney,
-} from '@/lib/format';
+import { formatCount } from '@/lib/format';
 import { lotState, offerPhase, productionStage, PRODUCTION_STAGES } from '@/lib/enums';
 import { NotFound } from './NotFound';
 
@@ -38,6 +35,8 @@ const TABS = [
  * the first lot.
  */
 export default function LotDetail() {
+  const { t } = useLocale();
+  const { formatBps, formatDeadline, formatMoney } = useFormat();
   const { lotId } = useParams();
   const [tab, setTab] = useState<string>('overview');
 
@@ -47,13 +46,13 @@ export default function LotDetail() {
   const protocol = useProtocol();
 
   if (parsed === undefined || (!isLoading && !isError && !exists)) {
-    return <NotFound what={`lot ${lotId ?? ''}`} />;
+    return <NotFound what={t('lot {id}', { id: lotId ?? '' })} />;
   }
 
   if (isLoading || !lot) {
     return (
       <div className="shell py-12">
-        <LoadingRegion label="Loading the lot…">
+        <LoadingRegion label={t('Loading the lot…')}>
           <div className="grid gap-12 lg:grid-cols-[1fr_360px]">
             <div className="space-y-6">
               <Skeleton className="h-4 w-64" />
@@ -81,7 +80,7 @@ export default function LotDetail() {
       <Breadcrumb
         trail={[
           { label: 'Lots', to: '/lots' },
-          { label: content?.appellation ?? lot.region, to: '/lots' },
+          { label: t(content?.appellation ?? lot.region), to: '/lots' },
           { label: lot.name },
         ]}
       />
@@ -89,10 +88,10 @@ export default function LotDetail() {
       <div className="mt-8 grid gap-12 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-16">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <StatusBadge tone={state.tone}>{state.label}</StatusBadge>
+            <StatusBadge tone={state.tone}>{t(state.label)}</StatusBadge>
             {offer ? (
               <StatusBadge tone={offer.kind === 1 ? 'info' : 'neutral'}>
-                {offer.kind === 1 ? 'En Primeur' : 'Current release'}
+                {offer.kind === 1 ? t('En Primeur') : t('Current release')}
               </StatusBadge>
             ) : null}
           </div>
@@ -105,7 +104,7 @@ export default function LotDetail() {
           <h1 className="mt-2 t-h1">{lot.name}</h1>
           <p className="mt-3 text-body text-ink-secondary">
             {[
-              content?.appellation ?? lot.region,
+              t(content?.appellation ?? lot.region),
               content?.grapes || lot.grapes || undefined,
               content?.alcohol,
               `${formatCount(lot.bottleSizeMl)} ml`,
@@ -129,39 +128,42 @@ export default function LotDetail() {
               <div className="space-y-8">
                 {content?.note ? (
                   <p className="max-w-reading text-body text-ink-secondary">
-                    {content.note}{' '}
+                    {t(content.note)}{' '}
                     <span className="text-body-sm">
-                      (Producer-supplied description. Not recorded on Base.)
+                      {t('(Producer-supplied description. Not recorded on Base.)')}
                     </span>
                   </p>
                 ) : null}
 
                 <dl className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
-                  <Row label="Bottles in this lot" value={formatCount(lot.totalBottles)} />
-                  <Row label="Minted so far" value={formatCount(lot.mintedBottles)} />
-                  <Row label="In circulation" value={formatCount(lot.circulating)} />
-                  <Row label="Delivered and burned" value={formatCount(lot.redeemedBottles)} />
-                  <Row label="Committed to offers" value={formatCount(lot.offeredBottles)} />
-                  <Row label="Producer royalty on resale" value={formatBps(lot.royaltyBps)} />
-                  <Row label="Vintage" value={String(lot.vintage)} />
+                  <Row label={t('Bottles in this lot')} value={formatCount(lot.totalBottles)} />
+                  <Row label={t('Minted so far')} value={formatCount(lot.mintedBottles)} />
+                  <Row label={t('In circulation')} value={formatCount(lot.circulating)} />
+                  <Row label={t('Delivered and burned')} value={formatCount(lot.redeemedBottles)} />
+                  <Row label={t('Committed to offers')} value={formatCount(lot.offeredBottles)} />
+                  <Row label={t('Producer royalty on resale')} value={formatBps(lot.royaltyBps)} />
+                  <Row label={t('Vintage')} value={String(lot.vintage)} />
                   <Row
-                    label="Export eligibility"
-                    value={lot.exportAllowed ? 'Marked as export eligible' : 'Not marked for export'}
+                    label={t('Export eligibility')}
+                    value={
+                      lot.exportAllowed ? 'Marked as export eligible' : 'Not marked for export'
+                    }
                   />
                 </dl>
 
-                <Callout tone="info" title="What this record is">
-                  The lot, its bottle count and its verification are on Base. The description,
-                  photograph and grape blend are supplied by the producer and held off-chain.
+                <Callout tone="info" title={t('What this record is')}>
+                  {t(
+                    'The lot, its bottle count and its verification are on Base. The description, photograph and grape blend are supplied by the producer and held off-chain.',
+                  )}
                 </Callout>
               </div>
             </TabPanel>
 
             <TabPanel id="offers" active={tab === 'offers'}>
-              <h2 className="t-h3">Offers on this lot</h2>
+              <h2 className="t-h3">{t('Offers on this lot')}</h2>
               {offers.items.filter(isPayable).length === 0 ? (
                 <p className="mt-4 text-body-sm text-ink-secondary">
-                  No offer is open on this lot in {symbol} right now.
+                  {t('No offer is open on this lot in {symbol} right now.', { symbol })}
                 </p>
               ) : (
                 <ul className="mt-4 divide-y divide-edge-subtle">
@@ -171,18 +173,23 @@ export default function LotDetail() {
                       <li key={String(row.id)} className="flex flex-wrap items-center gap-4 py-4">
                         <div className="min-w-0 flex-1">
                           <p className="text-body font-medium">
-                            Offer #{String(row.id)} · {row.kind === 1 ? 'En Primeur' : 'Current release'}
+                            {t('Offer #')}
+                            {String(row.id)} ·{' '}
+                            {row.kind === 1 ? t('En Primeur') : t('Current release')}
                           </p>
                           <p className="text-body-sm text-ink-secondary tabular-nums">
-                            {formatMoney(row.pricePerBottle, decimals)} per bottle ·{' '}
-                            {formatCount(row.available)} of {formatCount(row.quantity)} left
-                            {row.depositBps > 0 ? ` · ${formatBps(row.depositBps)} deposit` : ''}
+                            {formatMoney(row.pricePerBottle, decimals)} {t(' per bottle ·')}{' '}
+                            {formatCount(row.available)} {t(' of ')}
+                            {formatCount(row.quantity)} {t(' left')}
+                            {row.depositBps > 0
+                              ? t(' · {percent} deposit', { percent: formatBps(row.depositBps) })
+                              : ''}
                           </p>
                         </div>
-                        <StatusBadge tone={phase.tone}>{phase.label}</StatusBadge>
+                        <StatusBadge tone={phase.tone}>{t(phase.label)}</StatusBadge>
                         {row.phase === 1 ? (
                           <LinkButton to={`/app/shop/reserve/${row.id}`} size="sm">
-                            Reserve bottles
+                            {t('Reserve bottles')}
                           </LinkButton>
                         ) : null}
                       </li>
@@ -197,38 +204,46 @@ export default function LotDetail() {
             </TabPanel>
 
             <TabPanel id="production" active={tab === 'production'}>
-              <h2 className="t-h3">Production</h2>
+              <h2 className="t-h3">{t('Production')}</h2>
               <div className="mt-6">
                 <TrellisLifecycle
                   stage={lot.production}
                   variant="static"
-                  label={`Production stage of ${lot.name}`}
+                  label={t('Production stage of {name}', { name: lot.name })}
                 />
               </div>
               <p className="mt-6 max-w-reading text-body-sm text-ink-secondary">
                 {readyForDelivery
-                  ? 'This lot is marked ready for delivery, so a holder can request physical delivery of their bottles.'
-                  : `This lot is at ${stage.toLowerCase()}. Delivery opens when the producer marks the lot ready for delivery. Production moves forward only.`}
+                  ? t(
+                      'This lot is marked ready for delivery, so a holder can request physical delivery of their bottles.',
+                    )
+                  : t(
+                      'This lot is at {stage}. Delivery opens when the producer marks the lot ready for delivery. Production moves forward only.',
+                      { stage: t(stage).toLowerCase() },
+                    )}
               </p>
             </TabPanel>
 
             <TabPanel id="activity" active={tab === 'activity'}>
-              <h2 className="t-h3">Activity</h2>
+              <h2 className="t-h3">{t('Activity')}</h2>
               <p className="mt-4 max-w-reading text-body-sm text-ink-secondary">
-                This interface reads current state, not an event history — it does not run an
-                indexer, so it will not show you a timeline it has not verified. The token’s full
-                transfer and mint history is on Base.
+                {t(
+                  'This interface reads current state, not an event history — it does not run an indexer, so it will not show you a timeline it has not verified. The token’s full transfer and mint history is on Base.',
+                )}
               </p>
               <div className="mt-6 space-y-3">
-                <Row label="Token id" value={`#${String(lot.id)}`} />
-                <Row label="Producer wallet" value={<AddressValue address={lot.winery} label="producer wallet" />} />
+                <Row label={t('Token id')} value={`#${String(lot.id)}`} />
+                <Row
+                  label={t('Producer wallet')}
+                  value={<AddressValue address={lot.winery} label={t('producer wallet')} />}
+                />
                 <a
                   href={tokenUrl(lot.id)}
                   target="_blank"
                   rel="noreferrer noopener"
                   className="inline-block text-body-sm font-medium text-accent underline underline-offset-4"
                 >
-                  See every transfer of this lot on Basescan
+                  {t('See every transfer of this lot on Basescan')}
                 </a>
               </div>
             </TabPanel>
@@ -236,14 +251,14 @@ export default function LotDetail() {
 
           {/* Producer, at the foot of the record */}
           <aside className="mt-16 card p-6">
-            <div className="flex flex-wrap gap-6">
+            <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
               <Plate asset={producer.hero} alt="" ratio="1 / 1" className="w-28 shrink-0" />
               <div className="min-w-0 flex-1 space-y-3">
                 <h2 className="t-h3">{producer.name}</h2>
-                <p className="text-body-sm text-ink-secondary">{producer.story}</p>
-                <p className="text-body-sm text-ink-secondary">{producer.relationship}</p>
+                <p className="text-body-sm text-ink-secondary">{t(producer.story)}</p>
+                <p className="text-body-sm text-ink-secondary">{t(producer.relationship)}</p>
                 <LinkButton to={`/producers/${producer.slug}`} kind="secondary" size="sm">
-                  See the producer
+                  {t('See the producer')}
                 </LinkButton>
               </div>
             </div>
@@ -253,61 +268,69 @@ export default function LotDetail() {
         {/* ---- Terms rail ------------------------------------------------- */}
         <aside className="lg:sticky lg:top-24 lg:self-start">
           <div className="card p-6 shadow-1">
-            <p className="t-caption text-ink-secondary">Price per bottle</p>
+            <p className="t-caption text-ink-secondary">{t('Price per bottle')}</p>
             <p className="mt-2 t-metric text-[2.25rem]">
               {offer ? formatMoney(offer.pricePerBottle, decimals) : '—'}
             </p>
             <p className="mt-1 text-body-sm text-ink-secondary">
-              {formatCount(lot.bottleSizeMl)} ml · whole bottles only
+              {formatCount(lot.bottleSizeMl)} {t(' ml · whole bottles only')}
             </p>
 
             <dl className="mt-6 space-y-4 border-t border-edge-subtle pt-6">
               <Row
-                label="Available"
+                label={t('Available')}
                 value={
                   offer
-                    ? `${formatCount(offer.available)} of ${formatCount(lot.totalBottles)} bottles`
+                    ? t('{available} of {total} bottles', {
+                        available: formatCount(offer.available),
+                        total: formatCount(lot.totalBottles),
+                      })
                     : '—'
                 }
               />
               <Row
-                label={offer && offer.phase === 0 ? 'Offer opens' : 'Offer closes'}
-                value={offer ? formatDeadline(offer.phase === 0 ? offer.startTime : offer.endTime) : '—'}
+                label={offer && offer.phase === 0 ? t('Offer opens') : t('Offer closes')}
+                value={
+                  offer ? formatDeadline(offer.phase === 0 ? offer.startTime : offer.endTime) : '—'
+                }
               />
               <Row
-                label="Payment"
+                label={t('Payment')}
                 value={
                   offer
                     ? offer.depositBps > 0
-                      ? `Full payment, or ${formatBps(offer.depositBps)} deposit`
+                      ? t('Full payment, or {percent} deposit', {
+                          percent: formatBps(offer.depositBps),
+                        })
                       : 'Full payment at reservation'
                     : '—'
                 }
               />
-              <Row label="Settled in" value={symbol} />
-              <Row label="Producer royalty on resale" value={formatBps(lot.royaltyBps)} />
+              <Row label={t('Settled in')} value={symbol} />
+              <Row label={t('Producer royalty on resale')} value={formatBps(lot.royaltyBps)} />
               <Row
-                label="Delivery"
+                label={t('Delivery')}
                 value={readyForDelivery ? 'Available now' : 'Opens at Ready for delivery'}
               />
             </dl>
 
             {offer && offer.phase === 1 ? (
               <LinkButton to={`/app/shop/reserve/${offer.id}`} fullWidth className="mt-6">
-                Reserve bottles
+                {t('Reserve bottles')}
               </LinkButton>
             ) : (
               <Button fullWidth disabled className="mt-6">
-                {offer ? offerPhase(offer.phase).label : 'No open offer'}
+                {offer ? t(offerPhase(offer.phase).label) : t('No open offer')}
               </Button>
             )}
 
             <p className="mt-4 text-body-sm text-ink-secondary">
-              Reserving requires a wallet qualified as a B2B buyer. Shipping, duties and taxes are
-              not included.
+              {t(
+                'Reserving requires a wallet qualified as a B2B buyer. Shipping, duties and taxes are not included.',
+              )}
             </p>
             <ExplorerLink address={lot.winery} className="mt-4">
-              Producer wallet on Base
+              {t('Producer wallet on Base')}
             </ExplorerLink>
           </div>
         </aside>
@@ -317,10 +340,13 @@ export default function LotDetail() {
 }
 
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
+  const { t } = useLocale();
   return (
     <div className="flex flex-wrap items-baseline justify-between gap-2">
       <dt className="text-body-sm text-ink-secondary">{label}</dt>
-      <dd className="text-body-sm font-medium tabular-nums">{value}</dd>
+      <dd className="text-body-sm font-medium tabular-nums">
+        {typeof value === 'string' ? t(value) : value}
+      </dd>
     </div>
   );
 }

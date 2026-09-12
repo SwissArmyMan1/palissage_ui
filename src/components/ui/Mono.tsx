@@ -1,3 +1,4 @@
+import { useLocale } from '@/lib/i18n/context';
 import { useState } from 'react';
 import { Check, Copy, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/cn';
@@ -20,14 +21,17 @@ export function CopyValue({
   label: string;
   className?: string;
 }) {
+  const { t } = useLocale();
   const [copied, setCopied] = useState(false);
 
   return (
     <span className={cn('inline-flex items-center gap-2', className)}>
-      <Mono className="text-ink-secondary" >{display ?? value}</Mono>
+      <Mono className="text-ink-secondary">{display ?? value}</Mono>
       <button
         type="button"
-        aria-label={copied ? `${label} copied` : `Copy ${label}`}
+        aria-label={
+          copied ? t('{label} copied', { label: t(label) }) : t('Copy {label}', { label: t(label) })
+        }
         title={value}
         onClick={() => {
           void navigator.clipboard?.writeText(value);
@@ -43,7 +47,7 @@ export function CopyValue({
         )}
       </button>
       <span aria-live="polite" className="sr-only">
-        {copied ? `${label} copied to the clipboard` : ''}
+        {copied ? t('{label} copied to the clipboard', { label: t(label) }) : ''}
       </span>
     </span>
   );
@@ -67,6 +71,7 @@ export function ExplorerLink({
   children?: React.ReactNode;
   className?: string;
 }) {
+  const { t } = useLocale();
   return (
     <a
       href={addressUrl(address)}
@@ -77,9 +82,9 @@ export function ExplorerLink({
         className,
       )}
     >
-      {children ?? 'View on Base'}
+      {children ?? t('View on Base')}
       <ExternalLink aria-hidden className="size-3.5" strokeWidth={1.75} />
-      <span className="sr-only"> (opens Basescan in a new tab)</span>
+      <span className="sr-only"> {t(' (opens Basescan in a new tab)')}</span>
     </a>
   );
 }

@@ -1,3 +1,4 @@
+import { useLocale } from '@/lib/i18n/context';
 import { ArrowRight, ChevronLeft } from 'lucide-react';
 import { Button } from './Button';
 
@@ -20,21 +21,22 @@ export function Pagination({
   onPrevious: () => void;
   noun?: string;
 }) {
+  const { t } = useLocale();
   return (
     <div className="flex flex-wrap items-center justify-between gap-4">
       <p className="text-body-sm text-ink-secondary" aria-live="polite">
         {hasNext || hasPrevious
-          ? `Showing ${shown} ${noun}`
-          : `Showing all ${shown} ${noun}`}
+          ? t('Showing {count} {noun}', { count: shown, noun: t(noun) })
+          : t('Showing all {count} {noun}', { count: shown, noun: t(noun) })}
       </p>
       {hasNext || hasPrevious ? (
         <div className="flex gap-3">
           <Button kind="secondary" size="sm" disabled={!hasPrevious} onClick={onPrevious}>
             <ChevronLeft aria-hidden className="size-4" strokeWidth={1.75} />
-            Previous
+            {t('Previous')}
           </Button>
           <Button kind="secondary" size="sm" disabled={!hasNext} onClick={onNext}>
-            Next 50
+            {t('Next 50')}
             <ArrowRight aria-hidden className="size-4" strokeWidth={1.75} />
           </Button>
         </div>

@@ -1,3 +1,4 @@
+import { useLocale } from '@/lib/i18n/context';
 import { cn } from '@/lib/cn';
 import { LinkButton } from './Button';
 
@@ -25,6 +26,7 @@ export function EmptyState({
   children?: React.ReactNode;
   className?: string;
 }) {
+  const { t } = useLocale();
   return (
     <div
       className={cn(
@@ -35,13 +37,15 @@ export function EmptyState({
     >
       {/* An empty state is a region heading directly under the page h1. */}
       <h2 className={cn('t-h3', variant === 'success' && 'text-ink-secondary')}>{title}</h2>
-      {body ? <p className="mx-auto mt-2 max-w-reading text-body-sm text-ink-secondary">{body}</p> : null}
+      {body ? (
+        <p className="mx-auto mt-2 max-w-reading text-body-sm text-ink-secondary">{body}</p>
+      ) : null}
       {children ? <div className="mt-4">{children}</div> : null}
       {(action || onClear) && (
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
           {action ? (
             <LinkButton to={action.to} kind={variant === 'filtered' ? 'secondary' : 'primary'}>
-              {action.label}
+              {t(action.label)}
             </LinkButton>
           ) : null}
           {onClear ? (
@@ -50,7 +54,7 @@ export function EmptyState({
               onClick={onClear}
               className="text-body-sm font-medium text-accent underline decoration-transparent underline-offset-4 transition-colors duration-fast ease-out hover:decoration-current"
             >
-              {clearLabel}
+              {t(clearLabel)}
             </button>
           ) : null}
         </div>

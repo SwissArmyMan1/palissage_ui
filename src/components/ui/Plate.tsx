@@ -1,3 +1,4 @@
+import { useLocale } from '@/lib/i18n/context';
 import { cn } from '@/lib/cn';
 import { isPublishable, type ImageAsset } from '@/lib/content/assets';
 
@@ -32,6 +33,7 @@ export function Plate({
   /** Packshots are portrait bottles: `contain` keeps the label in frame. */
   fit?: 'cover' | 'contain';
 }) {
+  const { t } = useLocale();
   const publishable = isPublishable(asset ?? undefined);
 
   return (
@@ -42,7 +44,7 @@ export function Plate({
       {publishable && asset ? (
         <img
           src={asset.src}
-          alt={alt}
+          alt={t(alt)}
           width={asset.width}
           height={asset.height}
           sizes={sizes}
@@ -58,7 +60,7 @@ export function Plate({
       ) : (
         <div className="absolute inset-0 grid place-items-center p-4 text-center">
           <span className="text-body-sm text-ink-secondary">
-            {asset?.caption ?? 'Photograph pending'}
+            {t(asset?.caption ?? 'Photograph pending')}
           </span>
         </div>
       )}

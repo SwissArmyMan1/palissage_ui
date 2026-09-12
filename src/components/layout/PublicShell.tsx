@@ -1,3 +1,5 @@
+import { useLocale } from '@/lib/i18n/context';
+import { LanguageToggle } from '@/components/ui/LanguageToggle';
 import { Suspense, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
@@ -25,6 +27,7 @@ const LINKS = [
 ];
 
 export function PublicShell() {
+  const { t } = useLocale();
   const { sentinelRef, condensed } = useNavCondense();
   const location = useLocation();
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -37,7 +40,7 @@ export function PublicShell() {
   return (
     <div className="public-site">
       <a href="#main" className="skip-link text-body-sm font-medium">
-        Skip to the main content
+        {t('Skip to the main content')}
       </a>
       <div ref={sentinelRef} aria-hidden className="h-px" />
 
@@ -45,7 +48,7 @@ export function PublicShell() {
         <div className="shell flex h-full items-center gap-6">
           <Logo />
 
-          <nav aria-label="Main" className="hidden flex-1 justify-center gap-6 xl:flex">
+          <nav aria-label={t('Main')} className="hidden flex-1 justify-center gap-6 xl:flex">
             {LINKS.map((link) => (
               <NavLink
                 key={link.to}
@@ -57,7 +60,7 @@ export function PublicShell() {
                   )
                 }
               >
-                {link.label}
+                {t(link.label)}
               </NavLink>
             ))}
           </nav>
@@ -66,7 +69,7 @@ export function PublicShell() {
             <LanguageToggle className="hidden sm:flex" />
             <ThemeToggle />
             <LinkButton to="/demo" size="sm" className="hidden sm:inline-flex">
-              Try it on Base Sepolia
+              {t('Try it on Base Sepolia')}
             </LinkButton>
             <button
               ref={menuButtonRef}
@@ -76,7 +79,7 @@ export function PublicShell() {
               onClick={() => setMenuOpen(!menuOpen)}
               className="grid size-9 place-items-center rounded-md text-ink xl:hidden"
             >
-              <span className="sr-only">{menuOpen ? 'Close the menu' : 'Open the menu'}</span>
+              <span className="sr-only">{menuOpen ? t('Close the menu') : t('Open the menu')}</span>
               {menuOpen ? (
                 <X aria-hidden className="size-5" strokeWidth={1.75} />
               ) : (
@@ -100,20 +103,20 @@ export function PublicShell() {
             }
           }}
         >
-          <nav aria-label="Main, expanded" className="shell flex flex-col py-2">
+          <nav aria-label={t('Main, expanded')} className="shell flex flex-col py-2">
             {LINKS.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
                 className="min-h-[48px] border-b border-edge-subtle py-3 text-body last:border-0"
               >
-                {link.label}
+                {t(link.label)}
               </Link>
             ))}
             <div className="flex items-center gap-4 py-3">
               <LanguageToggle />
               <LinkButton to="/demo" size="sm" className="sm:hidden">
-                Try it on Base Sepolia
+                {t('Try it on Base Sepolia')}
               </LinkButton>
             </div>
           </nav>
@@ -121,7 +124,13 @@ export function PublicShell() {
       ) : null}
 
       <PublicRoute>
-        <Suspense fallback={<div className="shell py-24" role="status">Loading the next page…</div>}>
+        <Suspense
+          fallback={
+            <div className="shell py-24" role="status">
+              {t('Loading the next page…')}
+            </div>
+          }
+        >
           <Outlet />
         </Suspense>
       </PublicRoute>
@@ -130,49 +139,42 @@ export function PublicShell() {
         <div className="shell py-16">
           <div className="flex flex-col items-center gap-4 text-center">
             <BrandSeal />
-            <p className="max-w-reading text-body-sm text-ink-secondary">{LANDING.footerMotto}</p>
+            <p className="max-w-reading text-body-sm text-ink-secondary">
+              {t(LANDING.footerMotto)}
+            </p>
           </div>
           <TrellisRule className="my-12" />
-          <nav aria-label="Footer" className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-body-sm text-ink-secondary">
-            <span>Prototype on a test network</span>
+          <nav
+            aria-label={t('Footer')}
+            className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-body-sm text-ink-secondary"
+          >
+            <span>{t('Prototype on a test network')}</span>
             <Link to="/network" className="hover:text-ink">
-              On Base
+              {t('On Base')}
             </Link>
             <Link to="/legal/privacy" className="hover:text-ink">
-              Privacy
+              {t('Privacy')}
             </Link>
             <Link to="/legal/terms" className="hover:text-ink">
-              Terms
+              {t('Terms')}
             </Link>
             <Link to="/legal/prototype-disclosure" className="hover:text-ink">
-              Prototype disclosure
+              {t('Prototype disclosure')}
             </Link>
             <Link to="/legal/credits" className="hover:text-ink">
-              Credits
+              {t('Credits')}
             </Link>
           </nav>
-          <div role="group" aria-label="Contact Palissage" className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 border-t border-edge-subtle pt-6 text-body-sm">
+          <div
+            role="group"
+            aria-label={t('Contact Palissage')}
+            className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 border-t border-edge-subtle pt-6 text-body-sm"
+          >
             <EmailLink />
             <XLink />
           </div>
         </div>
       </footer>
     </div>
-  );
-}
-
-/**
- * EN/FR is present because the brief requires both locales before release. Only
- * English strings exist today, so the control says so rather than pretending.
- */
-function LanguageToggle({ className }: { className?: string }) {
-  return (
-    <span className={cn('items-center gap-1 text-body-sm text-ink-secondary', className ?? 'flex')}>
-      <span className="font-medium text-ink">EN</span>
-      <span aria-hidden>/</span>
-      <span title="French translation is in preparation" className="opacity-60">
-        FR
-      </span>
-    </span>
   );
 }

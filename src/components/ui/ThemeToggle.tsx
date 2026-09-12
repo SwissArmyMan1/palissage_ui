@@ -1,14 +1,18 @@
+import { useLocale } from '@/lib/i18n/context';
 import { Moon, Sun } from 'lucide-react';
 import { useTheme } from '@/lib/theme';
 import { cn } from '@/lib/cn';
 
 export function ThemeToggle({ className }: { className?: string }) {
+  const { t } = useLocale();
   const { resolved, toggle } = useTheme();
   return (
     <button
       type="button"
       onClick={toggle}
-      aria-label={resolved === 'dark' ? 'Switch to the light theme' : 'Switch to the dark theme'}
+      aria-label={
+        resolved === 'dark' ? t('Switch to the light theme') : t('Switch to the dark theme')
+      }
       className={cn(
         'grid size-9 place-items-center rounded-md text-ink-secondary transition-colors duration-fast ease-out hover:bg-surface-sunken hover:text-ink',
         className,

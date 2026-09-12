@@ -1,3 +1,4 @@
+import { useLocale } from '@/lib/i18n/context';
 import { CircleCheck, CircleMinus, CircleX, Clock, Info, TriangleAlert } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import type { Tone } from '@/lib/enums';
@@ -24,6 +25,7 @@ export function StatusBadge({
   children: React.ReactNode;
   className?: string;
 }) {
+  const { t } = useLocale();
   const { className: toneClass, Icon } = TONES[tone];
   return (
     <span
@@ -34,7 +36,7 @@ export function StatusBadge({
       )}
     >
       <Icon aria-hidden className="size-3.5 shrink-0" strokeWidth={1.75} />
-      {children}
+      {typeof children === 'string' ? t(children) : children}
     </span>
   );
 }

@@ -1,12 +1,6 @@
+import { useLocale } from '@/lib/i18n/context';
 import { Link } from 'react-router-dom';
-import {
-  ArrowDown,
-  ArrowUpRight,
-  ArrowRight,
-  Fingerprint,
-  Grape,
-  Wine,
-} from 'lucide-react';
+import { ArrowDown, ArrowUpRight, ArrowRight, Fingerprint, Grape, Wine } from 'lucide-react';
 import { LinkButton } from '@/components/ui/Button';
 import { Plate } from '@/components/ui/Plate';
 import { CountUpMoney } from '@/components/ui/StatTile';
@@ -15,13 +9,7 @@ import { TrellisLifecycle } from '@/components/patterns/TrellisLifecycle';
 import { ASSETS } from '@/lib/content/assets';
 import { LANDING } from '@/lib/content/copy';
 
-function Chapter({
-  number,
-  children,
-}: {
-  number: string;
-  children: React.ReactNode;
-}) {
+function Chapter({ number, children }: { number: string; children: React.ReactNode }) {
   return (
     <p className="chapter-label">
       <span>{number}</span>
@@ -32,6 +20,7 @@ function Chapter({
 
 /** Public storytelling only: decorative motion never represents live lot state. */
 export default function Landing() {
+  const { t, locale } = useLocale();
   return (
     <div className="landing-editorial">
       <section className="editorial-hero" aria-labelledby="hero-heading">
@@ -39,23 +28,24 @@ export default function Landing() {
           <div className="hero-copy">
             <p className="hero-eyebrow">
               <span aria-hidden />
-              {LANDING.eyebrow}
+              {t(LANDING.eyebrow)}
             </p>
             <h1 id="hero-heading" className="hero-title">
-              Good wine.
+              {t('Good wine.')}
               <br />
-              <em>Direct</em> from
+              <em>{t('Direct')}</em>
+              {locale === 'en' ? ' from' : null}
               <br />
-              the source.
+              {locale === 'fr' ? 'du domaine.' : 'the source.'}
             </h1>
-            <p className="hero-lede">{LANDING.lede}</p>
+            <p className="hero-lede">{t(LANDING.lede)}</p>
             <div className="hero-actions">
               <LinkButton to="/lots" className="editorial-cta">
-                {LANDING.ctaPrimary}
+                {t(LANDING.ctaPrimary)}
                 <ArrowUpRight aria-hidden size={18} />
               </LinkButton>
               <Link to="/demo" className="text-link">
-                Try it on Base Sepolia
+                {t('Try it on Base Sepolia')}
                 <ArrowRight aria-hidden size={16} />
               </Link>
             </div>
@@ -64,12 +54,12 @@ export default function Landing() {
                 <span>
                   <ArrowDown aria-hidden size={17} />
                 </span>
-                Follow the journey
+                {t('Follow the journey')}
               </a>
               <span className="hero-note">
-                Rooted in the Cabardès.
+                {t('Rooted in the Cabardès.')}
                 <br />
-                Built for direct trade.
+                {t('Built for direct trade.')}
               </span>
             </div>
           </div>
@@ -77,43 +67,45 @@ export default function Landing() {
             <div className="hero-photo">
               <Plate
                 asset={ASSETS.heroEstate}
-                alt="Vineyard rows and a wooden trellis post on the limestone slopes of the Cabardès"
+                alt={t(
+                  'Vineyard rows and a wooden trellis post on the limestone slopes of the Cabardès',
+                )}
                 ratio="4 / 5"
                 priority
                 drift
                 sizes="(min-width: 1024px) 620px, 92vw"
               />
               <div className="photo-caption">
-                <span>THE CABARDÈS</span>
-                <span>Southern France ↗</span>
+                <span>{t('THE CABARDÈS')}</span>
+                <span>{t('Southern France ↗')}</span>
               </div>
             </div>
             <div className="origin-tag" aria-hidden="true">
               <Fingerprint size={25} strokeWidth={1.2} />
               <span>
-                Every wine
+                {t('Every wine')}
                 <br />
-                <strong>has a beginning.</strong>
+                <strong>{t('has a beginning.')}</strong>
               </span>
             </div>
             <figure className="bottle-study">
               <div className="bottle-study-image">
                 <Plate
                   asset={ASSETS.cazabanA1353}
-                  alt="A.1353 wine bottle from Domaine de Cazaban"
+                  alt={t('A.1353 wine bottle from Domaine de Cazaban')}
                   ratio="3 / 4"
                   fit="contain"
                 />
               </div>
               <figcaption>
-                <span className="bottle-study-kicker">FROM THE CABARDÈS</span>
-                <strong>A.1353</strong>
-                <span>Domaine de Cazaban</span>
-                <small>Producer bottle · illustration</small>
+                <span className="bottle-study-kicker">{t('FROM THE CABARDÈS')}</span>
+                <strong>{t('A.1353')}</strong>
+                <span>{t('Domaine de Cazaban')}</span>
+                <small>{t('Producer bottle · illustration')}</small>
               </figcaption>
             </figure>
             <span className="hero-side-note" aria-hidden="true">
-              THE VINE. THE WINE. THE PEOPLE.
+              {t('THE VINE. THE WINE. THE PEOPLE.')}
             </span>
           </div>
         </div>
@@ -121,16 +113,17 @@ export default function Landing() {
 
       <div
         className="trade-ribbon"
-        aria-label="Direct trade, from independent wineries to your business"
+        aria-label={t('Direct trade, from independent wineries to your business')}
       >
         <div className="shell trade-ribbon-inner">
-          <span>Independent wineries</span>
+          <span>{t('Independent wineries')}</span>
           <span className="ribbon-line" aria-hidden />
           <span className="ribbon-center">
-            <Grape aria-hidden size={20} />A shorter path. A fairer trade.
+            <Grape aria-hidden size={20} />
+            {t('A shorter path. A fairer trade.')}
           </span>
           <span className="ribbon-line" aria-hidden />
-          <span>Your business</span>
+          <span>{t('Your business')}</span>
         </div>
       </div>
 
@@ -140,15 +133,15 @@ export default function Landing() {
         labelledBy="lifecycle-heading"
         className="journey-section"
       >
-        <Chapter number="01">A wine’s journey</Chapter>
+        <Chapter number="01">{t('A wine’s journey')}</Chapter>
         <div className="section-heading-row">
           <SectionHead
             id="lifecycle-heading"
-            title={LANDING.lifecycleTitle}
-            lede={LANDING.lifecycleLede}
+            title={t(LANDING.lifecycleTitle)}
+            lede={t(LANDING.lifecycleLede)}
           />
           <Link to="/how-it-works" className="text-link">
-            See how it works
+            {t('See how it works')}
             <ArrowUpRight aria-hidden size={17} />
           </Link>
         </div>
@@ -156,38 +149,35 @@ export default function Landing() {
           <TrellisLifecycle
             stage={6}
             variant="animated"
-            label="The seven stages of a wine’s journey, illustrated"
+            label={t('The seven stages of a wine’s journey, illustrated')}
           />
         </div>
         <div className="journey-notes">
           <p>
-            Buy wine that’s ready today.
+            {t('Buy wine that’s ready today.')}
             <br />
-            <strong>Or be part of the next vintage.</strong>
+            <strong>{t('Or be part of the next vintage.')}</strong>
           </p>
           <p>
-            Every lot records its production stage on Base.
+            {t('Every lot records its production stage on Base.')}
             <br />
-            From the first allocation to the last delivery.
+            {t('From the first allocation to the last delivery.')}
           </p>
         </div>
       </Section>
 
       <Section labelledBy="audiences-heading" className="audience-section">
-        <Chapter number="02">Closer to each other</Chapter>
-        <SectionHead id="audiences-heading" title={LANDING.audiencesTitle} />
+        <Chapter number="02">{t('Closer to each other')}</Chapter>
+        <SectionHead id="audiences-heading" title={t(LANDING.audiencesTitle)} />
         <div className="reveal-stagger audience-grid">
           {LANDING.audiences.map((audience, index) => (
-            <article
-              key={audience.title}
-              className={`audience-card audience-card-${index}`}
-            >
+            <article key={audience.title} className={`audience-card audience-card-${index}`}>
               <div className="audience-art" aria-hidden="true">
                 <span className="audience-art-label">
-                  {index === 0 ? 'AT THE ORIGIN' : 'AT YOUR TABLE'}
+                  {index === 0 ? t('AT THE ORIGIN') : t('AT YOUR TABLE')}
                 </span>
                 <span className="audience-art-word">
-                  {index === 0 ? 'Cultivate.' : 'Discover.'}
+                  {index === 0 ? t('Cultivate.') : t('Discover.')}
                 </span>
                 <div className="audience-orbit orbit-one" />
                 <div className="audience-orbit orbit-two" />
@@ -201,10 +191,10 @@ export default function Landing() {
                 <span className="audience-art-number">0{index + 1}</span>
               </div>
               <div className="audience-card-copy">
-                <h3 className="t-h2">{audience.title}</h3>
-                <p>{audience.body}</p>
+                <h3 className="t-h2">{t(audience.title)}</h3>
+                <p>{t(audience.body)}</p>
                 <Link to={audience.to} className="audience-link">
-                  {audience.cta}
+                  {t(audience.cta)}
                   <span>
                     <ArrowUpRight aria-hidden size={20} />
                   </span>
@@ -215,20 +205,16 @@ export default function Landing() {
         </div>
       </Section>
 
-      <Section
-        tone="surface"
-        labelledBy="margin-heading"
-        className="margin-section"
-      >
-        <Chapter number="03">Better on both sides</Chapter>
+      <Section tone="surface" labelledBy="margin-heading" className="margin-section">
+        <Chapter number="03">{t('Better on both sides')}</Chapter>
         <div className="margin-layout">
           <div>
             <SectionHead
               id="margin-heading"
-              title={LANDING.marginTitle}
-              lede={LANDING.marginLede}
+              title={t(LANDING.marginTitle)}
+              lede={t(LANDING.marginLede)}
             />
-            <p className="margin-footnote">{LANDING.marginFootnote}</p>
+            <p className="margin-footnote">{t(LANDING.marginFootnote)}</p>
           </div>
           <div className="margin-stats reveal-stagger">
             {LANDING.marginTiles.map((tile, index) => (
@@ -237,7 +223,7 @@ export default function Landing() {
                   0{index + 1}
                 </span>
                 <div>
-                  <p>{tile.label}</p>
+                  <p>{t(tile.label)}</p>
                   <strong>
                     <CountUpMoney target={tile.value} />
                   </strong>
@@ -252,38 +238,38 @@ export default function Landing() {
       <section className="terroir-interlude" aria-labelledby="terroir-heading">
         <Plate
           asset={ASSETS.heroEstate}
-          alt="The landscape of the Cabardès wine region"
+          alt={t('The landscape of the Cabardès wine region')}
           ratio="21 / 9"
           className="terroir-image"
           sizes="100vw"
         />
         <div className="terroir-shade" />
         <div className="shell terroir-content">
-          <p className="t-caption">Real places. Real people. Real wine.</p>
+          <p className="t-caption">{t('Real places. Real people. Real wine.')}</p>
           <h2 id="terroir-heading">
-            The origin
+            {t('The origin')}
             <br />
-            <em>stays with it.</em>
+            <em>{t('stays with it.')}</em>
           </h2>
           <span>
-            From a hillside in southern France
+            {t('From a hillside in southern France')}
             <br />
-            to the story behind every bottle.
+            {t('to the story behind every bottle.')}
           </span>
         </div>
         <div className="terroir-word" aria-hidden="true">
-          Cabardès
+          {t('Cabardès')}
         </div>
       </section>
 
       <Section labelledBy="trust-heading" className="trust-section">
-        <Chapter number="04">A little more transparency</Chapter>
+        <Chapter number="04">{t('A little more transparency')}</Chapter>
         <div className="trust-layout">
           <div className="trust-intro">
             <Fingerprint aria-hidden size={42} strokeWidth={1} />
-            <SectionHead id="trust-heading" title={LANDING.trustTitle} />
+            <SectionHead id="trust-heading" title={t(LANDING.trustTitle)} />
             <Link to="/network" className="text-link">
-              Explore the infrastructure
+              {t('Explore the infrastructure')}
               <ArrowUpRight aria-hidden size={17} />
             </Link>
           </div>
@@ -292,8 +278,8 @@ export default function Landing() {
               <div className="trust-item" key={item.title}>
                 <span aria-hidden>0{index + 1}</span>
                 <div>
-                  <h3>{item.title}</h3>
-                  <p>{item.body}</p>
+                  <h3>{t(item.title)}</h3>
+                  <p>{t(item.body)}</p>
                 </div>
               </div>
             ))}
@@ -307,18 +293,18 @@ export default function Landing() {
             <Grape strokeWidth={0.6} />
           </div>
           <div className="pilot-copy">
-            <p className="chapter-label">THE NEXT CHAPTER</p>
-            <h2 id="stage-heading">{LANDING.stageTitle}</h2>
-            <p>{LANDING.stageBody}</p>
+            <p className="chapter-label">{t('THE NEXT CHAPTER')}</p>
+            <h2 id="stage-heading">{t(LANDING.stageTitle)}</h2>
+            <p>{t(LANDING.stageBody)}</p>
             <LinkButton to="/pilot" className="pilot-cta">
-              {LANDING.stageCta}
+              {t(LANDING.stageCta)}
               <ArrowUpRight aria-hidden size={18} />
             </LinkButton>
           </div>
           <span className="pilot-caption">
-            Growing something
+            {t('Growing something')}
             <br />
-            <em>worth sharing.</em>
+            <em>{t('worth sharing.')}</em>
           </span>
         </div>
       </Section>

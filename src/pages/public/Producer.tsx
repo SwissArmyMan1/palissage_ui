@@ -1,3 +1,4 @@
+import { useLocale } from '@/lib/i18n/context';
 import { useParams } from 'react-router-dom';
 import { Plate } from '@/components/ui/Plate';
 import { Callout } from '@/components/ui/Callout';
@@ -12,13 +13,14 @@ import { NotFound } from './NotFound';
 
 /** PUB-05. One producer and their lots. */
 export default function Producer() {
+  const { t } = useLocale();
   const { slug } = useParams();
   const producer = producerBySlug(slug);
   const lots = useLots();
   const offers = useOffers();
   const protocol = useProtocol();
 
-  if (!producer) return <NotFound what={`the producer “${slug ?? ''}”`} />;
+  if (!producer) return <NotFound what={t('the producer “{name}”', { name: slug ?? '' })} />;
 
   const ids = new Set(lotIdsOfProducer(producer.slug).map(String));
   const theirs = lots.items.filter((lot) => ids.has(String(lot.id)));
@@ -36,13 +38,13 @@ export default function Producer() {
           />
           <div className="mt-8 max-w-reading">
             <p className="text-body-sm text-ink-secondary">
-              {producer.place} · {producer.appellation}
-              {producer.organic ? ' · certified organic' : ''}
+              {t(producer.place)} · {t(producer.appellation)}
+              {producer.organic ? t(' · certified organic') : ''}
             </p>
             <h1 className="mt-2 t-h1">{producer.name}</h1>
-            <p className="mt-6 text-body text-ink-secondary">{producer.story}</p>
+            <p className="mt-6 text-body text-ink-secondary">{t(producer.story)}</p>
             <Callout tone="info" className="mt-6">
-              {producer.relationship}
+              {t(producer.relationship)}
             </Callout>
           </div>
         </div>
@@ -51,7 +53,7 @@ export default function Producer() {
       <section className="bg-surface py-16" aria-labelledby="producer-lots">
         <div className="shell reveal">
           <h2 id="producer-lots" className="t-h1">
-            Lots from this producer
+            {t('Lots from this producer')}
           </h2>
           {!lots.hasData ? (
             <div className="mt-12">
@@ -59,7 +61,7 @@ export default function Producer() {
             </div>
           ) : theirs.length === 0 ? (
             <p className="mt-6 text-body text-ink-secondary">
-              No lot from this producer is published on Base Sepolia right now.
+              {t('No lot from this producer is published on Base Sepolia right now.')}
             </p>
           ) : (
             <div className="reveal-stagger mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

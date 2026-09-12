@@ -1,3 +1,4 @@
+import { useLocale } from '@/lib/i18n/context';
 import { FileText } from 'lucide-react';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { HashValue } from '@/components/ui/Mono';
@@ -17,47 +18,52 @@ import type { LotView } from '@/chain/types';
  * a real state of this deployment, not a loading state.
  */
 export function EvidencePanel({ lot }: { lot: LotView }) {
+  const { t } = useLocale();
   const verified = lot.status === 1;
   const hasHash = !isZeroHash(lot.docsHash);
 
   return (
     <section aria-labelledby="evidence-heading" className="space-y-4">
       <h2 id="evidence-heading" className="t-h3">
-        What was verified
+        {t('What was verified')}
       </h2>
 
       <p className="text-body-sm text-ink-secondary">
-        Verification records the hash of the producer’s documents on Base together with the
-        operator who checked them. It states what was checked; it is not a guarantee of quality
-        or legal compliance.
+        {t(
+          'Verification records the hash of the producer’s documents on Base together with the operator who checked them. It states what was checked; it is not a guarantee of quality or legal compliance.',
+        )}
       </p>
 
       <ul className="space-y-3">
         <li className="card p-4">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="flex min-w-0 gap-3">
-              <FileText aria-hidden className="mt-0.5 size-4 shrink-0 text-ink-secondary" strokeWidth={1.75} />
+              <FileText
+                aria-hidden
+                className="mt-0.5 size-4 shrink-0 text-ink-secondary"
+                strokeWidth={1.75}
+              />
               <div className="min-w-0 space-y-1">
-                <p className="text-body font-medium">Production documents</p>
+                <p className="text-body font-medium">{t('Production documents')}</p>
                 <p className="text-body-sm text-ink-secondary">
-                  Held by the operator · hash recorded on Base · files not published
+                  {t('Held by the operator · hash recorded on Base · files not published')}
                 </p>
                 <p className="text-body-sm text-ink-secondary">
-                  docsHash{' '}
+                  {t('docsHash')}{' '}
                   {hasHash ? (
-                    <HashValue hash={lot.docsHash} label="document hash" />
+                    <HashValue hash={lot.docsHash} label={t('document hash')} />
                   ) : (
-                    <span>— none recorded with this verification</span>
+                    <span>{t('— none recorded with this verification')}</span>
                   )}
                 </p>
               </div>
             </div>
             {verified && hasHash ? (
-              <StatusBadge tone="success">Recorded</StatusBadge>
+              <StatusBadge tone="success">{t('Recorded')}</StatusBadge>
             ) : verified ? (
-              <StatusBadge tone="warning">No hash recorded</StatusBadge>
+              <StatusBadge tone="warning">{t('No hash recorded')}</StatusBadge>
             ) : (
-              <StatusBadge tone="neutral">Not verified</StatusBadge>
+              <StatusBadge tone="neutral">{t('Not verified')}</StatusBadge>
             )}
           </div>
         </li>
@@ -65,12 +71,20 @@ export function EvidencePanel({ lot }: { lot: LotView }) {
         <li className="card p-4">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0 space-y-1">
-              <p className="text-body font-medium">Checked by</p>
+              <p className="text-body font-medium">{t('Checked by')}</p>
               <p className="text-body-sm text-ink-secondary">
-                {verified ? <AddressValue address={lot.verifier} label="verifier address" /> : 'Awaiting an operator'}
+                {verified ? (
+                  <AddressValue address={lot.verifier} label={t('verifier address')} />
+                ) : (
+                  t('Awaiting an operator')
+                )}
               </p>
             </div>
-            {verified ? <StatusBadge tone="success">Verified</StatusBadge> : <StatusBadge tone="warning">In the queue</StatusBadge>}
+            {verified ? (
+              <StatusBadge tone="success">{t('Verified')}</StatusBadge>
+            ) : (
+              <StatusBadge tone="warning">{t('In the queue')}</StatusBadge>
+            )}
           </div>
         </li>
       </ul>
