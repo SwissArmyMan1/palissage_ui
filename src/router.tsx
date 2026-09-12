@@ -26,6 +26,7 @@ const Producer = lazy(() => import('@/pages/public/Producer'));
 const Network = lazy(() => import('@/pages/public/Network'));
 const Demo = lazy(() => import('@/pages/public/Demo'));
 const Passport = lazy(() => import('@/pages/passport/Passport'));
+const Contacts = lazy(() => import('@/pages/public/Contacts'));
 
 const AppShell = lazy(() =>
   import('@/components/layout/AppShell').then((m) => ({ default: m.AppShell })),
@@ -98,6 +99,7 @@ export function AppRouter() {
               <Route path="for-buyers" element={<Marketing.ForBuyers />} />
               <Route path="how-it-works" element={<Marketing.HowItWorks />} />
               <Route path="pilot" element={<Marketing.Pilot />} />
+              <Route path="contacts" element={<Contacts />} />
               <Route path="legal/:slug" element={<Marketing.Legal />} />
 
               {/* ---- Public, but reads Base --------------------------- */}

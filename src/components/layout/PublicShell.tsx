@@ -8,11 +8,12 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { LinkButton } from '@/components/ui/Button';
 import { LANDING } from '@/lib/content/copy';
 import { PublicRoute } from './PublicRoute';
+import { EmailLink, XLink } from '@/components/ui/ContactLinks';
 
 /**
  * `Top navigation bar` — five destinations and one CTA. `Connect wallet` is
  * deliberately **not** here: the public site's job is comprehension, not
- * connection (doc 01 §4). Below 1024 px the links collapse into a sheet and the
+ * connection (doc 01 §4). Below 1280 px the links collapse into a sheet and the
  * CTA stays in the bar.
  */
 const LINKS = [
@@ -20,6 +21,7 @@ const LINKS = [
   { to: '/for-buyers', label: 'For buyers' },
   { to: '/how-it-works', label: 'How it works' },
   { to: '/lots', label: 'Lots' },
+  { to: '/contacts', label: 'Contacts' },
 ];
 
 export function PublicShell() {
@@ -43,7 +45,7 @@ export function PublicShell() {
         <div className="shell flex h-full items-center gap-6">
           <Logo />
 
-          <nav aria-label="Main" className="hidden flex-1 justify-center gap-8 lg:flex">
+          <nav aria-label="Main" className="hidden flex-1 justify-center gap-6 xl:flex">
             {LINKS.map((link) => (
               <NavLink
                 key={link.to}
@@ -72,7 +74,7 @@ export function PublicShell() {
               aria-expanded={menuOpen}
               aria-controls="public-menu"
               onClick={() => setMenuOpen(!menuOpen)}
-              className="grid size-9 place-items-center rounded-md text-ink lg:hidden"
+              className="grid size-9 place-items-center rounded-md text-ink xl:hidden"
             >
               <span className="sr-only">{menuOpen ? 'Close the menu' : 'Open the menu'}</span>
               {menuOpen ? (
@@ -89,7 +91,7 @@ export function PublicShell() {
       {menuOpen ? (
         <div
           id="public-menu"
-          className="public-menu sticky z-30 border-b border-edge-subtle bg-surface lg:hidden"
+          className="public-menu sticky z-30 border-b border-edge-subtle bg-surface xl:hidden"
           style={{ top: condensed ? 56 : 'var(--publicnav-h)' }}
           onKeyDown={(event) => {
             if (event.key === 'Escape') {
@@ -149,6 +151,10 @@ export function PublicShell() {
               Credits
             </Link>
           </nav>
+          <div role="group" aria-label="Contact Palissage" className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 border-t border-edge-subtle pt-6 text-body-sm">
+            <EmailLink />
+            <XLink />
+          </div>
         </div>
       </footer>
     </div>

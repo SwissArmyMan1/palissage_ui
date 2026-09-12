@@ -8,6 +8,7 @@ import { TrellisLifecycle } from '@/components/patterns/TrellisLifecycle';
 import { ASSETS } from '@/lib/content/assets';
 import { FOR_BUYERS, FOR_WINERIES, HOW_IT_WORKS, PILOT } from '@/lib/content/copy';
 import { NotFound } from './NotFound';
+import { EmailLink } from '@/components/ui/ContactLinks';
 
 /** PUB-06. Copy is fixed in doc 07 §6; the layout is the content template. */
 export function ForWineries() {
@@ -148,8 +149,7 @@ export function HowItWorks() {
 
 /**
  * PUB-10. There is no backend to receive a form, so this page does not pretend
- * to collect one. The contact address is not published yet, so it is left as a
- * dash rather than a placeholder that would bounce.
+ * to collect one. Pilot enquiries go directly to the published contact email.
  */
 export function Pilot() {
   return (
@@ -158,15 +158,14 @@ export function Pilot() {
         <h1 className="t-h1">{PILOT.title}</h1>
         <p className="mt-6 text-body text-ink-secondary">{PILOT.lede}</p>
 
-        <Callout tone="info" title="No form yet, on purpose" className="mt-8">
-          This prototype has no server, so there is nothing here that could store your details. The
-          contact address is not published yet.
-        </Callout>
+        <p className="mt-8 text-body text-ink-secondary">
+          Interested in the pilot? Email us about your winery or business.
+        </p>
 
         <dl className="mt-8 divide-y divide-edge-subtle">
           <div className="flex flex-wrap items-baseline gap-4 py-4">
             <dt className="w-40 shrink-0 text-body-sm text-ink-secondary">Email</dt>
-            <dd className="text-body text-ink-secondary">—</dd>
+            <dd className="text-body-sm"><EmailLink /></dd>
           </div>
           <div className="flex flex-wrap items-baseline gap-4 py-4">
             <dt className="w-40 shrink-0 text-body-sm text-ink-secondary">What will help</dt>
