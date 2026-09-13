@@ -21,9 +21,10 @@ import {
   useProtocol,
 } from '@/chain/lens';
 import { erc20Abi, secondaryMarketAbi } from '@/chain/abis';
-import { CONTRACTS, PAYMENT_TOKEN } from '@/chain/config';
+import { CONTRACTS } from '@/chain/config';
+import { formatTokenAmount, tokenMeta, type TokenMeta } from '@/chain/tokens';
 import { useTx } from '@/chain/tx';
-import { formatBps, formatCount, formatMoney, parseBottles } from '@/lib/format';
+import { formatAmount, formatBps, formatCount, formatMoney, parseAmount, parseBottles } from '@/lib/format';
 import type { ListingView } from '@/chain/types';
 
 /**
@@ -42,8 +43,8 @@ export default function Secondary() {
 
   const [buying, setBuying] = useState<ListingView | null>(null);
   const [cancelling, setCancelling] = useState<ListingView | null>(null);
+  const [repricing, setRepricing] = useState<ListingView | null>(null);
 
-  const decimals = protocol.data?.paymentDecimals ?? PAYMENT_TOKEN.decimals;
   const lotName = useMemo(() => {
     const byId = new Map(lots.items.map((lot) => [String(lot.id), lot.name]));
     return (id: bigint) => byId.get(String(id)) ?? `Lot #${String(id)}`;
@@ -87,8 +88,11 @@ export default function Secondary() {
                     </Link>
                     <p className="text-body-sm text-ink-secondary tabular-nums">
                       {formatCount(listing.quantity)} bottles ·{' '}
-                      {formatMoney(listing.pricePerBottle, decimals)} per bottle · listing #
-                      {String(listing.id)}
+                      {formatTokenAmount(
+                        listing.pricePerBottle,
+                        tokenMeta(listing.paymentToken, protocol.data),
+                      )}{' '}
+                      per bottle · listing #{String(listing.id)}
                     </p>
                   </div>
                   {!listing.sellerApproved ? (
@@ -129,7 +133,11 @@ export default function Secondary() {
                     <p className="text-body font-medium">{lotName(listing.lotId)}</p>
                     <p className="text-body-sm text-ink-secondary tabular-nums">
                       {formatCount(listing.quantity)} bottles at{' '}
-                      {formatMoney(listing.pricePerBottle, decimals)} · royalty{' '}
+                      {formatTokenAmount(
+                        listing.pricePerBottle,
+                        tokenMeta(listing.paymentToken, protocol.data),
+                      )}{' '}
+                      · royalty{' '}
                       {formatBps(listing.royaltyBps)} · fee {formatBps(listing.feeBps)}
                     </p>
                   </div>
@@ -137,9 +145,14 @@ export default function Secondary() {
                     {listing.active ? 'Active' : 'Closed'}
                   </StatusBadge>
                   {listing.active ? (
-                    <Button size="sm" kind="danger" onClick={() => setCancelling(listing)}>
-                      Cancel listing
-                    </Button>
+                    <>
+                      <Button size="sm" kind="secondary" onClick={() => setRepricing(listing)}>
+                        Change price
+                      </Button>
+                      <Button size="sm" kind="danger" onClick={() => setCancelling(listing)}>
+                        Cancel listing
+                      </Button>
+                    </>
                   ) : null}
                 </li>
               ))}
@@ -158,30 +171,151 @@ export default function Secondary() {
         <BuyListing
           listing={buying}
           lotName={lotName(buying.lotId)}
-          decimals={decimals}
+          meta={tokenMeta(buying.paymentToken, protocol.data)}
           onClose={() => setBuying(null)}
         />
       ) : null}
       {cancelling ? (
         <CancelListing listing={cancelling} onClose={() => setCancelling(null)} />
       ) : null}
+      {repricing ? (
+        <RepriceListing
+          listing={repricing}
+          lotName={lotName(repricing.lotId)}
+          meta={tokenMeta(repricing.paymentToken, protocol.data)}
+          onClose={() => setRepricing(null)}
+        />
+      ) : null}
     </CabinetPage>
+  );
+}
+
+/**
+ * SHO-10a. Repricing a live listing.
+ *
+ * `updateListingPrice` keeps the listing and its quantity and changes only the
+ * unit price, so this is not a destructive action and does not dress itself as
+ * one. What it does need is the buyer-side consequence stated: every open
+ * purchase carries a price cap, so raising the price does not catch anyone —
+ * it simply stops matching the caps already out there.
+ */
+function RepriceListing({
+  listing,
+  lotName,
+  meta,
+  onClose,
+}: {
+  listing: ListingView;
+  lotName: string;
+  meta: TokenMeta;
+  onClose: () => void;
+}) {
+  const decimals = meta.decimals;
+  const symbol = meta.symbol;
+  const [price, setPrice] = useState(formatAmount(listing.pricePerBottle, decimals, 2));
+  const [touched, setTouched] = useState(false);
+  const tx = useTx();
+
+  const unit = parseAmount(price, decimals);
+  const invalid = price !== '' && (unit === null || unit <= 0n);
+  const unchanged = unit !== null && unit === listing.pricePerBottle;
+  const gross = unit !== null && unit > 0n ? unit * BigInt(listing.quantity) : 0n;
+  const fee = (gross * BigInt(listing.feeBps)) / 10_000n;
+  const royalty = (gross * BigInt(listing.royaltyBps)) / 10_000n;
+
+  return (
+    <ActionReview
+      open
+      onClose={onClose}
+      title="Change the price of this listing"
+      object={
+        <div className="space-y-4">
+          <p className="text-body font-medium">
+            {lotName} · {formatCount(listing.quantity)} bottles · listing #{String(listing.id)}
+          </p>
+          <Field
+            label={`New price per bottle (${symbol})`}
+            hint={`Currently ${formatMoney(listing.pricePerBottle, decimals)} per bottle.`}
+            // The field opens at the current price on purpose, so "unchanged"
+            // is only an error once the reader has been in it.
+            error={
+              invalid
+                ? `Enter a price in ${symbol}, greater than zero.`
+                : touched && unchanged
+                  ? 'This is the price the listing already carries.'
+                  : undefined
+            }
+          >
+            {(props) => (
+              <TextInput
+                {...props}
+                inputMode="decimal"
+                value={price}
+                onChange={(event) => {
+                  setTouched(true);
+                  setPrice(event.target.value);
+                }}
+                className="tabular-nums"
+              />
+            )}
+          </Field>
+        </div>
+      }
+      consequence={
+        <>
+          <p>
+            The listing keeps its {formatCount(listing.quantity)} bottles and its place on the
+            market; only the unit price changes. At the new price the full listing is{' '}
+            {formatMoney(gross, decimals)} gross — {formatMoney(fee, decimals)} protocol fee,{' '}
+            {formatMoney(royalty, decimals)} producer royalty, {' '}
+            {formatMoney(gross - fee - royalty, decimals)} to you.
+          </p>
+          <p className="mt-2">
+            Buyers purchase with a price cap of their own, so a raised price cannot be charged to
+            someone who agreed to less — their purchase simply stops going through.
+          </p>
+        </>
+      }
+      steps={[
+        {
+          id: 'reprice',
+          label: `Set the price to ${formatMoney(unit ?? 0n, decimals)}`,
+          required: true,
+          run: () =>
+            tx.send({
+              address: CONTRACTS.secondaryMarket,
+              abi: secondaryMarketAbi,
+              functionName: 'updateListingPrice',
+              args: [listing.id, unit!],
+            }),
+          tx,
+        },
+      ]}
+      blocked={
+        unit === null || unit <= 0n
+          ? 'Enter a new price per bottle.'
+          : unchanged
+            ? 'The price is unchanged, so there is nothing to send.'
+            : undefined
+      }
+    />
   );
 }
 
 function BuyListing({
   listing,
   lotName,
-  decimals,
+  meta,
   onClose,
 }: {
   listing: ListingView;
   lotName: string;
-  decimals: number;
+  meta: TokenMeta;
   onClose: () => void;
 }) {
   const { address } = useAccount();
   const [quantity, setQuantity] = useState(String(listing.quantity));
+  const decimals = meta.decimals;
   const balance = usePaymentBalance(address);
   const allowance = usePaymentAllowance(address, CONTRACTS.secondaryMarket);
   const approveTx = useTx();
@@ -198,12 +332,19 @@ function BuyListing({
 
   const blocked = !valid
     ? 'Enter how many bottles you want.'
-    : (balance.data ?? 0n) < total
-      ? `You need ${formatMoney(total, decimals)}. This wallet holds ${formatMoney(
-          balance.data ?? 0n,
-          decimals,
-        )}.`
-      : undefined;
+    : // The listing's own asset is what `buy` pulls. If it is not the one the
+      // markets settle in, this wallet's balance and allowance are for the
+      // wrong token and the purchase cannot be prepared here.
+      !meta.settlement
+      ? meta.known
+        ? `This listing is priced in ${meta.symbol}, which the markets no longer accept. It cannot be bought; the seller can cancel it.`
+        : 'This listing is priced in an asset this interface cannot read, so it will not offer a purchase it cannot describe.'
+      : (balance.data ?? 0n) < total
+        ? `You need ${formatMoney(total, decimals)}. This wallet holds ${formatMoney(
+            balance.data ?? 0n,
+            decimals,
+          )}.`
+        : undefined;
 
   return (
     <ActionReview
@@ -276,7 +417,8 @@ function BuyListing({
           required: needsApproval,
           run: () =>
             approveTx.send({
-              address: PAYMENT_TOKEN.address,
+              // The listing's own asset — see `blocked` above.
+              address: listing.paymentToken,
               abi: erc20Abi,
               functionName: 'approve',
               args: [CONTRACTS.secondaryMarket, total],

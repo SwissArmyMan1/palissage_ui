@@ -1,5 +1,6 @@
 import { useLocale } from '@/lib/i18n/context';
 import { ArrowRight, ChevronLeft } from 'lucide-react';
+import { cn } from '@/lib/cn';
 import { Button } from './Button';
 
 /**
@@ -13,6 +14,7 @@ export function Pagination({
   onNext,
   onPrevious,
   noun = 'lots',
+  className,
 }: {
   shown: number;
   hasNext: boolean;
@@ -20,10 +22,11 @@ export function Pagination({
   onNext: () => void;
   onPrevious: () => void;
   noun?: string;
+  className?: string;
 }) {
   const { t } = useLocale();
   return (
-    <div className="flex flex-wrap items-center justify-between gap-4">
+    <div className={cn('flex flex-wrap items-center justify-between gap-4', className)}>
       <p className="text-body-sm text-ink-secondary" aria-live="polite">
         {hasNext || hasPrevious
           ? t('Showing {count} {noun}', { count: shown, noun: t(noun) })

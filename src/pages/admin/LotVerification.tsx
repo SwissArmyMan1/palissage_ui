@@ -22,7 +22,7 @@ import { formatBps, formatCount, isZeroHash } from '@/lib/format';
 import { lotState, productionStage } from '@/lib/enums';
 import type { LotView } from '@/chain/types';
 
-type Decision = 'verify' | 'suspend' | 'unsuspend';
+type Decision = 'verify' | 'suspend' | 'unsuspend' | 'close';
 
 /**
  * ADM-04 and ADM-05 as one `Split view (list + detail)`: triage many, inspect
@@ -127,6 +127,7 @@ export default function LotVerification() {
             <Detail
               lot={selected}
               canDecide={caps.canVerifyLot}
+              canClose={caps.canCloseLot}
               isDesktop={isDesktop}
               docsHash={docsHash}
               onDocsHash={setDocsHash}
@@ -151,6 +152,7 @@ export default function LotVerification() {
 function Detail({
   lot,
   canDecide,
+  canClose,
   isDesktop,
   docsHash,
   onDocsHash,
@@ -158,12 +160,23 @@ function Detail({
 }: {
   lot: LotView;
   canDecide: boolean;
+  canClose: boolean;
   isDesktop: boolean;
   docsHash: string;
   onDocsHash: (value: string) => void;
   onDecide: (decision: Decision) => void;
 }) {
   const state = lotState(lot.status);
+  /**
+   * `closeLot` requires Verified and `mintedBottles == redeemedBottles`, which
+   * a lot that has never minted satisfies too. Offering it on every freshly
+   * verified lot would put a second red button next to Suspend on a lot whose
+   * life has not started, so the control appears only where closing is a
+   * plausible thing to want: every minted bottle redeemed, or a lot that
+   * reached the end of production having sold nothing.
+   */
+  const settled = lot.mintedBottles === lot.redeemedBottles;
+  const closable = lot.status === 1 && settled && (lot.mintedBottles > 0 || lot.production === 6);
   const hashError =
     docsHash === ''
       ? undefined
@@ -260,8 +273,32 @@ function Detail({
                   Reinstate {lot.name}
                 </Button>
               ) : null}
+              {/*
+                `closeLot` is admin-only and reverts unless every minted bottle
+                has been redeemed, so the button appears only when the contract
+                would accept it — and the count that decides it is shown next to
+                it rather than left implicit.
+              */}
+              {closable ? (
+                <Button kind="danger" disabled={!canClose} onClick={() => onDecide('close')}>
+                  Close {lot.name}
+                </Button>
+              ) : null}
             </div>
 
+            {closable && !canClose ? (
+              <p className="mt-3 text-body-sm text-ink-secondary">
+                Closing needs the admin role on <span className="t-mono">WineLotToken</span>,
+                which this wallet does not hold.
+              </p>
+            ) : null}
+            {lot.status === 1 && lot.mintedBottles > 0 && !settled ? (
+              <p className="mt-3 text-body-sm text-ink-secondary">
+                This lot cannot be closed yet:{' '}
+                {formatCount(lot.mintedBottles - lot.redeemedBottles)} of{' '}
+                {formatCount(lot.mintedBottles)} minted bottles have not been redeemed.
+              </p>
+            ) : null}
             {lot.status === 0 && !hashReady ? (
               <p className="mt-3 text-body-sm text-ink-secondary">
                 Verify is unavailable until the document hash is entered.
@@ -332,6 +369,32 @@ function DecisionDialog({
           address: CONTRACTS.wineLotToken,
           abi: wineLotTokenAbi,
           functionName: 'suspendLot',
+          args: [lot.id],
+        }),
+    },
+    close: {
+      title: `Close ${lot.name}`,
+      label: `Close ${lot.name}`,
+      destructive: true,
+      consequence: (
+        <>
+          <p>
+            The lot moves to Closed and stays there — the contract has no way back. No offer, no
+            listing and no transfer can touch it again.
+          </p>
+          <p className="mt-2">
+            {lot.mintedBottles === 0
+              ? 'Nothing was ever minted from this lot, so no holder is affected.'
+              : 'Every bottle ever minted from this lot has been redeemed, so nothing is stranded by this.'}{' '}
+            The record itself stays readable: the public lot page and every passport keep working.
+          </p>
+        </>
+      ),
+      run: () =>
+        tx.send({
+          address: CONTRACTS.wineLotToken,
+          abi: wineLotTokenAbi,
+          functionName: 'closeLot',
           args: [lot.id],
         }),
     },

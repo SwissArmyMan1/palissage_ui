@@ -1,5 +1,6 @@
 import type { Address } from 'viem';
 import { PAYMENT_TOKEN } from './config';
+import { formatAmount, formatMoney } from '@/lib/format';
 import type { ProtocolView } from './types';
 
 /**
@@ -43,4 +44,27 @@ export function tokenMeta(token: Address | undefined, protocol?: ProtocolView): 
   if (legacy) return { ...legacy, settlement: false, known: true };
 
   return { symbol: 'an unknown token', decimals: 0, settlement: false, known: false };
+}
+
+/**
+ * An amount formatted with the decimals of the asset **that record** is
+ * denominated in, never the deployment's current one.
+ *
+ * `formatMoney` prints a euro sign, which is right for the settlement asset and
+ * was right for the euro-pegged test token too — but only the current asset may
+ * pass without naming itself. A legacy amount carries its symbol so a reader
+ * never has to work out why two numbers on one screen are not comparable.
+ *
+ * An unknown token has no decimals to trust, so its base units are printed as
+ * such rather than scaled by a guess.
+ */
+export function formatTokenAmount(value: bigint, meta: TokenMeta): string {
+  if (!meta.known) return `${formatAmount(value, 0, 0)} base units of ${meta.symbol}`;
+  if (meta.settlement) return formatMoney(value, meta.decimals);
+  return `${formatAmount(value, meta.decimals, 2)} ${meta.symbol}`;
+}
+
+/** True when amounts from two records may be added together. */
+export function sameAsset(a: Address | undefined, b: Address | undefined): boolean {
+  return Boolean(a && b && a.toLowerCase() === b.toLowerCase());
 }

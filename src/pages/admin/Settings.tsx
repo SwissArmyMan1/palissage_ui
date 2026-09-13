@@ -137,13 +137,51 @@ export default function AdminSettings() {
             />
           </dl>
 
-          <Callout tone="info" className="mt-6 max-w-none">
-            These change what every future trade costs, so they are read-only in this release. They
-            are set with <code className="t-mono">setPrimaryFeeBps</code>,{' '}
-            <code className="t-mono">setSecondaryFeeBps</code>,{' '}
-            <code className="t-mono">setTreasury</code> and{' '}
-            <code className="t-mono">setPaymentTokenAllowed</code> by the admin role on each
-            market.
+          <Callout tone="info" title="Why these are read-only" className="mt-6 max-w-none">
+            <p>
+              Each of these changes the terms of every trade made after it, including ones already
+              being prepared in someone else&rsquo;s wallet. There is no preview and no undo, so
+              they are set from the runbook against a named deployment rather than from a settings
+              screen.
+            </p>
+            <dl className="mt-4 space-y-3">
+              <div>
+                <dt className="text-body-sm font-medium">
+                  <code className="t-mono">setPrimaryFeeBps</code> /{' '}
+                  <code className="t-mono">setSecondaryFeeBps</code>
+                </dt>
+                <dd className="mt-1 text-body-sm text-ink-secondary">
+                  The protocol&rsquo;s cut, in basis points. On the primary market it is taken
+                  from the producer&rsquo;s proceeds at withdrawal, so a change moves money that
+                  buyers have already paid into escrow under the old number.
+                </dd>
+              </div>
+              <div>
+                <dt className="text-body-sm font-medium">
+                  <code className="t-mono">setTreasury</code>
+                </dt>
+                <dd className="mt-1 text-body-sm text-ink-secondary">
+                  Where those fees land. A wrong address here sends real value somewhere
+                  unrecoverable, and the contracts do not check that the destination can do
+                  anything with it.
+                </dd>
+              </div>
+              <div>
+                <dt className="text-body-sm font-medium">
+                  <code className="t-mono">setPaymentTokenAllowed</code>
+                </dt>
+                <dd className="mt-1 text-body-sm text-ink-secondary">
+                  Which asset the markets accept. Removing one does not migrate the offers and
+                  allocations already denominated in it: they keep their asset, and buyers can no
+                  longer obtain it. This deployment has been through that once, which is why some
+                  records on the producer and buyer screens are labelled as a retired asset.
+                </dd>
+              </div>
+            </dl>
+            <p className="mt-4">
+              Each is called by the wallet holding <code className="t-mono">DEFAULT_ADMIN_ROLE</code>{' '}
+              on that market — which is not the same thing as being a gateway admin.
+            </p>
           </Callout>
         </section>
 

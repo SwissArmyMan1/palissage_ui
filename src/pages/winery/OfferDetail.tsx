@@ -19,7 +19,8 @@ import {
   useSettlement,
 } from '@/chain/lens';
 import { primaryMarketAbi } from '@/chain/abis';
-import { CONTRACTS, PAYMENT_TOKEN } from '@/chain/config';
+import { CONTRACTS } from '@/chain/config';
+import { tokenMeta } from '@/chain/tokens';
 import { useTx } from '@/chain/tx';
 import { formatBps, formatCount, formatDeadline, formatMoney } from '@/lib/format';
 import { allocationState, offerPhase } from '@/lib/enums';
@@ -49,7 +50,11 @@ export default function OfferDetail() {
   const settlement = useSettlement(parsed);
   const allocations = useAllocationsOfOffer(parsed);
   const protocol = useProtocol();
-  const decimals = protocol.data?.paymentDecimals ?? PAYMENT_TOKEN.decimals;
+  // Escrow, price and every allocation on this page are denominated in the
+  // offer's own asset. See `chain/tokens.ts` for why that is not the
+  // deployment's asset.
+  const meta = tokenMeta(offer.data?.paymentToken, protocol.data);
+  const decimals = meta.decimals;
 
   const locked = useReadContract({
     address: CONTRACTS.primaryMarket,

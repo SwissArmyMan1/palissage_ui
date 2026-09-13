@@ -13,13 +13,14 @@ import { ActivityFeed } from '@/components/patterns/ActivityFeed';
 import { buildActivity } from '@/components/patterns/activity';
 import {
   useAllocationsOfBuyer,
-  useLots,
+  useAllLots,
   usePositions,
   useProtocol,
   useRedemptionsOfBuyer,
 } from '@/chain/lens';
 import { PAYMENT_TOKEN } from '@/chain/config';
-import { formatCount, formatDeadline, formatMoney } from '@/lib/format';
+import { formatCount, formatDeadline } from '@/lib/format';
+import { formatTokenAmount, tokenMeta } from '@/chain/tokens';
 import { allocationState } from '@/lib/enums';
 
 /**
@@ -33,21 +34,29 @@ export default function ShopOverview() {
   const { address, isConnected } = useAccount();
   const allocations = useAllocationsOfBuyer(address);
   const redemptions = useRedemptionsOfBuyer(address);
-  const lots = useLots();
+  const lots = useAllLots();
   const protocol = useProtocol();
 
   const ids = useMemo(() => lots.items.map((lot) => lot.id), [lots.items]);
   const positions = usePositions(address, ids);
-  const decimals = protocol.data?.paymentDecimals ?? PAYMENT_TOKEN.decimals;
 
   const lotName = useMemo(() => {
     const byId = new Map(lots.items.map((lot) => [String(lot.id), lot.name]));
     return (id: bigint) => byId.get(String(id)) ?? `Lot #${String(id)}`;
   }, [lots.items]);
 
-  const outstanding = allocations.items
-    .filter((a) => a.state === 0)
+  // Allocations carry their own `paymentToken` and this deployment has changed
+  // settlement asset once, so the headline totals only what is denominated in
+  // the current one. A retired-asset balance is surfaced as a count, never
+  // folded into a euro figure it does not share a scale with.
+  const settlementMeta = tokenMeta(PAYMENT_TOKEN.address, protocol.data);
+  const unpaid = allocations.items.filter((a) => a.state === 0);
+  const outstanding = unpaid
+    .filter((a) => tokenMeta(a.paymentToken, protocol.data).settlement)
     .reduce((sum, a) => sum + a.remaining, 0n);
+  const legacyDue = unpaid.filter(
+    (a) => a.remaining > 0n && !tokenMeta(a.paymentToken, protocol.data).settlement,
+  );
   const held = positions.items.reduce((sum, p) => sum + p.balance, 0n);
   const transferable = positions.items.reduce((sum, p) => sum + p.transferable, 0n);
   const openDeliveries = redemptions.items.filter((r) => r.state === 0 || r.state === 1);
@@ -100,15 +109,27 @@ export default function ShopOverview() {
             <div className="enter-stagger grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
               <StatTile
                 label="Outstanding balance"
-                value={formatMoney(outstanding, decimals)}
+                /*
+                 * `€0.00` next to "1 still to pay" would be two true values
+                 * that contradict each other. When nothing is owed in the
+                 * settlement asset but something is owed in a retired one, the
+                 * figure is not zero — it is not expressible here.
+                 */
+                value={
+                  outstanding === 0n && legacyDue.length > 0
+                    ? '—'
+                    : formatTokenAmount(outstanding, settlementMeta)
+                }
                 tone={outstanding > 0n ? 'danger' : 'default'}
                 footnote={
-                  duePayments.length > 0
-                    ? `${duePayments.length} ${duePayments.length === 1 ? 'allocation' : 'allocations'} still to pay`
-                    : 'Nothing outstanding'
+                  legacyDue.length > 0
+                    ? `${duePayments.length} still to pay · ${legacyDue.length} in a retired asset, shown on their own rows`
+                    : duePayments.length > 0
+                      ? `${duePayments.length} ${duePayments.length === 1 ? 'allocation' : 'allocations'} still to pay`
+                      : 'Nothing outstanding'
                 }
                 action={
-                  outstanding > 0n ? (
+                  duePayments.length > 0 ? (
                     <LinkButton to="/app/shop/allocations" kind="secondary" size="sm">
                       Open allocations
                     </LinkButton>
@@ -170,8 +191,11 @@ export default function ShopOverview() {
                           <div className="min-w-0 flex-1">
                             <p className="text-body">{lotName(allocation.lotId)}</p>
                             <p className="text-body-sm text-ink-secondary tabular-nums">
-                              {formatMoney(allocation.remaining, decimals)} due{' '}
-                              {formatDeadline(allocation.fullPaymentDeadline)}
+                              {formatTokenAmount(
+                                allocation.remaining,
+                                tokenMeta(allocation.paymentToken, protocol.data),
+                              )}{' '}
+                              due {formatDeadline(allocation.fullPaymentDeadline)}
                             </p>
                           </div>
                           <StatusBadge tone={allocation.overdue ? 'danger' : state.tone}>

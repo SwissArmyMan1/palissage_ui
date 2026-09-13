@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { isAddress } from 'viem';
+import { useAccount, useReadContracts } from 'wagmi';
 import { CircleCheck, CircleMinus } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Callout } from '@/components/ui/Callout';
@@ -9,11 +10,48 @@ import { AddressValue, ExplorerLink, Mono } from '@/components/ui/Mono';
 import { CabinetPage, PageHeader } from '@/components/layout/PageHeader';
 import { ActionReview } from '@/components/patterns/ActionReview';
 import { useParticipant } from '@/chain/lens';
+import type { ParticipantView } from '@/chain/types';
 import { useCapabilities } from '@/chain/roles';
 import { roleGatewayAbi } from '@/chain/abis';
+import { DEFAULT_ADMIN_ROLE, VERIFIER_ROLE, accessControlAbi } from '@/chain/access';
 import { CONTRACTS } from '@/chain/config';
 import { useTx } from '@/chain/tx';
 import { GATEWAY_ROLE } from '@/lib/enums';
+
+/**
+ * `RoleGateway.assignRole(Admin)` grants `VERIFIER_ROLE` on the token and nothing else, so a
+ * gateway-made operator can verify a lot but cannot release a producer's escrow or resolve a
+ * delivery. Those two roles live on their own contracts and are granted directly, each by that
+ * contract's own admin — which is why this table carries the contract alongside the role.
+ */
+const OPERATOR_ROLES = [
+  {
+    id: 'token',
+    label: 'Verify, suspend and unsuspend lots',
+    contract: 'WineLotToken',
+    address: CONTRACTS.wineLotToken,
+    held: (p: ParticipantView) => p.tokenVerifier,
+    note: 'The gateway also grants this one with the Admin role.',
+  },
+  {
+    id: 'primary',
+    label: 'Confirm milestones and release escrow',
+    contract: 'PrimaryMarket',
+    address: CONTRACTS.primaryMarket,
+    held: (p: ParticipantView) => p.primaryVerifier,
+    note: 'Without it the milestone queue stays read-only for this wallet.',
+  },
+  {
+    id: 'redemption',
+    label: 'Resolve and refund deliveries',
+    contract: 'RedemptionManager',
+    address: CONTRACTS.redemptionManager,
+    held: (p: ParticipantView) => p.redemptionVerifier,
+    note: 'Without it a disputed delivery has no way out.',
+  },
+] as const;
+
+type OperatorRole = (typeof OPERATOR_ROLES)[number];
 
 const ROLE_OPTIONS = [
   { value: '1', label: 'Admin — operations' },
@@ -149,16 +187,25 @@ export default function AdminParticipants() {
 
             {!caps.canAssignRoles ? (
               <Callout tone="warning" className="mt-4 max-w-none">
-                Assigning and revoking roles is restricted to a gateway admin. This wallet is not
-                one, so the gateway would reject the write.
+                <code className="t-mono">assignRole</code> and{' '}
+                <code className="t-mono">revokeRole</code> accept two kinds of caller: a wallet
+                whose gateway role is Admin, or the gateway&rsquo;s owner. This wallet is
+                neither, so the gateway would reject the write. Ask the gateway owner to grant
+                this wallet the Admin role.
               </Callout>
             ) : (
               <Callout tone="info" className="mt-4 max-w-none">
                 Admin is the one role that cannot be self-assigned in the sandbox, because it
                 carries the verifier role on the token. Granting it here is the intended path.
+                It is not the whole of an operator, though: the gateway grants the verifier role
+                on <span className="t-mono">WineLotToken</span> only. Releasing escrow and
+                resolving a delivery are separate roles on the market and the redemption
+                manager, granted below.
               </Callout>
             )}
           </section>
+
+          <OperatorRoles target={target} participant={p} />
         </div>
       ) : target && participant.isLoading ? (
         <p className="mt-8 text-body-sm text-ink-secondary" role="status">
@@ -251,6 +298,164 @@ function RevokeDialog({ target, onClose }: { target: `0x${string}`; onClose: () 
               abi: roleGatewayAbi,
               functionName: 'revokeRole',
               args: [target],
+            }),
+          tx,
+        },
+      ]}
+    />
+  );
+}
+
+/**
+ * ADM-04. The three verifier roles an operator actually needs, each read from and written to
+ * its own contract.
+ *
+ * Every row re-reads two independent facts: whether the target holds the role, and whether
+ * *this* wallet is admin on that contract. A row whose grant would revert is disabled with the
+ * reason stated, rather than offered and left to fail in the wallet.
+ */
+function OperatorRoles({
+  target,
+  participant,
+}: {
+  target: `0x${string}`;
+  participant: ParticipantView;
+}) {
+  const { address } = useAccount();
+  const [pending, setPending] = useState<{ role: OperatorRole; grant: boolean } | null>(null);
+
+  const admin = useReadContracts({
+    contracts: OPERATOR_ROLES.map((role) => ({
+      address: role.address,
+      abi: accessControlAbi,
+      functionName: 'hasRole' as const,
+      args: [DEFAULT_ADMIN_ROLE, address ?? target] as const,
+    })),
+    query: { enabled: Boolean(address), refetchInterval: 12_000 },
+  });
+
+  return (
+    <section className="card p-6 lg:col-span-2" aria-labelledby="operator-heading">
+      <h2 id="operator-heading" className="t-h3">
+        Operator roles on the contracts
+      </h2>
+      <p className="mt-2 max-w-reading text-body-sm text-ink-secondary">
+        Three separate roles on three separate contracts. The gateway&rsquo;s Admin role covers
+        only the first; an operator who has to release escrow or settle a disputed delivery needs
+        the other two granted here.
+      </p>
+
+      <ul className="mt-5 space-y-4">
+        {OPERATOR_ROLES.map((role, index) => {
+          const held = role.held(participant);
+          const mayGrant = admin.data?.[index]?.result === true;
+          const selfRemoval = held && address?.toLowerCase() === target.toLowerCase();
+
+          return (
+            <li
+              key={role.id}
+              className="flex flex-wrap items-center gap-4 border-t border-edge-subtle pt-4 first:border-0 first:pt-0"
+            >
+              <div className="min-w-0 flex-1">
+                <p className="text-body font-medium">{role.label}</p>
+                <p className="mt-1 text-body-sm text-ink-secondary">
+                  <span className="t-mono">VERIFIER_ROLE</span> on{' '}
+                  <span className="t-mono">{role.contract}</span> &middot; {role.note}
+                </p>
+                {selfRemoval ? (
+                  <p className="mt-1 text-body-sm text-warning">
+                    This is your own wallet. Revoking it here would remove your own access with
+                    no way back from this screen — have another operator do it.
+                  </p>
+                ) : null}
+              </div>
+              <StatusBadge tone={held ? 'success' : 'neutral'}>
+                {held ? 'Held' : 'Not held'}
+              </StatusBadge>
+              <Button
+                size="sm"
+                kind={held ? 'danger' : 'secondary'}
+                disabled={!mayGrant || selfRemoval}
+                onClick={() => setPending({ role, grant: !held })}
+              >
+                {held ? 'Revoke' : 'Grant'}
+              </Button>
+            </li>
+          );
+        })}
+      </ul>
+
+      {admin.data && admin.data.some((entry) => entry.result !== true) ? (
+        <Callout tone="warning" className="mt-5 max-w-none">
+          A role you cannot grant is one where this wallet does not hold{' '}
+          <code className="t-mono">DEFAULT_ADMIN_ROLE</code> on that contract. That admin is set
+          at deployment and is not the same thing as being a gateway admin.
+        </Callout>
+      ) : null}
+
+      {pending ? (
+        <OperatorRoleDialog
+          target={target}
+          role={pending.role}
+          grant={pending.grant}
+          onClose={() => setPending(null)}
+        />
+      ) : null}
+    </section>
+  );
+}
+
+function OperatorRoleDialog({
+  target,
+  role,
+  grant,
+  onClose,
+}: {
+  target: `0x${string}`;
+  role: OperatorRole;
+  grant: boolean;
+  onClose: () => void;
+}) {
+  const tx = useTx();
+  return (
+    <ActionReview
+      open
+      onClose={onClose}
+      destructive={!grant}
+      title={grant ? `Grant: ${role.label.toLowerCase()}` : `Revoke: ${role.label.toLowerCase()}`}
+      object={
+        <div className="space-y-1">
+          <p className="t-mono break-all">{target}</p>
+          <p className="text-body-sm text-ink-secondary">
+            <span className="t-mono">VERIFIER_ROLE</span> on{' '}
+            <span className="t-mono">{role.contract}</span>
+          </p>
+        </div>
+      }
+      consequence={
+        grant ? (
+          <p>
+            This wallet will be able to {role.label.toLowerCase()} for every record on{' '}
+            {role.contract}. The role is not scoped to one lot or one producer.
+          </p>
+        ) : (
+          <p>
+            This wallet loses the ability to {role.label.toLowerCase()}. Anything already
+            confirmed stays confirmed; only future decisions are affected.
+          </p>
+        )
+      }
+      steps={[
+        {
+          id: grant ? 'grant' : 'revoke',
+          label: grant ? 'Grant the role' : 'Revoke the role',
+          required: true,
+          run: () =>
+            tx.send({
+              address: role.address,
+              abi: accessControlAbi,
+              functionName: grant ? 'grantRole' : 'revokeRole',
+              args: [VERIFIER_ROLE, target],
             }),
           tx,
         },

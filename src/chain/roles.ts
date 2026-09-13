@@ -58,10 +58,19 @@ export interface Capabilities {
   canConfirmMilestone: boolean;
   /** RedemptionManager dispute paths require its VERIFIER_ROLE. */
   canResolveRedemption: boolean;
-  /** RoleGateway.assignRole is onlyGatewayAdmin and works in any mode. */
+  /**
+   * RoleGateway.assignRole is `onlyGatewayAdmin`, and that modifier accepts two
+   * different wallets: one whose gateway role is Admin, **or** the gateway's
+   * owner, whatever role the owner happens to hold. Reading only the first of
+   * those locked the owner out of onboarding anyone — the owner holds the
+   * Winery role on this deployment, so `gatewayRole != Admin`, and the only
+   * wallet that can seed participants had its buttons disabled.
+   */
   canAssignRoles: boolean;
   /** RoleGateway.setTestMode is onlyOwner. */
   ownsGateway: boolean;
+  /** WineLotToken.closeLot is DEFAULT_ADMIN_ROLE on the token. */
+  canCloseLot: boolean;
   canReceiveBottles: boolean;
   canSendBottles: boolean;
 }
@@ -73,8 +82,9 @@ export function capabilitiesOf(p?: ParticipantView): Capabilities {
     canVerifyLot: Boolean(p?.tokenVerifier),
     canConfirmMilestone: Boolean(p?.primaryVerifier),
     canResolveRedemption: Boolean(p?.redemptionVerifier),
-    canAssignRoles: Boolean(p?.gatewayAdmin),
+    canAssignRoles: Boolean(p?.gatewayAdmin || p?.gatewayOwner),
     ownsGateway: Boolean(p?.gatewayOwner),
+    canCloseLot: Boolean(p?.tokenAdmin),
     canReceiveBottles: Boolean(p?.canReceive),
     canSendBottles: Boolean(p?.canSend),
   };
@@ -161,7 +171,7 @@ function describeOperator(caps: Capabilities): string {
   if (caps.canVerifyLot) held.push('lot verifier');
   if (caps.canConfirmMilestone) held.push('milestone verifier');
   if (caps.canResolveRedemption) held.push('redemption verifier');
-  if (caps.canAssignRoles) held.push('gateway admin');
+  if (caps.canAssignRoles) held.push(caps.ownsGateway ? 'gateway owner' : 'gateway admin');
   if (held.length === 0) {
     return 'This wallet holds no operator role. Operations cannot be self-assigned — a gateway admin grants it.';
   }

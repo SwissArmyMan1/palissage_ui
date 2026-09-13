@@ -106,7 +106,8 @@ export function truncateHash(hash?: string | null): string {
   return `${hash.slice(0, 6)}…${hash.slice(-4)}`;
 }
 
-export const ZERO_HASH = '0x0000000000000000000000000000000000000000000000000000000000000000';
+export const ZERO_HASH =
+  '0x0000000000000000000000000000000000000000000000000000000000000000' as `0x${string}`;
 
 export function isZeroHash(hash?: string | null): boolean {
   return !hash || hash === ZERO_HASH;

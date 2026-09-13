@@ -18,7 +18,8 @@ import {
   useProtocol,
 } from '@/chain/lens';
 import { erc20Abi, primaryMarketAbi } from '@/chain/abis';
-import { CHAIN_ID, CONTRACTS, PAYMENT_TOKEN } from '@/chain/config';
+import { CHAIN_ID, CONTRACTS } from '@/chain/config';
+import { tokenMeta } from '@/chain/tokens';
 import { useTx } from '@/chain/tx';
 import {
   formatCount,
@@ -50,8 +51,15 @@ export default function AllocationDetail() {
   const allowance = usePaymentAllowance(address, CONTRACTS.primaryMarket);
   const positions = usePositions(address, allocation.data ? [allocation.data.lotId] : []);
 
-  const decimals = protocol.data?.paymentDecimals ?? PAYMENT_TOKEN.decimals;
-  const symbol = protocol.data?.paymentSymbol ?? PAYMENT_TOKEN.symbol;
+  /**
+   * The allocation's own asset, not the deployment's current one. An allocation
+   * taken before the settlement asset changed is denominated in an 18-decimal
+   * token; formatting it with EURC's six turned €7 440.00 into a sixteen-digit
+   * number on this very screen.
+   */
+  const meta = tokenMeta(allocation.data?.paymentToken, protocol.data);
+  const decimals = meta.decimals;
+  const symbol = meta.symbol;
 
   const view = allocation.data;
   const [amountInput, setAmountInput] = useState('');
@@ -105,6 +113,14 @@ export default function AllocationDetail() {
     if (address && view.buyer.toLowerCase() !== address.toLowerCase())
       return 'This allocation belongs to another wallet, so only that wallet can pay it.';
     if (!outstanding) return 'There is nothing outstanding on this allocation.';
+    // `payRemainder` pulls the *offer's* token, not the deployment's current
+    // one. A retired asset cannot be obtained any more, so paying is not a
+    // thing this wallet can do — say so instead of sending an approval on a
+    // token the market will never move.
+    if (!meta.settlement)
+      return meta.known
+        ? `This allocation is denominated in ${meta.symbol}, which the markets no longer accept. It cannot be paid down; the producer can cancel it and refund what was paid, or claim the default once the deadline passes.`
+        : 'This allocation is denominated in an asset this interface cannot read, so it will not offer a payment it cannot describe.';
     if (payAmount === 0n) return 'Enter how much you want to pay.';
     if ((balance.data ?? 0n) < payAmount)
       return `You need ${formatMoney(payAmount, decimals)} of ${symbol}. This wallet holds ${formatMoney(
@@ -313,7 +329,8 @@ export default function AllocationDetail() {
             required: needsApproval,
             run: () =>
               approveTx.send({
-                address: PAYMENT_TOKEN.address,
+                // The allocation's own asset — see the `blocked` note above.
+                address: view.paymentToken,
                 abi: erc20Abi,
                 functionName: 'approve',
                 args: [CONTRACTS.primaryMarket, payAmount],

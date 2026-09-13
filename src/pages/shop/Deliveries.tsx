@@ -114,15 +114,30 @@ export default function ShopDeliveries() {
                       >
                         Confirm you received the wine
                       </Button>
-                      <Button size="sm" kind="danger" onClick={() => setCancelling(redemption)}>
-                        Cancel this request
-                      </Button>
+                      {/*
+                        `cancelRedemption` requires the Requested state. Once the
+                        producer has marked the shipment there is no buyer-side
+                        way out, so the button is not offered at all — offering
+                        it and letting the wallet revert would be worse than
+                        saying what the contract actually allows.
+                      */}
+                      {redemption.state === 0 ? (
+                        <Button size="sm" kind="danger" onClick={() => setCancelling(redemption)}>
+                          Cancel this request
+                        </Button>
+                      ) : null}
                       {!shipped ? (
                         <p className="w-full text-body-sm text-ink-secondary">
                           You can confirm receipt once the producer attaches the shipment
                           documents.
                         </p>
-                      ) : null}
+                      ) : (
+                        <p className="w-full text-body-sm text-ink-secondary">
+                          The wine has shipped, so this request can no longer be cancelled from
+                          here. If it does not arrive, Palissage operations can return the bottles
+                          to you — the contract keeps that path open until you confirm receipt.
+                        </p>
+                      )}
                     </div>
                   ) : null}
                 </li>
@@ -206,8 +221,9 @@ function CancelRequest({
       }
       consequence={
         <p>
-          The escrowed bottles return to your balance and the delivery is closed. If the producer
-          has already shipped, cancel with them first — this only changes the on-chain record.
+          The escrowed bottles return to your balance and the delivery is closed. This is only
+          possible before the producer marks the shipment; afterwards the request can only be
+          resolved by confirming receipt or by Palissage operations returning the bottles.
         </p>
       }
       steps={[

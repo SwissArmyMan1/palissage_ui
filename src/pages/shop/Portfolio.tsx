@@ -3,18 +3,25 @@ import { useAccount, useReadContract } from 'wagmi';
 import { Button, LinkButton } from '@/components/ui/Button';
 import { Callout } from '@/components/ui/Callout';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { Field, TextInput } from '@/components/ui/Field';
+import { Field, TextArea, TextInput } from '@/components/ui/Field';
 import { SkeletonRows } from '@/components/ui/Skeleton';
 import { DataTable, type Column } from '@/components/ui/DataTable';
 import { LotThumb } from '@/components/ui/LotThumb';
 import { CabinetPage, PageHeader } from '@/components/layout/PageHeader';
 import { ConnectPrompt } from '@/components/layout/ConnectPrompt';
 import { ActionReview } from '@/components/patterns/ActionReview';
-import { useLots, usePositions, useProtocol } from '@/chain/lens';
+import { useAllLots, usePositions, useProtocol } from '@/chain/lens';
 import { redemptionManagerAbi, secondaryMarketAbi, wineLotTokenAbi } from '@/chain/abis';
 import { CONTRACTS, PAYMENT_TOKEN } from '@/chain/config';
 import { useTx } from '@/chain/tx';
-import { ZERO_HASH, formatCount, formatMoney, parseAmount, parseBottles } from '@/lib/format';
+import { formatCount, formatMoney, parseAmount, parseBottles } from '@/lib/format';
+import {
+  EMPTY_DELIVERY,
+  canonicalDelivery,
+  deliveryHash,
+  isDeliveryEmpty,
+  type DeliveryDetails,
+} from '@/lib/delivery';
 import { productionStage } from '@/lib/enums';
 import type { LotView, PositionView } from '@/chain/types';
 
@@ -32,7 +39,7 @@ interface Holding {
  */
 export default function Portfolio() {
   const { address, isConnected } = useAccount();
-  const lots = useLots();
+  const lots = useAllLots();
   const protocol = useProtocol();
   const ids = useMemo(() => lots.items.map((lot) => lot.id), [lots.items]);
   const positions = usePositions(address, ids);
@@ -190,8 +197,15 @@ function RequestDeliveryDialog({
   onClose: () => void;
 }) {
   const [quantity, setQuantity] = useState(String(holding.position.transferable));
+  const [details, setDetails] = useState<DeliveryDetails>(EMPTY_DELIVERY);
+  const [copied, setCopied] = useState(false);
   const approveTx = useTx();
   const requestTx = useTx();
+
+  const detailsEmpty = isDeliveryEmpty(details);
+  const dataHash = deliveryHash(details);
+  const setField = (field: keyof DeliveryDetails) => (value: string) =>
+    setDetails((current) => ({ ...current, [field]: value }));
 
   const approved = useReadContract({
     address: CONTRACTS.wineLotToken,
@@ -210,7 +224,7 @@ function RequestDeliveryDialog({
       onClose={onClose}
       title="Request delivery"
       object={
-        <div className="space-y-3">
+        <div className="space-y-4">
           <p className="text-body font-medium">{holding.lot.name}</p>
           <Field
             label="Bottles to have delivered"
@@ -231,6 +245,81 @@ function RequestDeliveryDialog({
               />
             )}
           </Field>
+
+          <fieldset className="space-y-4 border-t border-edge-subtle pt-4">
+            <legend className="sr-only">Delivery details</legend>
+            <p className="text-body-sm text-ink-secondary">
+              Where the wine should go. None of this is published: only a hash of it is recorded
+              on Base, as proof that neither side changed the terms afterwards.
+            </p>
+            <Field label="Recipient">
+              {(props) => (
+                <TextInput
+                  {...props}
+                  value={details.recipient}
+                  autoComplete="name"
+                  onChange={(event) => setField('recipient')(event.target.value)}
+                />
+              )}
+            </Field>
+            <Field label="Delivery address">
+              {(props) => (
+                <TextArea
+                  {...props}
+                  rows={3}
+                  value={details.address}
+                  autoComplete="street-address"
+                  onChange={(event) => setField('address')(event.target.value)}
+                />
+              )}
+            </Field>
+            <Field label="Contact" hint="An email or a phone number the producer can reach.">
+              {(props) => (
+                <TextInput
+                  {...props}
+                  value={details.contact}
+                  onChange={(event) => setField('contact')(event.target.value)}
+                />
+              )}
+            </Field>
+            <Field label="Notes" hint="Access, delivery window, anything the carrier needs.">
+              {(props) => (
+                <TextArea
+                  {...props}
+                  rows={2}
+                  value={details.notes}
+                  onChange={(event) => setField('notes')(event.target.value)}
+                />
+              )}
+            </Field>
+          </fieldset>
+
+          <div className="rounded-md bg-surface-sunken p-3">
+            <p className="text-body-sm text-ink-secondary">
+              {detailsEmpty ? 'Nothing to anchor yet' : 'Recorded on Base as'}
+            </p>
+            <p className="t-mono mt-1 break-all text-body-sm">{dataHash}</p>
+            {detailsEmpty ? (
+              <p className="mt-2 text-body-sm text-ink-secondary">
+                A request with no details carries the zero hash. The contract accepts it — but
+                then nothing on Base says what was agreed, and the producer still needs an address
+                from you.
+              </p>
+            ) : (
+              <button
+                type="button"
+                className="mt-3 text-body-sm font-medium text-accent underline decoration-transparent underline-offset-4 hover:decoration-current"
+                onClick={() => {
+                  void navigator.clipboard
+                    ?.writeText(canonicalDelivery(details))
+                    .then(() => setCopied(true))
+                    .catch(() => setCopied(false));
+                }}
+              >
+                {copied ? 'Copied — send this to the producer' : 'Copy the details to send'}
+              </button>
+            )}
+          </div>
         </div>
       }
       consequence={
@@ -241,8 +330,16 @@ function RequestDeliveryDialog({
           </p>
           <p className="mt-2">
             The producer then attaches shipment documents. When you confirm receipt the bottles are
-            burned on-chain. If the delivery is cancelled they come back to you.
+            burned on-chain. You can cancel and get them back up until the producer marks the
+            shipment.
           </p>
+          {!detailsEmpty ? (
+            <p className="mt-2">
+              Your delivery details are not sent by this interface — it has no server to send them
+              with. Copy them above and pass them to the producer; the hash on Base is what lets
+              either of you prove later that they did not change.
+            </p>
+          ) : null}
         </>
       }
       steps={[
@@ -270,7 +367,7 @@ function RequestDeliveryDialog({
               address: CONTRACTS.redemptionManager,
               abi: redemptionManagerAbi,
               functionName: 'requestRedemption',
-              args: [holding.lot.id, bottles!, ZERO_HASH],
+              args: [holding.lot.id, bottles!, dataHash],
             }),
           tx: requestTx,
         },

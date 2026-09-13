@@ -5,7 +5,7 @@ import { cn } from '@/lib/cn';
 import { BrandMark } from '@/components/ui/Logo';
 import { NetworkChip } from '@/components/ui/NetworkChip';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
-import { NAV, ROLE_BASE, ROLE_TITLE, navHref } from '@/lib/nav';
+import { NAV, ROLE_BASE, ROLE_TITLE, navHref, type CabinetRoleKey } from '@/lib/nav';
 import { WalletChip } from './WalletChip';
 import { WalletBalance } from './WalletBalance';
 import { useRoleOffers, type RoleKey } from '@/chain/roles';
@@ -19,7 +19,7 @@ import { useProtocol } from '@/chain/lens';
  * The organisation switcher in the top bar is the role switcher. It lists only
  * the roles this wallet actually holds, read from the gateway and the claims.
  */
-export function AppShell({ role, orgName }: { role: RoleKey; orgName?: string }) {
+export function AppShell({ role, orgName }: { role: CabinetRoleKey; orgName?: string }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const items = NAV[role];
   const tabs = items.filter((item) => item.tab).slice(0, 4);
@@ -163,7 +163,7 @@ export function AppShell({ role, orgName }: { role: RoleKey; orgName?: string })
   );
 }
 
-function SidebarItems({ role, onNavigate }: { role: RoleKey; onNavigate?: () => void }) {
+function SidebarItems({ role, onNavigate }: { role: CabinetRoleKey; onNavigate?: () => void }) {
   return (
     <>
       <ul className="min-h-0 flex-1 space-y-1 overflow-y-auto p-3">

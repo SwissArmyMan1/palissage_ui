@@ -4,7 +4,7 @@ import { useAccount } from 'wagmi';
 import { Button } from '@/components/ui/Button';
 import { Callout } from '@/components/ui/Callout';
 import { Plate } from '@/components/ui/Plate';
-import { QuantityField, RadioCard } from '@/components/ui/Field';
+import { Field, QuantityField, RadioCard, TextInput } from '@/components/ui/Field';
 import { Skeleton, LoadingRegion } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { StepIndicator } from '@/components/ui/StepIndicator';
@@ -21,9 +21,13 @@ import {
 } from '@/chain/lens';
 import { depositDue, offerTotal, protocolFee } from '@/chain/select';
 import { erc20Abi, primaryMarketAbi } from '@/chain/abis';
-import { CHAIN_ID, CONTRACTS, PAYMENT_TOKEN } from '@/chain/config';
+import { CHAIN_ID, CONTRACTS } from '@/chain/config';
+import { tokenMeta } from '@/chain/tokens';
 import { useTx } from '@/chain/tx';
-import { formatBps, formatCount, formatDeadline, formatMoney, parseBottles } from '@/lib/format';
+import { formatBps, formatCount, formatDeadline, formatMoney, parseBottles,
+  formatAmount,
+  parseAmount,
+} from '@/lib/format';
 import { productionStage } from '@/lib/enums';
 import { NotFound } from '../public/NotFound';
 
@@ -52,14 +56,23 @@ export default function Reserve() {
   const allowance = usePaymentAllowance(address, CONTRACTS.primaryMarket);
 
   const [quantity, setQuantity] = useState('');
-  const [payFull, setPayFull] = useState(false);
+  /**
+   * `reserve(offerId, quantity, payNow)` accepts any `payNow` between the
+   * offer's minimum deposit and the full total — the two ends of that band were
+   * the only amounts this screen offered. A buyer who wants to put down more
+   * than the minimum without settling in full had no way to say so.
+   */
+  const [payMode, setPayMode] = useState<'deposit' | 'custom' | 'full'>('deposit');
+  const [customInput, setCustomInput] = useState('');
   const [reviewing, setReviewing] = useState(false);
 
   const approveTx = useTx();
   const reserveTx = useTx();
 
-  const decimals = protocol.data?.paymentDecimals ?? PAYMENT_TOKEN.decimals;
-  const symbol = protocol.data?.paymentSymbol ?? PAYMENT_TOKEN.symbol;
+  // The offer's own asset, not the deployment's — see `chain/tokens.ts`.
+  const offerMeta = tokenMeta(offer.data?.paymentToken, protocol.data);
+  const decimals = offerMeta.decimals;
+  const symbol = offerMeta.symbol;
   const feeBps = protocol.data?.primaryFeeBps ?? 0;
 
   const view = offer.data;
@@ -78,8 +91,34 @@ export default function Reserve() {
   const validQuantity = bottles !== null && bottles >= 1 && bottles <= available;
   const total = view && validQuantity ? offerTotal(view, bottles!) : 0n;
   const deposit = view && validQuantity ? depositDue(view, bottles!) : 0n;
-  const dueNow = payFull || (view?.depositBps ?? 0) === 0 ? total : deposit;
+  const customAmount = parseAmount(customInput, decimals);
+  const depositsDisabled = (view?.depositBps ?? 0) === 0;
+  const effectiveMode = depositsDisabled ? 'full' : payMode;
+  const dueNow =
+    effectiveMode === 'full'
+      ? total
+      : effectiveMode === 'custom'
+        ? (customAmount ?? 0n)
+        : deposit;
   const remaining = total - dueNow;
+
+  /**
+   * The band this is checked against is derived from the quantity, so with no
+   * quantity yet both ends are zero — and the field would have told the reader
+   * their amount exceeds a €0.00 total. Say what is actually missing instead.
+   */
+  const customError =
+    effectiveMode !== 'custom' || customInput === ''
+      ? undefined
+      : !validQuantity
+        ? 'Enter how many bottles you want first — the amount you may pay now depends on it.'
+        : customAmount === null
+          ? `Enter an amount in ${symbol}, for example ${formatAmount(deposit, decimals, 2)}.`
+          : customAmount < deposit
+            ? `The minimum this offer accepts is ${formatMoney(deposit, decimals)}.`
+            : customAmount > total
+              ? `That is more than the ${formatMoney(total, decimals)} total.`
+              : undefined;
   const fee = protocolFee(total, feeBps);
 
   if (parsed === undefined) return <NotFound what={`offer ${offerId ?? ''}`} />;
@@ -109,11 +148,20 @@ export default function Reserve() {
     if (chainId !== CHAIN_ID)
       return `Your wallet is on another network. Palissage runs on Base Sepolia for this release. Switch network in your wallet — nothing has been submitted.`;
     if (view.phase !== 1) return 'This offer is not open, so it cannot be reserved.';
+    // The market catalogue filters these out, but this route is reachable by id.
+    // `reserve` pulls the *offer's* token, so approving the deployment's current
+    // one would prepare a payment the market will never take.
+    if (!offerMeta.settlement)
+      return offerMeta.known
+        ? `This offer is denominated in ${offerMeta.symbol}, which the markets no longer accept, so it cannot be reserved.`
+        : 'This offer is denominated in an asset this interface cannot read, so it will not offer a reservation it cannot describe.';
     if (!participant.data?.b2bClaim)
       return 'This wallet is not qualified as a B2B buyer, so the market contract would reject the reservation. Take the Shop role on the readiness screen.';
     if (!participant.data?.canReceive)
       return 'Bottles cannot be minted to this wallet yet, so a full payment could not settle. Check your readiness.';
     if (!validQuantity) return 'Enter how many bottles you want first.';
+    if (effectiveMode === 'custom' && (customAmount === null || customError))
+      return customError ?? 'Enter how much you want to pay now.';
     if ((balance.data ?? 0n) < dueNow)
       return `You need ${formatMoney(dueNow, decimals)} of ${symbol} to reserve ${formatCount(
         bottles!,
@@ -131,7 +179,8 @@ export default function Reserve() {
       required: needsApproval,
       run: () =>
         approveTx.send({
-          address: PAYMENT_TOKEN.address,
+          // The offer's own asset — see `blocked` above.
+          address: view.paymentToken,
           abi: erc20Abi,
           functionName: 'approve',
           args: [CONTRACTS.primaryMarket, dueNow],
@@ -210,9 +259,9 @@ export default function Reserve() {
                   <RadioCard
                     name="payment"
                     value="deposit"
-                    checked={!payFull}
-                    onChange={() => setPayFull(false)}
-                    title={`Pay a ${formatBps(view.depositBps)} deposit now`}
+                    checked={payMode === 'deposit'}
+                    onChange={() => setPayMode('deposit')}
+                    title={`Pay the ${formatBps(view.depositBps)} minimum deposit now`}
                     body={
                       validQuantity
                         ? `${formatMoney(deposit, decimals)} now · ${formatMoney(
@@ -224,9 +273,45 @@ export default function Reserve() {
                   />
                   <RadioCard
                     name="payment"
+                    value="custom"
+                    checked={payMode === 'custom'}
+                    onChange={() => setPayMode('custom')}
+                    title="Pay another amount now"
+                    body={
+                      validQuantity
+                        ? `Anything from ${formatMoney(deposit, decimals)} to ${formatMoney(
+                            total,
+                            decimals,
+                          )}. The rest stays due ${formatDeadline(view.fullPaymentDeadline)}.`
+                        : 'Anything between the minimum deposit and the full total.'
+                    }
+                  />
+                  {payMode === 'custom' ? (
+                    <Field
+                      label={`Amount to pay now (${symbol})`}
+                      hint={
+                        validQuantity
+                          ? `Between ${formatMoney(deposit, decimals)} and ${formatMoney(total, decimals)}.`
+                          : 'Enter a quantity first to see the range.'
+                      }
+                      error={customError}
+                    >
+                      {(props) => (
+                        <TextInput
+                          {...props}
+                          inputMode="decimal"
+                          value={customInput}
+                          onChange={(event) => setCustomInput(event.target.value)}
+                          className="tabular-nums"
+                        />
+                      )}
+                    </Field>
+                  ) : null}
+                  <RadioCard
+                    name="payment"
                     value="full"
-                    checked={payFull}
-                    onChange={() => setPayFull(true)}
+                    checked={payMode === 'full'}
+                    onChange={() => setPayMode('full')}
                     title={
                       validQuantity
                         ? `Pay ${formatMoney(total, decimals)} in full now`
@@ -243,7 +328,7 @@ export default function Reserve() {
               )}
             </section>
 
-            {depositAllowed && !payFull ? (
+            {depositAllowed && effectiveMode !== 'full' ? (
               <Callout tone="warning">
                 A deposit reserves bottles. Bottles are minted only when the allocation is paid in
                 full — until then your balance for this lot is zero.
@@ -263,7 +348,7 @@ export default function Reserve() {
                       quantity: bottles!,
                       pricePerBottle: view.pricePerBottle,
                       decimals,
-                      depositBps: payFull ? 0 : view.depositBps,
+                      depositBps: effectiveMode === 'full' ? 0 : view.depositBps,
                       total,
                       dueNow,
                       balance: remaining,
@@ -342,7 +427,7 @@ export default function Reserve() {
                 quantity: bottles!,
                 pricePerBottle: view.pricePerBottle,
                 decimals,
-                depositBps: payFull ? 0 : view.depositBps,
+                depositBps: effectiveMode === 'full' ? 0 : view.depositBps,
                 total,
                 dueNow,
                 balance: remaining,

@@ -7,15 +7,17 @@ import { Callout } from '@/components/ui/Callout';
 import { Skeleton, LoadingRegion } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Tabs, TabPanel } from '@/components/ui/Tabs';
+import { Field, TextInput } from '@/components/ui/Field';
 import { CabinetPage } from '@/components/layout/PageHeader';
 import { ActionReview } from '@/components/patterns/ActionReview';
 import { EvidencePanel } from '@/components/patterns/EvidencePanel';
 import { TrellisLifecycle } from '@/components/patterns/TrellisLifecycle';
 import { useLot, useOffersOfLot, useProtocol } from '@/chain/lens';
 import { wineLotTokenAbi } from '@/chain/abis';
-import { CONTRACTS, PAYMENT_TOKEN } from '@/chain/config';
+import { CONTRACTS } from '@/chain/config';
+import { formatTokenAmount, tokenMeta } from '@/chain/tokens';
 import { useTx } from '@/chain/tx';
-import { formatBps, formatCount, formatMoney } from '@/lib/format';
+import { formatBps, formatCount } from '@/lib/format';
 import { lotState, nextProductionStage, offerPhase, productionStage } from '@/lib/enums';
 import { NotFound } from '../public/NotFound';
 
@@ -38,12 +40,12 @@ export default function ManageLot() {
   const { address } = useAccount();
   const [tab, setTab] = useState<string>('production');
   const [advancing, setAdvancing] = useState(false);
+  const [editingMetadata, setEditingMetadata] = useState(false);
 
   const parsed = /^\d+$/.test(lotId ?? '') ? BigInt(lotId!) : undefined;
   const { lot, exists, isLoading, isError } = useLot(parsed);
   const offers = useOffersOfLot(parsed);
   const protocol = useProtocol();
-  const decimals = protocol.data?.paymentDecimals ?? PAYMENT_TOKEN.decimals;
 
   if (parsed === undefined || (!isLoading && !isError && !exists)) {
     return <NotFound what={`lot ${lotId ?? ''}`} />;
@@ -197,6 +199,7 @@ export default function ManageLot() {
               <ul className="mt-4 divide-y divide-edge-subtle">
                 {offers.items.map((offer) => {
                   const phase = offerPhase(offer.phase);
+                  const offerMeta = tokenMeta(offer.paymentToken, protocol.data);
                   return (
                     <li key={String(offer.id)} className="flex flex-wrap items-center gap-4 py-4">
                       <div className="min-w-0 flex-1">
@@ -205,11 +208,11 @@ export default function ManageLot() {
                           {offer.kind === 1 ? 'En Primeur' : 'Current release'}
                         </p>
                         <p className="text-body-sm text-ink-secondary tabular-nums">
-                          {formatMoney(offer.pricePerBottle, decimals)} ·{' '}
+                          {formatTokenAmount(offer.pricePerBottle, offerMeta)} ·{' '}
                           {formatCount(offer.available)} of {formatCount(offer.quantity)} left
-                          {offer.paymentToken.toLowerCase() !== PAYMENT_TOKEN.address.toLowerCase()
-                            ? ' · settled in a token the markets no longer accept'
-                            : ''}
+                          {offerMeta.settlement
+                            ? ''
+                            : ' · settled in a token the markets no longer accept'}
                         </p>
                       </div>
                       <StatusBadge tone={phase.tone}>{phase.label}</StatusBadge>
@@ -230,8 +233,51 @@ export default function ManageLot() {
 
         <TabPanel id="evidence" active={tab === 'evidence'}>
           <EvidencePanel lot={lot} />
+
+          <section className="card mt-6 p-6" aria-labelledby="metadata-heading">
+            <h2 id="metadata-heading" className="t-h3">
+              Metadata link
+            </h2>
+            <p className="mt-2 max-w-reading text-body-sm text-ink-secondary">
+              The lot&rsquo;s <code className="t-mono">metadataURI</code> — your own description,
+              images or tasting notes, stored with the lot on Base. It is the one field the
+              producer may change after verification, because it carries no attestation: the{' '}
+              <code className="t-mono">docsHash</code> a verifier set is separate and is not
+              touched by this.
+            </p>
+            <dl className="mt-4">
+              <Row
+                label="Current"
+                value={
+                  lot.metadataURI ? (
+                    <span className="t-mono break-all">{lot.metadataURI}</span>
+                  ) : (
+                    <span className="text-ink-secondary">not set</span>
+                  )
+                }
+              />
+            </dl>
+            {isOwner ? (
+              <Button kind="secondary" className="mt-5" onClick={() => setEditingMetadata(true)}>
+                {lot.metadataURI ? 'Change the metadata link' : 'Add a metadata link'}
+              </Button>
+            ) : (
+              <p className="mt-5 text-body-sm text-ink-secondary">
+                Only the lot&rsquo;s producer can change this.
+              </p>
+            )}
+          </section>
         </TabPanel>
       </div>
+
+      {editingMetadata ? (
+        <MetadataDialog
+          lotId={lot.id}
+          lotName={lot.name}
+          current={lot.metadataURI}
+          onClose={() => setEditingMetadata(false)}
+        />
+      ) : null}
 
       {advancing && next ? (
         <AdvanceDialog
@@ -243,6 +289,96 @@ export default function ManageLot() {
         />
       ) : null}
     </CabinetPage>
+  );
+}
+
+/**
+ * `updateLotMetadata` is URI-only and producer-only. Changing it is reversible
+ * and attests nothing, so this is an ordinary confirmation rather than a
+ * destructive one — and the dialog says out loud what it does *not* touch, since
+ * "editing a verified lot" is exactly the thing a producer will hesitate over.
+ */
+function MetadataDialog({
+  lotId,
+  lotName,
+  current,
+  onClose,
+}: {
+  lotId: bigint;
+  lotName: string;
+  current: string;
+  onClose: () => void;
+}) {
+  const [uri, setUri] = useState(current);
+  const [touched, setTouched] = useState(false);
+  const tx = useTx();
+  const trimmed = uri.trim();
+  const unchanged = trimmed === current.trim();
+
+  return (
+    <ActionReview
+      open
+      onClose={onClose}
+      title="Update the metadata link"
+      object={
+        <div className="space-y-3">
+          <p className="text-body font-medium">{lotName}</p>
+          <Field
+            label="Metadata URI"
+            hint="A link to your own description or images. Leave it empty to remove the link."
+            // Not on open: the field starts at the current value by design, and
+            // greeting the reader with an error for that is hostile.
+            error={
+              touched && unchanged && trimmed !== ''
+                ? 'This is the link the lot already carries.'
+                : undefined
+            }
+          >
+            {(props) => (
+              <TextInput
+                {...props}
+                value={uri}
+                onChange={(event) => {
+                  setTouched(true);
+                  setUri(event.target.value);
+                }}
+                placeholder="https://"
+                autoComplete="url"
+              />
+            )}
+          </Field>
+        </div>
+      }
+      consequence={
+        <>
+          <p>
+            The new link is recorded on Base and is what the public lot page and the passport
+            read from.
+          </p>
+          <p className="mt-2">
+            Verification is not affected. The lot keeps its state, its{' '}
+            <code className="t-mono">docsHash</code> and its verifier — the contract does not let
+            this call touch any of them.
+          </p>
+        </>
+      }
+      steps={[
+        {
+          id: 'metadata',
+          label: trimmed === '' ? 'Remove the metadata link' : 'Save the metadata link',
+          required: true,
+          run: () =>
+            tx.send({
+              address: CONTRACTS.wineLotToken,
+              abi: wineLotTokenAbi,
+              functionName: 'updateLotMetadata',
+              args: [lotId, trimmed],
+            }),
+          tx,
+        },
+      ]}
+      blocked={unchanged ? 'The link is unchanged, so there is nothing to send.' : undefined}
+    />
   );
 }
 

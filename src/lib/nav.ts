@@ -1,5 +1,4 @@
 import {
-  Building2,
   Coins,
   FileText,
   LayoutGrid,
@@ -25,6 +24,13 @@ export interface NavItem {
   end?: boolean;
 }
 
+/**
+ * Roles that get the sidebar cabinet. Collector is not one of them: it has a
+ * single destination, and the `Sidebar navigation` entry's veto is "fewer than
+ * four". It runs as a single-column page of its own instead.
+ */
+export type CabinetRoleKey = Exclude<RoleKey, 'collector'>;
+
 export const ROLE_BASE: Record<RoleKey, string> = {
   winery: '/app/winery',
   shop: '/app/shop',
@@ -39,7 +45,7 @@ export const ROLE_TITLE: Record<RoleKey, string> = {
   collector: 'Collector',
 };
 
-export const NAV: Record<RoleKey, NavItem[]> = {
+export const NAV: Record<CabinetRoleKey, NavItem[]> = {
   winery: [
     { to: '', label: 'Overview', Icon: LayoutGrid, tab: true, end: true },
     { to: 'lots', label: 'Lots', Icon: Wine, tab: true },
@@ -61,9 +67,8 @@ export const NAV: Record<RoleKey, NavItem[]> = {
     { to: 'milestones', label: 'Milestones', Icon: ShieldCheck },
     { to: 'redemptions', label: 'Redemptions', Icon: Truck },
   ],
-  collector: [{ to: '', label: 'Shelf', Icon: Building2, tab: true, end: true }],
 };
 
-export function navHref(role: RoleKey, item: NavItem): string {
+export function navHref(role: CabinetRoleKey, item: NavItem): string {
   return item.to ? `${ROLE_BASE[role]}/${item.to}` : ROLE_BASE[role];
 }

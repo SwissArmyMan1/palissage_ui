@@ -1,4 +1,5 @@
-import { useAccount, useReadContract } from 'wagmi';
+import { useMemo } from 'react';
+import { useAccount, useReadContract, useReadContracts } from 'wagmi';
 import { keepPreviousData } from '@tanstack/react-query';
 import type { Address } from 'viem';
 import { palissageLensAbi, erc20Abi } from './abis';
@@ -36,6 +37,9 @@ const lens = { address: CONTRACTS.palissageLens, abi: palissageLensAbi } as cons
 
 /** Poll cadence. Base blocks land every ~2 s; a screen does not need each one. */
 const REFRESH_MS = 12_000;
+
+/** `PalissageLens.positions` reverts above this many ids in one call. */
+const POSITIONS_PER_CALL = 50;
 
 const listQuery = {
   refetchInterval: REFRESH_MS,
@@ -80,6 +84,63 @@ export function useLots(cursor = 0n, limit = PAGE_LIMIT) {
   });
   const [items, nextCursor] = (query.data as readonly [readonly LotView[], bigint] | undefined) ?? [];
   return { ...query, items: items ?? [], nextCursor: nextCursor ?? 0n, hasData: query.data !== undefined };
+}
+
+/**
+ * Every lot in the catalogue, however many pages that takes.
+ *
+ * A portfolio has to be complete or it is misleading, and one `lots()` call
+ * returns at most `MAX_LIMIT` rows. The unfiltered listing is id-ordered with
+ * no rows dropped, so its page boundaries are known in advance from
+ * `lotCount`: cursors are 1, 51, 101 … and every page can be requested in the
+ * same multicall instead of chained round trips.
+ *
+ * Screens that browse rather than account for holdings should keep using
+ * `useLots` with visible pagination — this one grows with the catalogue.
+ *
+ * The ceiling is real and worth naming: the Lens has no "what does this wallet
+ * hold" query, so a complete portfolio means scanning every lot. At a few
+ * hundred lots that is a handful of calls in one multicall; far beyond that it
+ * needs an index the Lens does not have. It is left uncapped on purpose — a
+ * capped read would go back to hiding someone's bottles without telling them,
+ * and a read that fails loudly is better than one that lies quietly.
+ */
+export function useAllLots() {
+  const protocol = useProtocol();
+  const count = protocol.data?.lotCount ?? 0n;
+
+  const cursors = useMemo(() => {
+    const out: bigint[] = [];
+    for (let cursor = 1n; cursor <= count; cursor += PAGE_LIMIT) out.push(cursor);
+    return out;
+  }, [count]);
+
+  const query = useReadContracts({
+    contracts: cursors.map((cursor) => ({
+      ...lens,
+      functionName: 'lots' as const,
+      args: [cursor, PAGE_LIMIT] as const,
+    })),
+    query: { ...listQuery, enabled: cursors.length > 0 },
+  });
+
+  const items = useMemo(() => {
+    if (!query.data) return [];
+    return query.data.flatMap((entry) =>
+      entry.status === 'success'
+        ? ((entry.result as readonly [readonly LotView[], bigint])[0] ?? [])
+        : [],
+    );
+  }, [query.data]);
+
+  return {
+    ...query,
+    items,
+    hasData:
+      protocol.data !== undefined &&
+      (cursors.length === 0 ||
+        Boolean(query.data?.every((entry) => entry.status === 'success'))),
+  };
 }
 
 export function useLot(id?: bigint) {
@@ -264,19 +325,47 @@ export function useRedemptionsOfWinery(winery?: Address, cursor = 0n, limit = PA
   return { ...query, items: items ?? [], nextCursor: nextCursor ?? 0n, hasData: query.data !== undefined };
 }
 
-/** Positions are capped at 50 lot ids per call by the Lens. */
+/**
+ * Holdings across any number of lots.
+ *
+ * `PalissageLens.positions` reverts with `TooManyPositionIds` above 50 ids, so
+ * this used to slice the list and read the first 50. That silently hid a
+ * holder's own bottles the moment the catalogue passed fifty lots — the worst
+ * possible thing for a portfolio to do quietly. The ids are chunked instead and
+ * the chunks are read together in one multicall, so the answer covers every lot
+ * it was asked about.
+ */
 export function usePositions(account?: Address, lotIds: readonly bigint[] = []) {
-  const capped = lotIds.slice(0, 50);
-  const query = useReadContract({
-    ...lens,
-    functionName: 'positions',
-    args: account && capped.length > 0 ? [account, capped] : undefined,
-    query: { ...listQuery, enabled: Boolean(account) && capped.length > 0 },
+  const chunks = useMemo(() => {
+    const out: bigint[][] = [];
+    for (let i = 0; i < lotIds.length; i += POSITIONS_PER_CALL) {
+      out.push(lotIds.slice(i, i + POSITIONS_PER_CALL));
+    }
+    return out;
+  }, [lotIds]);
+
+  const query = useReadContracts({
+    contracts: chunks.map((chunk) => ({
+      ...lens,
+      functionName: 'positions' as const,
+      args: [account as Address, chunk] as const,
+    })),
+    query: { ...listQuery, enabled: Boolean(account) && chunks.length > 0 },
   });
+
+  const items = useMemo(() => {
+    if (!query.data) return [];
+    return query.data.flatMap((entry) =>
+      entry.status === 'success' ? ((entry.result as readonly PositionView[]) ?? []) : [],
+    );
+  }, [query.data]);
+
   return {
     ...query,
-    items: (query.data as readonly PositionView[] | undefined) ?? [],
-    hasData: query.data !== undefined,
+    items,
+    // Every chunk has to have answered, or the portfolio would present a
+    // partial holding as a complete one.
+    hasData: chunks.length === 0 || Boolean(query.data?.every((entry) => entry.status === 'success')),
   };
 }
 

@@ -98,10 +98,16 @@ export default function AdminRedemptions() {
 
                   {open ? (
                     <div className="mt-4 flex flex-wrap gap-3">
+                      {/*
+                        `confirmDelivery` lets a verifier close a redemption at
+                        either open state — the shipment gate is the *buyer's*,
+                        not the operator's. Requiring documents here removed the
+                        only way to settle a delivery the producer never marked.
+                      */}
                       <Button
                         size="sm"
                         kind="secondary"
-                        disabled={!caps.canResolveRedemption || !shipped}
+                        disabled={!caps.canResolveRedemption}
                         onClick={() => setResolving(redemption)}
                       >
                         Resolve as delivered
@@ -122,14 +128,55 @@ export default function AdminRedemptions() {
           </ul>
         )}
 
-        <Callout tone="info" title="Not exposed in this release">
+        <Callout tone="info" title="Three powers that are not buttons here">
           <p>
-            <code className="t-mono">recoverEscrow</code> moves escrowed bottles to a new wallet
-            when a buyer has lost compliance, and it needs an EIP-712 signature from that buyer.
-            <code className="t-mono"> forcedTransfer</code> and{' '}
-            <code className="t-mono">setFrozenTokens</code> move or freeze balances that belong to
-            someone else. All three exist on the contracts and are handled as a case, with the
-            evidence, rather than as a button on a queue.
+            The contracts carry three more ways to move bottles that are not this wallet&rsquo;s.
+            Each exists for a real situation, and each is deliberately handled as a case with its
+            evidence rather than as a control on a queue — a queue invites a quick decision, and
+            none of these should be quick.
+          </p>
+          <dl className="mt-4 space-y-4">
+            <div>
+              <dt className="text-body-sm font-medium">
+                <code className="t-mono">recoverEscrow</code> — the buyer lost compliance mid-delivery
+              </dt>
+              <dd className="mt-1 text-body-sm text-ink-secondary">
+                A refund runs through <code className="t-mono">forcedTransfer</code>, which still
+                checks that the destination may receive. If a buyer&rsquo;s claims were revoked
+                while their bottles sat in escrow, the refund path closes and only the
+                irreversible confirmation is left. This sends the escrow to a compliant wallet
+                instead — but the verifier does not choose that wallet: the buyer authorises it
+                with an EIP-712 signature naming the redemption, the destination and an expiry.
+                Collecting that signature is the work, and it does not happen in a dialog.
+              </dd>
+            </div>
+            <div>
+              <dt className="text-body-sm font-medium">
+                <code className="t-mono">forcedTransfer</code> — move someone else&rsquo;s bottles
+              </dt>
+              <dd className="mt-1 text-body-sm text-ink-secondary">
+                Needs <code className="t-mono">ENFORCER_ROLE</code> on the token. It exists for
+                court orders, estate transfers and a holder who has provably lost their wallet.
+                It works even while a lot is suspended, which is exactly why it is not one click
+                away from a list of other people&rsquo;s balances.
+              </dd>
+            </div>
+            <div>
+              <dt className="text-body-sm font-medium">
+                <code className="t-mono">setFrozenTokens</code> — freeze part of a balance
+              </dt>
+              <dd className="mt-1 text-body-sm text-ink-secondary">
+                Also <code className="t-mono">ENFORCER_ROLE</code>. Frozen bottles stay owned but
+                cannot be sold, listed or redeemed, which is what a sanctions hit or a disputed
+                sale calls for. The number is absolute, not a delta, so a mistyped value silently
+                unfreezes the rest — another reason it belongs in a reviewed procedure.
+              </dd>
+            </div>
+          </dl>
+          <p className="mt-4">
+            All three are executed by an operator with the right role, from the runbook, against
+            the deployment addresses on this page. The result shows up here like any other state
+            change.
           </p>
         </Callout>
       </div>
@@ -173,11 +220,21 @@ function ResolveDialog({
             and the delivery is closed as returned. Nothing is burned.
           </p>
         ) : (
-          <p>
-            The {formatCount(redemption.quantity)} escrowed bottles are burned as if the buyer had
-            confirmed receipt. Use this only where the delivery is evidenced and the buyer cannot
-            confirm — the burn cannot be undone.
-          </p>
+          <>
+            <p>
+              The {formatCount(redemption.quantity)} escrowed bottles are burned as if the buyer
+              had confirmed receipt. Use this only where the delivery is evidenced and the buyer
+              cannot confirm — the burn cannot be undone.
+            </p>
+            {isZeroHash(redemption.shipmentDocsHash) ? (
+              <p className="mt-2">
+                The producer has attached no shipment documents to this request, so nothing on
+                Base evidences that the wine left the warehouse. The contract still allows the
+                burn; the evidence has to come from somewhere else, and it should exist before
+                you confirm.
+              </p>
+            ) : null}
+          </>
         )
       }
       steps={[

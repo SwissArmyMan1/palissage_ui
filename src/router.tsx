@@ -35,6 +35,7 @@ const AppShell = lazy(() =>
 const RoleSelect = lazy(() => import('@/pages/app/RoleSelect'));
 const Testnet = lazy(() => import('@/pages/app/Testnet'));
 const Account = lazy(() => import('@/pages/app/Account'));
+const CollectorShelf = lazy(() => import('@/pages/collector/Shelf'));
 
 const WineryOverview = lazy(() => import('@/pages/winery/Overview'));
 const WineryLots = lazy(() => import('@/pages/winery/Lots'));
@@ -128,6 +129,9 @@ export function AppRouter() {
 
               <Route path="app" element={<RoleSelect />} />
               <Route path="app/testnet" element={<Testnet />} />
+
+              {/* One destination, so no sidebar: the `Sidebar navigation` veto. */}
+              <Route path="app/collector" element={<CollectorShelf />} />
 
               {/* Single-purpose flows drop the sidebar. */}
               <Route path="app/winery/lots/new" element={<CreateLot />} />

@@ -12,9 +12,10 @@ import { ActionReview } from '@/components/patterns/ActionReview';
 import { useLots, useOffers, useProtocol } from '@/chain/lens';
 import { useCapabilities } from '@/chain/roles';
 import { palissageLensAbi, primaryMarketAbi } from '@/chain/abis';
-import { CONTRACTS, PAYMENT_TOKEN } from '@/chain/config';
+import { CONTRACTS } from '@/chain/config';
 import { useTx } from '@/chain/tx';
-import { formatBps, formatMoney } from '@/lib/format';
+import { formatBps } from '@/lib/format';
+import { formatTokenAmount, tokenMeta, type TokenMeta } from '@/chain/tokens';
 import type { SettlementView } from '@/chain/types';
 
 interface Pending {
@@ -25,6 +26,7 @@ interface Pending {
   description: string;
   bps: number;
   amount: bigint;
+  meta: TokenMeta;
 }
 
 /**
@@ -38,7 +40,7 @@ export default function AdminMilestones() {
   const protocol = useProtocol();
   const caps = useCapabilities();
   const [confirming, setConfirming] = useState<Pending | null>(null);
-  const decimals = protocol.data?.paymentDecimals ?? PAYMENT_TOKEN.decimals;
+
 
   const settlements = useReadContracts({
     contracts: offers.items.map((offer) => ({
@@ -66,11 +68,14 @@ export default function AdminMilestones() {
           description: milestone.description || `Milestone ${milestoneIndex + 1}`,
           bps: milestone.bps,
           amount: (settlement.settledFunds * BigInt(milestone.bps)) / 10_000n,
+          // The offer's own asset — the queue mixes offers from two settlement
+          // assets, so one shared decimals value would misprint half of it.
+          meta: tokenMeta(settlement.paymentToken, protocol.data),
         });
       });
     });
     return rows;
-  }, [offers.items, lots.items, settlements.data]);
+  }, [offers.items, lots.items, settlements.data, protocol.data]);
 
   const loading = offers.isLoading || settlements.isLoading;
 
@@ -117,7 +122,7 @@ export default function AdminMilestones() {
                   </p>
                 </div>
                 <p className="shrink-0 text-body font-medium tabular-nums">
-                  {formatMoney(row.amount, decimals)}
+                  {formatTokenAmount(row.amount, row.meta)}
                 </p>
                 <StatusBadge tone="warning">Awaiting confirmation</StatusBadge>
                 <Button
@@ -134,25 +139,13 @@ export default function AdminMilestones() {
       </div>
 
       {confirming ? (
-        <ConfirmMilestone
-          pending={confirming}
-          decimals={decimals}
-          onClose={() => setConfirming(null)}
-        />
+        <ConfirmMilestone pending={confirming} onClose={() => setConfirming(null)} />
       ) : null}
     </CabinetPage>
   );
 }
 
-function ConfirmMilestone({
-  pending,
-  decimals,
-  onClose,
-}: {
-  pending: Pending;
-  decimals: number;
-  onClose: () => void;
-}) {
+function ConfirmMilestone({ pending, onClose }: { pending: Pending; onClose: () => void }) {
   const tx = useTx();
   return (
     <ActionReview
@@ -170,14 +163,15 @@ function ConfirmMilestone({
       }
       consequence={
         <p>
-          {formatMoney(pending.amount, decimals)} becomes withdrawable by the producer, less the
-          protocol fee. Confirmation is recorded against your address and cannot be withdrawn.
+          {formatTokenAmount(pending.amount, pending.meta)} becomes withdrawable by the producer,
+          less the protocol fee. Confirmation is recorded against your address and cannot be
+          withdrawn.
         </p>
       }
       steps={[
         {
           id: 'confirm',
-          label: `Confirm and release ${formatMoney(pending.amount, decimals)}`,
+          label: `Confirm and release ${formatTokenAmount(pending.amount, pending.meta)}`,
           required: true,
           run: () =>
             tx.send({

@@ -102,14 +102,22 @@ export default function WineryOverview() {
     [offers.items, protocol.data],
   );
 
-  const withdrawable = useMemo(
-    () =>
-      (settlements.data ?? []).reduce(
-        (sum, entry) => sum + ((entry?.result as SettlementView | undefined)?.withdrawable ?? 0n),
-        0n,
-      ),
-    [settlements.data],
-  );
+  /**
+   * Only the settlement asset. The per-offer rows below have been asset-aware
+   * since the EURC migration, but this tile was still adding 18-decimal base
+   * units to 6-decimal ones and printing the result as euros.
+   */
+  const { withdrawable, legacyWithdrawable } = useMemo(() => {
+    let current = 0n;
+    let legacy = 0n;
+    for (const entry of settlements.data ?? []) {
+      const view = entry?.result as SettlementView | undefined;
+      if (!view) continue;
+      if (tokenMeta(view.paymentToken, protocol.data).settlement) current += view.withdrawable;
+      else legacy += view.withdrawable;
+    }
+    return { withdrawable: current, legacyWithdrawable: legacy };
+  }, [settlements.data, protocol.data]);
 
   const milestoneCounts = useMemo(() => {
     let released = 0;
@@ -166,10 +174,18 @@ export default function WineryOverview() {
             <div className="enter-stagger grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
               <StatTile
                 label="Withdrawable now"
-                value={formatMoney(withdrawable, decimals)}
-                footnote={`${milestoneCounts.released} of ${milestoneCounts.total} milestones confirmed`}
+                value={
+                  withdrawable === 0n && legacyWithdrawable > 0n
+                    ? '—'
+                    : formatMoney(withdrawable, decimals)
+                }
+                footnote={
+                  legacyWithdrawable > 0n
+                    ? `${milestoneCounts.released} of ${milestoneCounts.total} milestones confirmed · escrow in a retired asset is shown in Finance`
+                    : `${milestoneCounts.released} of ${milestoneCounts.total} milestones confirmed`
+                }
                 action={
-                  withdrawable > 0n ? (
+                  withdrawable > 0n || legacyWithdrawable > 0n ? (
                     <LinkButton to="/app/winery/finance" kind="secondary" size="sm">
                       Open finance
                     </LinkButton>

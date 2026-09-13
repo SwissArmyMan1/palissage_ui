@@ -4,6 +4,7 @@ import { Callout } from '@/components/ui/Callout';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FilterToolbar } from '@/components/ui/FilterToolbar';
 import { SkeletonCardGrid } from '@/components/ui/Skeleton';
+import { Pagination } from '@/components/ui/Pagination';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Plate } from '@/components/ui/Plate';
 import { CabinetPage, PageHeader } from '@/components/layout/PageHeader';
@@ -19,7 +20,10 @@ import { formatBps, formatCount, formatDeadline, formatMoney } from '@/lib/forma
  * are open, because this screen exists to be acted on.
  */
 export default function Market() {
-  const offers = useOffers();
+  // The Lens returns at most 50 offers per read; past that a buyer needs a way
+  // to the next page rather than a catalogue that quietly stops.
+  const [cursor, setCursor] = useState(0n);
+  const offers = useOffers(cursor);
   const lots = useLots();
   const protocol = useProtocol();
   const participant = useMyParticipant();
@@ -144,6 +148,17 @@ export default function Market() {
             })}
           </ul>
         )}
+
+        {offers.items.length > 0 ? (
+          <Pagination
+            shown={rows.length}
+            noun="open offers"
+            hasNext={offers.nextCursor !== 0n}
+            hasPrevious={cursor !== 0n}
+            onNext={() => setCursor(offers.nextCursor)}
+            onPrevious={() => setCursor(0n)}
+          />
+        ) : null}
       </div>
     </CabinetPage>
   );

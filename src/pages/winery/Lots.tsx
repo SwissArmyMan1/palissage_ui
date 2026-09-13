@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useAccount } from 'wagmi';
 import { LinkButton } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -7,6 +8,7 @@ import { DataTable, DenseList, DenseRow, type Column } from '@/components/ui/Dat
 import { CabinetPage, PageHeader } from '@/components/layout/PageHeader';
 import { ConnectPrompt } from '@/components/layout/ConnectPrompt';
 import { LotThumb } from '@/components/ui/LotThumb';
+import { Pagination } from '@/components/ui/Pagination';
 import { useLotsOfWinery } from '@/chain/lens';
 import { formatCount } from '@/lib/format';
 import { lotState, productionStage } from '@/lib/enums';
@@ -18,7 +20,10 @@ import type { LotView } from '@/chain/types';
  */
 export default function WineryLots() {
   const { address, isConnected } = useAccount();
-  const lots = useLotsOfWinery(address);
+  // One read returns at most 50 rows. Without a way forward a producer past
+  // that number simply stopped seeing their own lots.
+  const [cursor, setCursor] = useState(0n);
+  const lots = useLotsOfWinery(address, cursor);
 
   if (!isConnected) {
     return (
@@ -113,6 +118,17 @@ export default function WineryLots() {
             })}
           </DenseList>
         )}
+
+        {lots.items.length > 0 ? (
+          <Pagination
+            className="mt-8"
+            shown={lots.items.length}
+            hasNext={lots.nextCursor !== 0n}
+            hasPrevious={cursor !== 0n}
+            onNext={() => setCursor(lots.nextCursor)}
+            onPrevious={() => setCursor(0n)}
+          />
+        ) : null}
       </div>
     </CabinetPage>
   );
