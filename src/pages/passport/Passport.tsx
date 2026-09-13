@@ -13,7 +13,7 @@ import { HashValue } from '@/components/ui/Mono';
 import { TrellisLifecycle } from '@/components/patterns/TrellisLifecycle';
 import { useLot } from '@/chain/lens';
 import { tokenUrl } from '@/chain/config';
-import { lotContent, lotProducer } from '@/lib/content/lots';
+import { lotContent, lotImage, lotProducer } from '@/lib/content/lots';
 import { formatCount, isZeroHash } from '@/lib/format';
 import { PASSPORT } from '@/lib/content/copy';
 import { NotFound } from '../public/NotFound';
@@ -115,7 +115,7 @@ function PassportBody({ lot }: { lot: NonNullable<ReturnType<typeof useLot>['lot
   return (
     <>
       <Plate
-        asset={content?.image ?? null}
+        asset={lotImage(lot.id)}
         alt={`${lot.name} — ${producer.name}`}
         ratio="3 / 4"
         priority

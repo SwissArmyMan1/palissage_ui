@@ -258,7 +258,7 @@
   border-radius: 2px;
 }
 .bottle-study-image img {
-  padding: 12px 30px;
+  padding: 0;
 }
 .bottle-study figcaption {
   display: flex;
@@ -1029,7 +1029,7 @@
     padding: 10px;
   }
   .bottle-study-image img {
-    padding: 10px 22px;
+    padding: 0;
   }
   .bottle-study figcaption strong {
     font-size: 20px;

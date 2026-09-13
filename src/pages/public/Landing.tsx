@@ -91,7 +91,7 @@ export default function Landing() {
             <figure className="bottle-study">
               <div className="bottle-study-image">
                 <Plate
-                  asset={ASSETS.cazabanA1353}
+                  asset={ASSETS.bottleStudio}
                   alt={t('A.1353 wine bottle from Domaine de Cazaban')}
                   ratio="3 / 4"
                   fit="contain"
@@ -237,7 +237,7 @@ export default function Landing() {
 
       <section className="terroir-interlude" aria-labelledby="terroir-heading">
         <Plate
-          asset={ASSETS.heroEstate}
+          asset={ASSETS.vineyardPanorama}
           alt={t('The landscape of the Cabardès wine region')}
           ratio="21 / 9"
           className="terroir-image"

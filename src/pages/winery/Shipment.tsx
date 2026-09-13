@@ -1,3 +1,4 @@
+import { LotThumb } from '@/components/ui/LotThumb';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAccount } from 'wagmi';
@@ -89,8 +90,9 @@ export default function Shipment() {
           Request #{String(view.id)} · requested {formatDeadline(view.requestedAt)} by{' '}
           <AddressValue address={view.buyer} label="buyer wallet" />
         </p>
-        <h1 className="mt-2 t-h1">
-          {formatCount(view.quantity)} bottles · {lot.lot?.name ?? `Lot #${String(view.lotId)}`}
+        <h1 className="mt-2 flex items-center gap-4 t-h1">
+          <LotThumb lotId={view.lotId} size={72} />
+          <span>{formatCount(view.quantity)} bottles · {lot.lot?.name ?? `Lot #${String(view.lotId)}`}</span>
         </h1>
       </div>
 

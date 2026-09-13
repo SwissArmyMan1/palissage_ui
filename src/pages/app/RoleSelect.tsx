@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAccount } from 'wagmi';
 import { BrandMark } from '@/components/ui/Logo';
+import { VineyardStrip } from '@/components/ui/VineyardStrip';
 import { Button, LinkButton } from '@/components/ui/Button';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -50,6 +51,7 @@ export default function RoleSelect() {
         Skip to the roles
       </a>
       <main id="roles-main" tabIndex={-1} className="mx-auto w-full max-w-3xl px-4 outline-none">
+        <VineyardStrip className="mb-10 h-28 md:h-36" />
         <div className="flex flex-col items-center gap-2 text-center">
           <Link to="/" aria-label="Palissage home">
             <BrandMark size={24} />

@@ -1,3 +1,4 @@
+import { LotThumb } from '@/components/ui/LotThumb';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAccount } from 'wagmi';
@@ -148,7 +149,10 @@ export default function AllocationDetail() {
       <p className="mt-4 text-body-sm text-ink-secondary">
         Allocation #{String(view.id)} · offer #{String(view.offerId)}
       </p>
-      <h1 className="mt-2 t-h1">{lot.lot?.name ?? `Lot #${String(view.lotId)}`}</h1>
+      <h1 className="mt-2 flex items-center gap-4 t-h1">
+        <LotThumb lotId={view.lotId} size={72} />
+        <span>{lot.lot?.name ?? `Lot #${String(view.lotId)}`}</span>
+      </h1>
 
       <div className="mt-8 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
         <StatTile

@@ -1,6 +1,6 @@
 import { cn } from '@/lib/cn';
 import { isPublishable } from '@/lib/content/assets';
-import { lotContent } from '@/lib/content/lots';
+import { lotImage } from '@/lib/content/lots';
 
 /**
  * A small lot photograph for cabinet rows and lists.
@@ -19,7 +19,7 @@ export function LotThumb({
   size?: number;
   className?: string;
 }) {
-  const asset = lotContent(lotId)?.image ?? null;
+  const asset = lotImage(lotId);
   const publishable = isPublishable(asset ?? undefined);
 
   return (
@@ -39,7 +39,7 @@ export function LotThumb({
           height={asset.height}
           loading="lazy"
           decoding="async"
-          className="size-full object-contain p-1"
+          className="size-full object-cover"
         />
       ) : (
         <svg viewBox="0 0 24 24" className="size-1/2 text-ink-secondary/50" fill="none" stroke="currentColor" strokeWidth="1.5">

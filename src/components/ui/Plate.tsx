@@ -30,7 +30,7 @@ export function Plate({
   sizes?: string;
   /** Ambient scroll-linked drift, desktop only, <= 3% travel. */
   drift?: boolean;
-  /** Packshots are portrait bottles: `contain` keeps the label in frame. */
+  /** Bottle illustrations crop the side margins to keep the full bottle visible. */
   fit?: 'cover' | 'contain';
 }) {
   const { t } = useLocale();
@@ -38,22 +38,25 @@ export function Plate({
 
   return (
     <div
-      className={cn('relative overflow-hidden rounded-xl bg-surface-sunken', className)}
+      className={cn('photo-plate relative overflow-hidden rounded-xl bg-surface-sunken', className)}
       style={{ aspectRatio: ratio }}
+      data-photo-kind={asset?.kind}
     >
       {publishable && asset ? (
         <img
           src={asset.src}
+          srcSet={asset.srcSet}
           alt={t(alt)}
           width={asset.width}
           height={asset.height}
-          sizes={sizes}
+          sizes={sizes ?? '(min-width: 1024px) 50vw, 100vw'}
+          style={{ objectPosition: asset.position }}
           loading={priority ? 'eager' : 'lazy'}
           decoding={priority ? 'sync' : 'async'}
           fetchPriority={priority ? 'high' : 'auto'}
           className={cn(
             'size-full',
-            fit === 'contain' ? 'object-contain p-4' : 'object-cover',
+            fit === 'contain' && asset.kind !== 'bottle' ? 'object-contain p-4' : 'object-cover',
             drift && 'hero-drift',
           )}
         />

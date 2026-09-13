@@ -15,7 +15,7 @@ import { EvidencePanel } from '@/components/patterns/EvidencePanel';
 import { useLot, useOffersOfLot, useProtocol } from '@/chain/lens';
 import { isPayable, primaryOffer } from '@/chain/select';
 import { PAYMENT_TOKEN, tokenUrl } from '@/chain/config';
-import { lotContent, lotProducer } from '@/lib/content/lots';
+import { lotContent, lotImage, lotProducer } from '@/lib/content/lots';
 import { formatCount } from '@/lib/format';
 import { lotState, offerPhase, productionStage, PRODUCTION_STAGES } from '@/lib/enums';
 import { NotFound } from './NotFound';
@@ -114,7 +114,7 @@ export default function LotDetail() {
           </p>
 
           <Plate
-            asset={content?.image ?? null}
+            asset={lotImage(lot.id)}
             alt={`${lot.name} — ${producer.name}`}
             ratio="4 / 3"
             className="mt-8"

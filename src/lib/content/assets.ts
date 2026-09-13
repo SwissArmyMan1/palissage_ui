@@ -1,122 +1,60 @@
-/**
- * Image rights register — doc 08 section 3.
- *
- * "Only `granted` files may be published." Everything else renders the designed
- * placeholder plate with its caption, which is exactly what the approved Figma
- * frames show. Flipping a file to `granted` is a one-word change here.
- *
- * The two positive clearances in doc 08 are carried over:
- *  - estate/deumie-panorama.jpg — "best hero candidate, literally a palissage"
- *  - wine/cazaban-*.jpg — the producer's own packshots, "best quality in the set"
- *
- * Blocked, explicitly: wine/botica-*.jpg carry a third-party photographer credit
- * in EXIF ("Samuel le Photographe"). wine/mijane-galea-*.png are 284 px wide and
- * unusable above ~150 px.
+/** User-supplied imagery from UI/pics. Bottle images are generated illustrations.
+ * Vineyard WebP derivatives preserve the source framing; display crops and tone
+ * are applied in CSS. These illustrations do not identify a particular estate.
  */
-
 export type RightsState = 'granted' | 'pending' | 'blocked' | 'unusable';
 
 export interface ImageAsset {
   src: string;
-  /** Shown on the placeholder plate when the file may not be published. */
+  srcSet?: string;
   caption: string;
   rights: RightsState;
   width: number;
   height: number;
+  kind?: 'bottle' | 'vineyard';
+  position?: string;
+}
+
+function vineyard(name: string, height: number, position = '50% 50%'): ImageAsset {
+  return {
+    src: `/img/palissage/${name}-1440.webp`,
+    srcSet: `/img/palissage/${name}-640.webp 640w, /img/palissage/${name}-1440.webp 1440w`,
+    caption: 'Vineyard photograph',
+    rights: 'granted',
+    width: 1440,
+    height,
+    kind: 'vineyard',
+    position,
+  };
 }
 
 export const ASSETS = {
-  heroEstate: {
-    src: '/img/estate/deumie-panorama.jpg',
-    caption: 'Vineyard rows on the limestone slopes, Cabardès',
+  bottleStudio: {
+    src: '/img/palissage/bottle_w.jpg',
+    caption: 'Generated bottle illustration',
     rights: 'granted',
-    width: 1352,
-    height: 1930,
+    width: 1023,
+    height: 768,
+    kind: 'bottle',
   },
-  estateRissacDomain: {
-    src: '/img/estate/rissac-domain.jpg',
-    caption: 'Estate photograph · rights pending',
-    rights: 'pending',
-    width: 1828,
-    height: 2560,
-  },
-  estateRissacVineyard: {
-    src: '/img/estate/rissac-vineyard.jpg',
-    caption: 'Estate photograph · rights pending',
-    rights: 'pending',
-    width: 1828,
-    height: 2560,
-  },
-  cazabanA1353: {
-    src: '/img/wine/cazaban-a1353.jpg',
-    caption: 'Packshot · Domaine de Cazaban',
+  bottleVineyard: {
+    src: '/img/palissage/bottle_c.jpg',
+    caption: 'Generated bottle illustration',
     rights: 'granted',
-    width: 1200,
-    height: 1600,
+    width: 1089,
+    height: 768,
+    kind: 'bottle',
   },
-  cazabanDemoiselle: {
-    src: '/img/wine/cazaban-demoiselle.jpg',
-    caption: 'Packshot · Domaine de Cazaban',
-    rights: 'granted',
-    width: 1200,
-    height: 1600,
-  },
-  cazabanDomaine: {
-    src: '/img/wine/cazaban-domaine-2020.jpg',
-    caption: 'Packshot · Domaine de Cazaban',
-    rights: 'granted',
-    width: 1200,
-    height: 1600,
-  },
-  cazabanNaissance: {
-    src: '/img/wine/cazaban-naissance.jpg',
-    caption: 'Packshot · Domaine de Cazaban',
-    rights: 'granted',
-    width: 1200,
-    height: 1600,
-  },
-  boticaRissac: {
-    src: '/img/wine/botica-rissac.jpg',
-    caption: 'Packshot · photographer credit not yet cleared',
-    rights: 'blocked',
-    width: 1200,
-    height: 1800,
-  },
-  boticaVillemartin: {
-    src: '/img/wine/botica-villemartin.jpg',
-    caption: 'Packshot · photographer credit not yet cleared',
-    rights: 'blocked',
-    width: 1200,
-    height: 1800,
-  },
-  boticaDeumie: {
-    src: '/img/wine/botica-deumie.jpg',
-    caption: 'Packshot · photographer credit not yet cleared',
-    rights: 'blocked',
-    width: 1200,
-    height: 1800,
-  },
-  parazolsNiAnge: {
-    src: '/img/wine/parazols-niange.jpg',
-    caption: 'Packshot · awaiting producer permission',
-    rights: 'pending',
-    width: 1100,
-    height: 1400,
-  },
-  mijaneGaleaRouge: {
-    src: '/img/wine/mijane-galea-rouge.png',
-    caption: 'Packshot · original file too small to publish',
-    rights: 'unusable',
-    width: 284,
-    height: 632,
-  },
-  mijaneGaleaBlanc: {
-    src: '/img/wine/mijane-galea-blanc.png',
-    caption: 'Packshot · original file too small to publish',
-    rights: 'unusable',
-    width: 178,
-    height: 611,
-  },
+  // 5275967187262839799.jpg
+  heroEstate: vineyard('vineyard-rows', 1920, '50% 48%'),
+  // 5275967187262839805.jpg
+  vineyardPanorama: vineyard('vineyard-panorama', 713, '50% 32%'),
+  // 5275967187262839776.jpg
+  vineyardDaylight: vineyard('vineyard-daylight', 1080, '50% 62%'),
+  // 5275967187262839798.jpg
+  vineyardDusk: vineyard('vineyard-dusk', 1080, '50% 76%'),
+  // 5275967187262839801.jpg
+  harvest: vineyard('harvest', 1080, '50% 55%'),
 } as const satisfies Record<string, ImageAsset>;
 
 export type AssetKey = keyof typeof ASSETS;

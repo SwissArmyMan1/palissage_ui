@@ -5,7 +5,7 @@ import { cn } from '@/lib/cn';
 import { formatCount } from '@/lib/format';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Plate } from '@/components/ui/Plate';
-import { lotContent, lotProducer } from '@/lib/content/lots';
+import { lotContent, lotImage, lotProducer } from '@/lib/content/lots';
 import type { LotView, OfferView } from '@/chain/types';
 
 /**
@@ -41,7 +41,7 @@ export function LotCard({
         className="card hoverable group block h-full overflow-hidden shadow-1"
       >
         <Plate
-          asset={content?.image ?? null}
+          asset={lotImage(lot.id)}
           alt={`${lot.name} — ${producer.name}`}
           ratio="4 / 3"
           className="rounded-none"

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { LotThumb } from '@/components/ui/LotThumb';
 import { Link } from 'react-router-dom';
 import { useAccount } from 'wagmi';
 import { Button } from '@/components/ui/Button';
@@ -79,6 +80,7 @@ export default function Secondary() {
             <ul className="mt-4 space-y-4">
               {others.map((listing) => (
                 <li key={String(listing.id)} className="card flex flex-wrap items-center gap-4 p-4">
+                  <LotThumb lotId={listing.lotId} size={52} />
                   <div className="min-w-0 flex-1">
                     <Link
                       to={`/lots/${listing.lotId}`}
@@ -129,6 +131,7 @@ export default function Secondary() {
             <ul className="mt-4 space-y-4">
               {mine.items.map((listing) => (
                 <li key={String(listing.id)} className="card flex flex-wrap items-center gap-4 p-4">
+                  <LotThumb lotId={listing.lotId} size={52} />
                   <div className="min-w-0 flex-1">
                     <p className="text-body font-medium">{lotName(listing.lotId)}</p>
                     <p className="text-body-sm text-ink-secondary tabular-nums">

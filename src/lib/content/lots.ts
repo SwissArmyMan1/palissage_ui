@@ -30,7 +30,7 @@ const CONTENT: Record<string, LotContent> = {
     appellation: 'Cabardès AOP',
     grapes: 'Grenache Noir · Syrah',
     alcohol: '14.0%',
-    image: ASSETS.cazabanA1353,
+    image: ASSETS.bottleVineyard,
     note: 'The terraced parcels at the top of the estate, picked last.',
   },
   '2': {
@@ -38,7 +38,7 @@ const CONTENT: Record<string, LotContent> = {
     appellation: 'Cabardès AOP',
     grapes: 'Cabernet Franc · Merlot',
     alcohol: '14.0%',
-    image: ASSETS.boticaRissac,
+    image: ASSETS.bottleStudio,
     note: 'Stony ground at Rissac; the wine that gave the estate its reputation.',
   },
   '3': {
@@ -46,7 +46,7 @@ const CONTENT: Record<string, LotContent> = {
     appellation: 'Cabardès AOC · organic',
     grapes: 'Chardonnay · Chenin',
     alcohol: '12.5%',
-    image: ASSETS.mijaneGaleaBlanc,
+    image: ASSETS.bottleStudio,
     note: 'The high white parcel, kept for acidity.',
   },
   '4': {
@@ -54,7 +54,7 @@ const CONTENT: Record<string, LotContent> = {
     appellation: 'Cabardès AOP',
     grapes: 'Grenache · Syrah',
     alcohol: '13.0%',
-    image: ASSETS.parazolsNiAnge,
+    image: ASSETS.bottleVineyard,
     note: 'Pressed at dawn, which is where the name comes from.',
   },
   '5': {
@@ -62,7 +62,7 @@ const CONTENT: Record<string, LotContent> = {
     appellation: 'Limoux AOP',
     grapes: 'Merlot · Malbec',
     alcohol: '13.5%',
-    image: ASSETS.boticaVillemartin,
+    image: ASSETS.bottleVineyard,
     note: 'Still on the vine. Sold as En Primeur to finance the vintage.',
   },
   '6': {
@@ -70,7 +70,7 @@ const CONTENT: Record<string, LotContent> = {
     appellation: 'Cabardès AOP',
     grapes: 'Grenache · Syrah',
     alcohol: '13.5%',
-    image: ASSETS.cazabanDemoiselle,
+    image: ASSETS.bottleStudio,
     note: 'The row that runs the length of the estate.',
   },
 };
@@ -79,6 +79,11 @@ const FALLBACK_PRODUCER = PRODUCERS[0];
 
 export function lotContent(lotId: bigint | number | string): LotContent | undefined {
   return CONTENT[String(lotId)];
+}
+
+/** A bottle illustration is also available for lots without editorial metadata. */
+export function lotImage(lotId: bigint | number | string): ImageAsset {
+  return lotContent(lotId)?.image ?? ASSETS.bottleStudio;
 }
 
 export function lotProducer(lotId: bigint | number | string): Producer {

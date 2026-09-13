@@ -4,6 +4,7 @@ import { useAccount } from 'wagmi';
 import { Button } from '@/components/ui/Button';
 import { Callout } from '@/components/ui/Callout';
 import { Plate } from '@/components/ui/Plate';
+import { lotImage } from '@/lib/content/lots';
 import { Field, QuantityField, RadioCard, TextInput } from '@/components/ui/Field';
 import { Skeleton, LoadingRegion } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -218,7 +219,7 @@ export default function Reserve() {
             {/* What is being bought */}
             <div className="card flex gap-4 p-4">
               <Plate
-                asset={null}
+                asset={lotImage(view.lotId)}
                 alt=""
                 ratio="1 / 1"
                 className="w-16 shrink-0"

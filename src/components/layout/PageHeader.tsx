@@ -1,4 +1,5 @@
 import { cn } from '@/lib/cn';
+import { VineyardStrip } from '@/components/ui/VineyardStrip';
 
 /** The app-cabinet page header: title, one line of purpose, and one action. */
 export function PageHeader({
@@ -25,5 +26,10 @@ export function PageHeader({
 
 /** Standard padding for every cabinet screen. */
 export function CabinetPage({ children }: { children: React.ReactNode }) {
-  return <div className="px-4 py-8 md:px-8 md:py-12">{children}</div>;
+  return (
+    <div className="px-4 py-8 md:px-8 md:py-12">
+      <VineyardStrip className="mb-8" />
+      {children}
+    </div>
+  );
 }

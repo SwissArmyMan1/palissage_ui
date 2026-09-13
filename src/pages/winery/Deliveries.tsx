@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { LotThumb } from '@/components/ui/LotThumb';
 import { useAccount } from 'wagmi';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonRows } from '@/components/ui/Skeleton';
@@ -41,7 +42,16 @@ export default function WineryDeliveries() {
 
   const columns: Column<Row>[] = [
     { id: 'request', header: 'Request', cell: (row) => `#${String(row.redemption.id)}` },
-    { id: 'lot', header: 'Lot', cell: (row) => row.lotName },
+    {
+      id: 'lot',
+      header: 'Lot',
+      cell: (row) => (
+        <span className="flex items-center gap-3">
+          <LotThumb lotId={row.redemption.lotId} size={36} />
+          <span>{row.lotName}</span>
+        </span>
+      ),
+    },
     {
       id: 'buyer',
       header: 'Buyer',

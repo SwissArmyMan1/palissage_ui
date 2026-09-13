@@ -1,3 +1,4 @@
+import { LotThumb } from '@/components/ui/LotThumb';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useAccount } from 'wagmi';
@@ -84,7 +85,10 @@ export default function ManageLot() {
             <StatusBadge tone={state.tone}>{state.label}</StatusBadge>
             <StatusBadge tone="neutral">{productionStage(lot.production)}</StatusBadge>
           </div>
-          <h1 className="mt-4 t-h1">{lot.name}</h1>
+          <h1 className="mt-4 flex items-center gap-4 t-h1">
+            <LotThumb lotId={lot.id} size={72} />
+            <span>{lot.name}</span>
+          </h1>
           <p className="mt-3 text-body-sm text-ink-secondary tabular-nums">
             {[
               lot.region,

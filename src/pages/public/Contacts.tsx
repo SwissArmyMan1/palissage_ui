@@ -1,5 +1,7 @@
 import { useLocale } from '@/lib/i18n/context';
 import { EmailLink, XLink } from '@/components/ui/ContactLinks';
+import { VineyardStrip } from '@/components/ui/VineyardStrip';
+import { ASSETS } from '@/lib/content/assets';
 
 export default function Contacts() {
   const { t } = useLocale();
@@ -28,6 +30,7 @@ export default function Contacts() {
           <XLink showHandle className="mt-5 text-body-sm" />
         </div>
       </div>
+      <VineyardStrip asset={ASSETS.vineyardDusk} className="mt-12 h-36 max-w-4xl md:h-48" />
     </section>
   );
 }

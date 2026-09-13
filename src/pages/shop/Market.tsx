@@ -11,7 +11,7 @@ import { CabinetPage, PageHeader } from '@/components/layout/PageHeader';
 import { useLots, useMyParticipant, useOffers, useProtocol } from '@/chain/lens';
 import { openOffers } from '@/chain/select';
 import { PAYMENT_TOKEN } from '@/chain/config';
-import { lotContent, lotProducer } from '@/lib/content/lots';
+import { lotImage, lotProducer } from '@/lib/content/lots';
 import { formatBps, formatCount, formatDeadline, formatMoney } from '@/lib/format';
 
 /**
@@ -94,11 +94,10 @@ export default function Market() {
         ) : (
           <ul className="enter-stagger grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
             {rows.map(({ offer, lot }) => {
-              const content = lotContent(lot!.id);
               return (
                 <li key={String(offer.id)} className="card flex flex-col overflow-hidden shadow-1">
                   <Plate
-                    asset={content?.image ?? null}
+                    asset={lotImage(lot!.id)}
                     alt=""
                     ratio="4 / 3"
                     className="rounded-none"

@@ -36,7 +36,7 @@ export const PRODUCERS: Producer[] = [
       'On the limestone slopes north of Carcassonne, where Atlantic and Mediterranean weather meet in the same vineyard. The vines are trained on wire — the palissage this platform takes its name from.',
     relationship:
       'Domaine de Cazaban is in discussion about joining the first Palissage pilot. No commercial agreement is in place, and no wine has been traded on the platform.',
-    hero: null,
+    hero: ASSETS.heroEstate,
   },
   {
     slug: 'domaines-botica-galy',
@@ -48,7 +48,7 @@ export const PRODUCERS: Producer[] = [
       'Two estates worked by one team. The Cabardès parcels at Rissac give the structured reds; the Limoux parcels north of the Aude supply the fruit behind the En Primeur offers.',
     relationship:
       'Domaines Botica Galy is in discussion about joining the first Palissage pilot. No commercial agreement is in place, and no wine has been traded on the platform.',
-    hero: ASSETS.estateRissacDomain,
+    hero: ASSETS.vineyardDaylight,
   },
   {
     slug: 'domaine-la-mijane',
@@ -60,7 +60,7 @@ export const PRODUCERS: Producer[] = [
       'A small certified-organic estate on clay-limestone, planted to Merlot, Grenache Noir and Cabernet Franc, with a white parcel high enough to keep its acidity.',
     relationship:
       'Domaine La Mijane is in discussion about joining the first Palissage pilot. No commercial agreement is in place, and no wine has been traded on the platform.',
-    hero: null,
+    hero: ASSETS.harvest,
     organic: true,
   },
   {
@@ -73,7 +73,7 @@ export const PRODUCERS: Producer[] = [
       'At Bagnoles, on the eastern edge of the appellation. The house style blends across both grape families the Cabardès allows — Atlantic Cabernet and Merlot against Mediterranean Grenache and Syrah.',
     relationship:
       'Domaine Parazols Bertrou is in discussion about joining the first Palissage pilot. No commercial agreement is in place, and no wine has been traded on the platform.',
-    hero: null,
+    hero: ASSETS.vineyardPanorama,
   },
 ];
 

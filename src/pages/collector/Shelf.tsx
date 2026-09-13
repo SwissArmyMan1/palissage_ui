@@ -6,6 +6,7 @@ import { LinkButton } from '@/components/ui/Button';
 import { Callout } from '@/components/ui/Callout';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { LotThumb } from '@/components/ui/LotThumb';
+import { VineyardStrip } from '@/components/ui/VineyardStrip';
 import { NetworkChip } from '@/components/ui/NetworkChip';
 import { SkeletonRows } from '@/components/ui/Skeleton';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
@@ -70,6 +71,7 @@ export default function CollectorShelf() {
         tabIndex={-1}
         className="mx-auto w-full max-w-[720px] px-4 py-8 outline-none md:py-12"
       >
+        <VineyardStrip className="mb-8" />
         <p className="max-w-reading text-body text-ink-secondary">
           Every bottle this wallet holds, and the record behind it. A passport reads without a
           wallet at all — this page is the shelf that wallet keeps.

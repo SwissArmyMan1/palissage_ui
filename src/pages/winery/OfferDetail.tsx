@@ -1,3 +1,4 @@
+import { LotThumb } from '@/components/ui/LotThumb';
 import { useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAccount, useReadContract } from 'wagmi';
@@ -108,8 +109,9 @@ export default function OfferDetail() {
       <div className="mt-6 flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
           <StatusBadge tone={phase.tone}>{phase.label}</StatusBadge>
-          <h1 className="mt-4 t-h1">
-            Offer #{String(view.id)} · {view.kind === 1 ? 'En Primeur' : 'Current release'}
+          <h1 className="mt-4 flex items-center gap-4 t-h1">
+            <LotThumb lotId={view.lotId} size={72} />
+            <span>Offer #{String(view.id)} · {view.kind === 1 ? 'En Primeur' : 'Current release'}</span>
           </h1>
           <p className="mt-3 text-body-sm text-ink-secondary tabular-nums">
             {formatMoney(view.pricePerBottle, decimals)} per bottle ·{' '}

@@ -5,6 +5,7 @@ import { ArrowRight } from 'lucide-react';
 import { LinkButton } from '@/components/ui/Button';
 import { Callout } from '@/components/ui/Callout';
 import { Plate } from '@/components/ui/Plate';
+import { VineyardStrip } from '@/components/ui/VineyardStrip';
 import { Section } from '@/components/layout/Section';
 import { TrellisLifecycle } from '@/components/patterns/TrellisLifecycle';
 import { ASSETS } from '@/lib/content/assets';
@@ -74,18 +75,27 @@ export function ForBuyers() {
   return (
     <>
       <section className="bg-page py-12 md:py-16">
-        <div className="shell max-w-reading">
-          <p className="t-caption text-accent">{t('For shops and importers')}</p>
-          <h1 className="mt-4 t-display text-[clamp(2rem,1.4rem+2.4vw,3.25rem)]">
-            {t(FOR_BUYERS.title)}
-          </h1>
-          <p className="mt-6 text-body text-ink-secondary">{t(FOR_BUYERS.lede)}</p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <LinkButton to="/lots">{t('Explore the lots')}</LinkButton>
-            <LinkButton to="/demo" kind="secondary">
-              {t('Try it on Base Sepolia')}
-            </LinkButton>
+        <div className="shell grid items-center gap-12 lg:grid-cols-2">
+          <div className="max-w-reading">
+            <p className="t-caption text-accent">{t('For shops and importers')}</p>
+            <h1 className="mt-4 t-display text-[clamp(2rem,1.4rem+2.4vw,3.25rem)]">
+              {t(FOR_BUYERS.title)}
+            </h1>
+            <p className="mt-6 text-body text-ink-secondary">{t(FOR_BUYERS.lede)}</p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <LinkButton to="/lots">{t('Explore the lots')}</LinkButton>
+              <LinkButton to="/demo" kind="secondary">
+                {t('Try it on Base Sepolia')}
+              </LinkButton>
+            </div>
           </div>
+          <Plate
+            asset={ASSETS.harvest}
+            alt=""
+            ratio="4 / 3"
+            sizes="(min-width: 1024px) 560px, 92vw"
+            priority
+          />
         </div>
       </section>
 
@@ -122,6 +132,7 @@ export function HowItWorks() {
       </section>
 
       <Section tone="surface">
+        <VineyardStrip asset={ASSETS.vineyardDaylight} className="mb-12 h-28 md:h-40" />
         <TrellisLifecycle stage={6} variant="static" label={t('The seven production stages')} />
       </Section>
 
@@ -162,6 +173,7 @@ export function Pilot() {
   const { t } = useLocale();
   return (
     <div className="shell py-16 md:py-24">
+      <VineyardStrip className="mb-10 max-w-reading" />
       <div className="max-w-reading">
         <h1 className="t-h1">{t(PILOT.title)}</h1>
         <p className="mt-6 text-body text-ink-secondary">{t(PILOT.lede)}</p>
