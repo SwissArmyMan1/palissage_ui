@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { useLocation } from 'react-router-dom';
 
-/** Decorative parallax uses native scroll timelines; section reveals run once. */
+/** Decorative parallax lives in scroll-motion.ts; section reveals run once. */
 export function prefersReducedMotion(): boolean {
   return (
     typeof window !== 'undefined' &&
@@ -49,6 +49,9 @@ export function useRevealFallback(): void {
         const rect = node.getBoundingClientRect();
         if (query.matches || rect.top < window.innerHeight - 32) show(node);
         else {
+          // A StrictMode effect replay may have revealed this node in cleanup.
+          // Clear that state before arming it again, or the visible rule wins.
+          node.classList.remove('is-visible');
           node.classList.add('reveal-ready');
           observer.observe(node);
         }

@@ -5,6 +5,7 @@ import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { useNavCondense } from '@/lib/motion';
+import { usePublicScrollMotion } from '@/lib/scroll-motion';
 import { Logo, BrandSeal, TrellisRule } from '@/components/ui/Logo';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { LinkButton } from '@/components/ui/Button';
@@ -27,6 +28,7 @@ const LINKS = [
 ];
 
 export function PublicShell() {
+  usePublicScrollMotion();
   const { t } = useLocale();
   const { sentinelRef, condensed } = useNavCondense();
   const location = useLocation();

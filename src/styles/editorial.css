@@ -373,12 +373,13 @@
 .audience-card {
   border: 1px solid var(--color-border-subtle);
   border-radius: 8px;
-  overflow: hidden;
+  /* Clip the artwork without creating a non-scrolling timeline source. */
+  overflow: clip;
   background: var(--color-surface);
 }
 .audience-art {
   position: relative;
-  overflow: hidden;
+  overflow: clip;
   height: 230px;
   background: var(--editorial-olive);
   color: var(--editorial-on-wine);
@@ -686,7 +687,52 @@
   padding-block: 64px 38px;
 }
 
-/* Scroll timelines move only decorative layers. Static is the baseline. */
+/* Scroll timelines move only decorative layers. Static is the baseline.
+   The fallback has the same endpoints and only updates on scroll/resize. */
+@media (prefers-reduced-motion: no-preference) {
+  .public-site[data-scroll-motion='fallback'] .reading-progress {
+    animation: none;
+    transform: scaleX(var(--reading-progress, 0));
+  }
+  .public-site[data-scroll-motion='fallback'] .bottle-study {
+    animation: none;
+    transform: translateY(calc(-100px * var(--scroll-progress, 0)))
+      rotate(calc(-7deg + 10deg * var(--scroll-progress, 0)));
+  }
+  .public-site[data-scroll-motion='fallback'] .origin-tag {
+    animation: none;
+    transform: translateY(calc(80px * var(--scroll-progress, 0)))
+      rotate(calc(5deg - 8deg * var(--scroll-progress, 0)));
+  }
+  .public-site[data-scroll-motion='fallback'] .hero-photo .hero-drift {
+    animation: none;
+    transform: scale(1.08) translateY(calc(3% * var(--scroll-progress, 0)));
+  }
+  .public-site[data-scroll-motion='fallback'] .terroir-image {
+    animation: none;
+    transform: translateY(calc(-7% + 14% * var(--scroll-progress, 0)));
+  }
+  .public-site[data-scroll-motion='fallback'] .terroir-word {
+    animation: none;
+    transform: translateX(calc(6% - 14% * var(--scroll-progress, 0)));
+  }
+  .public-site[data-scroll-motion='fallback'] .audience-symbol {
+    --symbol-progress: var(--scroll-progress, 0);
+    animation: none;
+    transform: translateY(calc(22px - 44px * var(--symbol-progress)))
+      rotate(calc(-16deg + 32deg * var(--symbol-progress)));
+  }
+  .public-site[data-scroll-motion='fallback'] .audience-card-1 .audience-symbol {
+    --symbol-progress: calc(1 - var(--scroll-progress, 0));
+  }
+  @media (min-width: 1024px) {
+    .public-site[data-scroll-motion='fallback'] .hero-drift {
+      animation: none;
+      transform: scale(1.08) translateY(calc(-3% * var(--intro-progress, 0)));
+    }
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   html:has(.public-site) {
     scroll-behavior: smooth;

@@ -17,7 +17,17 @@ const browser = await chromium.launch({
 try {
   const page = await browser.newPage({
     viewport: { width: 1440, height: 1000 },
+    reducedMotion: 'no-preference',
   });
+  if (process.env.PALISSAGE_FORCE_SCROLL_FALLBACK === '1') {
+    await page.addInitScript(() => {
+      const supports = CSS.supports.bind(CSS);
+      CSS.supports = (...args) => {
+        if (/animation-(timeline|range)/.test(args[0])) return false;
+        return supports(...args);
+      };
+    });
+  }
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const base = process.env.PALISSAGE_PREVIEW_URL || 'http://127.0.0.1:5173';
@@ -34,6 +44,20 @@ try {
   await page.goto(base);
   await page.getByRole('heading', { level: 1 }).waitFor();
   await settle();
+  assert(await page.locator('.reveal-ready:not(.vine-animated)').count() > 0,
+    'Offscreen sections must still be armed after StrictMode effect replay');
+  const armedOpacity = await page.locator('.reveal-ready:not(.vine-animated)').first()
+    .evaluate((e) => getComputedStyle(e).opacity);
+  assert.equal(armedOpacity, '0', 'Armed sections must actually have an entrance state');
+  assert.equal(await page.locator('.hero-photo img').evaluate((e) => getComputedStyle(e).filter),
+    'none', 'Retouched hero retains the user-supplied colours');
+  assert.match(await page.locator('.hero-photo img').getAttribute('src'), /retouched-960/);
+  if (process.env.PALISSAGE_FORCE_SCROLL_FALLBACK === '1') {
+    assert.equal(await page.locator('.public-site').getAttribute('data-scroll-motion'), 'fallback');
+  }
+  const companionSelectors = ['.origin-tag', '.hero-photo img', '.reading-progress'];
+  const companionsBefore = await Promise.all(companionSelectors.map((selector) =>
+    page.locator(selector).evaluate((e) => getComputedStyle(e).transform)));
   const before = await page
     .locator('.bottle-study')
     .evaluate((e) => getComputedStyle(e).transform);
@@ -42,7 +66,27 @@ try {
     .locator('.bottle-study')
     .evaluate((e) => getComputedStyle(e).transform);
   assert.notEqual(before, after, 'Bottle must actually move with scroll');
+  for (const [index, selector] of companionSelectors.entries()) {
+    assert.notEqual(await page.locator(selector).evaluate((e) => getComputedStyle(e).transform),
+      companionsBefore[index], `${selector} must actually move with scroll`);
+  }
   console.log('Parallax', { before, after });
+
+  const checkScene = async (sceneSelector, targetSelectors) => {
+    const scene = page.locator(sceneSelector);
+    const top = await scene.evaluate((e) => e.getBoundingClientRect().top + scrollY);
+    await scroll(Math.max(0, top - 900));
+    const initial = await Promise.all(targetSelectors.map((selector) =>
+      page.locator(selector).evaluate((e) => getComputedStyle(e).transform)));
+    await scroll(top - 200);
+    for (const [index, selector] of targetSelectors.entries()) {
+      assert.notEqual(await page.locator(selector).evaluate((e) => getComputedStyle(e).transform),
+        initial[index], `${selector} must follow the page, not a clipped container`);
+    }
+  };
+  await checkScene('.audience-card-0', ['.audience-card-0 .audience-symbol', '.audience-card-1 .audience-symbol']);
+  await checkScene('.terroir-interlude', ['.terroir-image', '.terroir-word']);
+  console.log('Audience illustrations and landscape motion PASS');
   await scroll(0);
   await settle();
   await page.screenshot({ path: join(output, 'after-desktop.png') });
@@ -173,6 +217,8 @@ try {
     stationary,
     'Reduced motion bottle stays still',
   );
+  assert.equal(await page.locator('.public-site').getAttribute('data-scroll-motion'), null,
+    'Reduced motion stops the fallback listener');
   assert.equal(
     (
       await page
@@ -193,6 +239,10 @@ try {
   console.log('Browser errors: none');
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await settle();
+  if (process.env.PALISSAGE_FORCE_SCROLL_FALLBACK === '1') {
+    assert.equal(await page.locator('.public-site').getAttribute('data-scroll-motion'), 'fallback',
+      'Motion preference change restarts the fallback');
+  }
   assert.equal(
     (
       await page

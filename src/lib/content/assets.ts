@@ -13,6 +13,7 @@ export interface ImageAsset {
   height: number;
   kind?: 'bottle' | 'vineyard';
   position?: string;
+  tone?: 'original';
 }
 
 function vineyard(name: string, height: number, position = '50% 50%'): ImageAsset {
@@ -45,8 +46,14 @@ export const ASSETS = {
     height: 768,
     kind: 'bottle',
   },
-  // 5275967187262839799.jpg
-  heroEstate: vineyard('vineyard-rows', 1920, '50% 48%'),
+  // photo.jpg — retain the user's colour correction and native resolution.
+  heroEstate: {
+    ...vineyard('vineyard-rows-retouched', 1280, '50% 48%'),
+    src: '/img/palissage/vineyard-rows-retouched-960.webp',
+    srcSet: '/img/palissage/vineyard-rows-retouched-640.webp 640w, /img/palissage/vineyard-rows-retouched-960.webp 960w',
+    width: 960,
+    tone: 'original',
+  },
   // 5275967187262839805.jpg
   vineyardPanorama: vineyard('vineyard-panorama', 713, '50% 32%'),
   // 5275967187262839776.jpg

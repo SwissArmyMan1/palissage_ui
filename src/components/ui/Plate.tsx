@@ -41,6 +41,7 @@ export function Plate({
       className={cn('photo-plate relative overflow-hidden rounded-xl bg-surface-sunken', className)}
       style={{ aspectRatio: ratio }}
       data-photo-kind={asset?.kind}
+      data-photo-tone={asset?.tone}
     >
       {publishable && asset ? (
         <img
