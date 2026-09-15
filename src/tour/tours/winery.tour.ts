@@ -68,6 +68,11 @@ const winery: TourDefinition = {
       title: 'Create the lot',
       body: 'Four short steps, then Create the lot. The tour waits here until the lot exists on the chain.',
       advance: { kind: 'event', event: 'lot.created' },
+      waitLabel: 'Waiting for the lot to be created',
+      // Four panes of a form, typed by hand. The default grace period offered a
+      // way past this step while the reader was still on the second one — and
+      // taking it stranded every step after, which all depend on the lot.
+      stallAfterMs: 180_000,
     },
     {
       id: 'review',
@@ -79,6 +84,8 @@ const winery: TourDefinition = {
       title: 'Somebody else verifies it',
       body: 'Your new lot is a draft. Palissage Operations holds the verifier role on the token — a winery cannot verify its own wine. Wait here.',
       advance: { kind: 'event', event: 'lot.verified' },
+      // The one step in the product where the reader is meant to do nothing.
+      waitLabel: 'Waiting for the operator',
     },
     {
       id: 'finance',

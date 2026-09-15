@@ -681,3 +681,48 @@ geometry, both themes, 320 px — passed while the thing was unusable in the han
 Verified across all five tours at 390 px and all fourteen gate items: no anchor covered, no
 overlap in the bar at 320/360/390, both connect paths correct with and without an injected
 provider, zero RPC in simulation.
+
+## B.7 Mobile, second round: two defects in the create-a-lot step
+
+Reported from a phone against production, with screenshots. Both sat on the same step pair —
+`winery/submit` and `winery/review` — and one caused the other.
+
+1. **The tour rang a node the screen had thrown away.** The create-a-lot wizard keys its pane
+   on the wizard step, so moving from *Wine* to *Quantity* replaces the whole subtree — the
+   action row the step points at included. The wizard step lives in the **query string**, and
+   the runner only re-resolved its anchor when the **pathname** changed. So from the second
+   pane onward the tour held a detached element: `getBoundingClientRect` on one returns zeroes,
+   which drew the ring as a dot in the top-left corner of the screen, and the bottom sheet —
+   which refuses to measure against a detached anchor — stayed frozen over the page content.
+   Measured side by side, production against the fix, at the same four panes:
+
+   | pane | ring, before | ring, after | sheet top, before | after |
+   |---|---|---|---|---|
+   | 1 | `11,299 368×77` | `11,299 368×77` | 640 | 640 |
+   | 2 | `0,0 10×10` | `11,723 368×77` | 640 | 512 |
+   | 3 | `0,0 10×10` | `11,760 368×77` | 640 | 549 |
+   | 4 | `0,0 10×10` | `11,702 368×77` | 640 | 491 |
+
+   The runner now watches for its anchor leaving the document and resolves again. The
+   replacement does **not** re-scroll: the screen already scrolled itself, and pulling the
+   reader back down to the anchor would fight them. `Spotlight` also refuses to measure a
+   detached or zero-sized node and keeps its last good hole, so the corner dot cannot come back
+   by another route.
+
+2. **A step told the reader to press something that does not exist.** The waiting pill read
+   *Press the highlighted control* on every step that was not self-advancing — including the
+   one whose entire lesson is that a winery cannot verify its own wine and must **wait** for an
+   operator. The ring there is around the lots table; there is nothing in it to press, so a
+   reader who tries and fails concludes the tour is broken. The label is now read from the
+   advance rule: `click` and `route` wait for the reader, `event` and `predicate` wait for the
+   world, and each of the four event steps names what it is waiting for.
+
+   The same step carried the other half of the defect: the 10-second grace period that offers a
+   way past a stuck step was firing while the reader was still filling in the wizard, and
+   taking that escape stranded every later step, all of which need the lot to exist. A step can
+   now set its own `stallAfterMs` — three minutes for four panes of a hand-typed form.
+
+Verified on the rebuilt app at 390 px: the ring tracks the action row through all four panes,
+the sheet re-lifts on each, the lot is created, the operator verifies it four seconds later and
+the tour advances on its own to step 8 — with no escape hatch offered at any point, because it
+was never needed.

@@ -616,6 +616,16 @@ export const FR: Record<string, string> = {
     'Terminer',
   'Press the highlighted control':
     'Appuyez sur l’élément mis en évidence',
+  'Waiting for this to happen':
+    'En attente que cela se produise',
+  'Waiting for the lot to be created':
+    'En attente de la création du lot',
+  'Waiting for the operator':
+    'En attente de l’opérateur',
+  'Waiting for the reservation':
+    'En attente de la réservation',
+  'Waiting for the verification':
+    'En attente de la vérification',
   'Tour paused':
     'Visite en pause',
   'You left the tour at step {current}.':

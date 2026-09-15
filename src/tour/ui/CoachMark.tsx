@@ -70,6 +70,7 @@ export function CoachMark({
   anchor,
   compact,
   waiting,
+  waitLabel,
   stalled,
   onNext,
   onBack,
@@ -84,6 +85,8 @@ export function CoachMark({
   compact: boolean;
   /** True while the step waits for the reader to do the thing themselves. */
   waiting: boolean;
+  /** What that wait is for — see `TourStep.waitLabel`. */
+  waitLabel: string;
   /**
    * True once a waiting step can no longer satisfy itself — the condition was
    * already true when the step began, or the grace period expired. The hint
@@ -275,7 +278,7 @@ export function CoachMark({
           ) : waiting ? (
             <span className="flex min-h-[34px] flex-1 items-center justify-center gap-2 rounded-md bg-accent-subtle px-3 text-body-sm font-medium text-accent">
               <span aria-hidden className="size-1.5 shrink-0 rounded-full bg-accent" />
-              {t('Press the highlighted control')}
+              {t(waitLabel)}
             </span>
           ) : (
             <Button size="sm" onClick={onNext} className="flex-1" fullWidth={compact}>

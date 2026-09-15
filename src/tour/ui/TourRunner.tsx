@@ -66,6 +66,19 @@ export default function TourRunner() {
   const searching = Boolean(step) && anchorId !== 'center' && resolved?.stepId !== step?.id;
   const waiting = Boolean(advance && advance.kind !== 'next');
   const stalled = Boolean(step && stalledFor === step.id);
+  /**
+   * A waiting step says what it is waiting for, and the two kinds are not the
+   * same. `click` and `route` wait for the reader. `event` and `predicate` wait
+   * for the world — a write to land, an operator to look at a lot — and telling
+   * the reader to press the highlighted control on one of those is a lie: the
+   * ring is around a region, there is nothing in it to press, and a reader who
+   * tries and fails concludes the tour is broken.
+   */
+  const waitLabel =
+    step?.waitLabel ??
+    (advance && (advance.kind === 'event' || advance.kind === 'predicate')
+      ? 'Waiting for this to happen'
+      : 'Press the highlighted control');
 
   const advanceOnce = useCallback(
     (stepId: string) => {
@@ -93,14 +106,52 @@ export default function TourRunner() {
     }
 
     const controller = new AbortController();
-    void waitForAnchor(targetSelector(anchorId), controller.signal).then((node) => {
+    const selector = targetSelector(anchorId);
+    let current: HTMLElement | null = null;
+    let looking = false;
+
+    const resolve = (first: boolean) => {
+      if (looking) return;
+      looking = true;
+      void waitForAnchor(selector, controller.signal).then((node) => {
+        looking = false;
+        if (controller.signal.aborted) return;
+        current = node;
+        setResolved({ stepId, el: node });
+        // Only the first resolution scrolls. A replacement is the screen's own
+        // doing — the wizard moving to its next pane scrolls itself to the top —
+        // and yanking the reader back down to the anchor would fight them.
+        if (node && first) {
+          scrollAnchorIntoView(node, compact ? 0.32 : 0.5, prefersReducedMotion());
+        }
+      });
+    };
+
+    resolve(true);
+
+    /**
+     * A screen can replace the element the step points at without changing
+     * route. The create-lot wizard keys its pane on the wizard step, so moving
+     * from Wine to Quantity tears out the very node the tour is holding — and
+     * the wizard step lives in the query string, which this effect does not
+     * watch. The tour was then ringing a detached node: `getBoundingClientRect`
+     * on one returns zeroes, so the ring collapsed to a dot in the top-left
+     * corner and the sheet, which refuses to measure against a detached anchor,
+     * stayed parked over the page. Watch for it leaving and resolve again.
+     */
+    const watcher = new MutationObserver(() => {
       if (controller.signal.aborted) return;
-      setResolved({ stepId, el: node });
-      if (node) {
-        scrollAnchorIntoView(node, compact ? 0.32 : 0.5, prefersReducedMotion());
+      if (current && !current.isConnected) {
+        current = null;
+        resolve(false);
       }
     });
-    return () => controller.abort();
+    watcher.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+      controller.abort();
+      watcher.disconnect();
+    };
     // `location.pathname` is a dependency on purpose: a step can span a list and
     // the record it opens, and the control it points at only exists on one of
     // them. Without this the anchor was resolved once, on the wrong screen.
@@ -203,7 +254,7 @@ export default function TourRunner() {
       (rule.exact ? location.pathname === rule.path : location.pathname.startsWith(rule.path));
     const timer = window.setTimeout(
       () => setStalledFor(stepId),
-      revisiting || alreadySatisfied ? 0 : STALL_GRACE_MS,
+      revisiting || alreadySatisfied ? 0 : (step.stallAfterMs ?? STALL_GRACE_MS),
     );
     return () => window.clearTimeout(timer);
     // Deliberately keyed to the step, not to every navigation: the entry path is
@@ -275,6 +326,7 @@ export default function TourRunner() {
         anchor={anchor}
         compact={compact}
         waiting={waiting && !searching}
+        waitLabel={waitLabel}
         stalled={stalled}
         onNext={next}
         onBack={back}

@@ -39,6 +39,9 @@ const admin: TourDefinition = {
       title: 'Verify the lot',
       body: 'Open a lot that is waiting, then run Verify. You are attesting to its documents: their hash goes on the chain with your address.',
       advance: { kind: 'event', event: 'lot.verified' },
+      waitLabel: 'Waiting for the verification',
+      // Open a lot, read its evidence, then sign.
+      stallAfterMs: 120_000,
       /**
        * Not a limitation of the tour. Below `lg` this screen deliberately
        * offers the queue and withholds the decision, because reviewing evidence

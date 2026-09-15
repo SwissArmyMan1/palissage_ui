@@ -53,6 +53,9 @@ const shop: TourDefinition = {
       title: 'Approve, then reserve',
       body: 'Two writes in one review: the first lets the market move your EURC, the second takes the bottles. Run them.',
       advance: { kind: 'event', event: 'allocation.reserved' },
+      waitLabel: 'Waiting for the reservation',
+      // Two writes and two wallet confirmations.
+      stallAfterMs: 120_000,
     },
     {
       id: 'allocations',

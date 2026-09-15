@@ -90,6 +90,26 @@ export interface TourStep {
    */
   spotlight?: 'element' | 'region' | 'passive' | 'none';
   advance: AdvanceRule;
+  /**
+   * What the card says while the step waits.
+   *
+   * The default is read from the rule, because the two kinds of waiting are not
+   * the same thing. A `click` or `route` step waits for the reader and says so.
+   * An `event` or `predicate` step waits for the *world* — a write to land, an
+   * operator to look at a lot — and telling the reader to press the highlighted
+   * control there is a plain lie: there is nothing to press, and the ring is
+   * around a region rather than a button. Override it to name what is awaited.
+   */
+  waitLabel?: string;
+  /**
+   * How long this step may wait before it offers a way past itself.
+   *
+   * The default suits a step whose condition is seconds away. A step that
+   * brackets real work — four wizard panes, a signature, a confirmation — needs
+   * longer, or the escape hatch appears while the reader is still working and
+   * skipping it strands the steps that depend on what they were doing.
+   */
+  stallAfterMs?: number;
   /** Side effects needed before the anchor can exist — opening a drawer, say. */
   onEnter?: () => void;
 }

@@ -53,6 +53,14 @@ export function Spotlight({
     if (!anchor || !ring) return;
     const measure = () => {
       const rect = anchor.getBoundingClientRect();
+      /**
+       * A detached node measures as all zeroes, and a hole of zero size at the
+       * origin drew the ring as a dot in the top-left corner of the screen —
+       * the visible symptom of a screen replacing the element mid-step. Keep
+       * the last good hole instead: the runner is already resolving the
+       * replacement, and the ring travels to it from where it was.
+       */
+      if (!anchor.isConnected || rect.width < 1 || rect.height < 1) return;
       const style = window.getComputedStyle(anchor);
       const radius = parseFloat(style.borderTopLeftRadius) || 8;
       setHole({
