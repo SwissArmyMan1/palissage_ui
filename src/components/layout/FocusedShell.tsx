@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { BrandMark } from '@/components/ui/Logo';
 import { NetworkChip } from '@/components/ui/NetworkChip';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { SimulationBar } from '@/sandbox/SimulationBar';
 
 /**
  * A single-purpose flow drops the sidebar and runs as a focused route — the
@@ -31,6 +32,7 @@ export function FocusedShell({
       <a href="#focused-main" className="skip-link text-body-sm font-medium">
         Skip to the main content
       </a>
+      <SimulationBar />
       <header className="sticky top-0 z-40 flex h-[var(--topbar-h)] items-center gap-3 border-b border-edge-subtle bg-surface px-4">
         <BrandMark size={22} />
         <h1 className="t-h3 truncate">{title}</h1>

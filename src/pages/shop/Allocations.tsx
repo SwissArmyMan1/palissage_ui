@@ -57,7 +57,7 @@ export default function Allocations() {
         lede="Everything you have reserved, grouped by what it needs from you."
       />
 
-      <div className="mt-8 space-y-12">
+      <div data-tour="shop-allocations-table" className="mt-8 space-y-12">
         {!allocations.hasData ? (
           <SkeletonRows count={3} label="Loading your allocations…" />
         ) : total === 0 ? (

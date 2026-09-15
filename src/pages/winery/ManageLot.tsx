@@ -102,7 +102,9 @@ export default function ManageLot() {
           </p>
         </div>
         {lot.status === 1 && uncommitted > 0 ? (
-          <LinkButton to={`/app/winery/lots/${lot.id}/offers/new`}>Publish an offer</LinkButton>
+          <LinkButton to={`/app/winery/lots/${lot.id}/offers/new`} data-tour="winery-lot-publish-offer">
+            Publish an offer
+          </LinkButton>
         ) : null}
       </div>
 

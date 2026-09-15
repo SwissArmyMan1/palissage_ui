@@ -23,7 +23,7 @@ export function ConnectPrompt({ what, className }: { what: string; className?: s
         )}
       </p>
       <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-        <WalletChip />
+        <WalletChip layout="prompt" />
         <LinkButton to="/lots" kind="ghost" size="sm">
           {t('Browse the catalogue instead')}
         </LinkButton>

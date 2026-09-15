@@ -91,6 +91,7 @@ export default function ShopOverview() {
   return (
     <CabinetPage>
       <PageHeader
+        tour="shop-overview-header"
         title="Overview"
         action={<LinkButton to="/app/shop/market">Browse the market</LinkButton>}
       />

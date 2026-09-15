@@ -1,6 +1,7 @@
 import { useLocale } from '@/lib/i18n/context';
 import { ArrowRight } from 'lucide-react';
 import { LinkButton } from '@/components/ui/Button';
+import { TourStartButton } from '@/tour';
 import { Callout } from '@/components/ui/Callout';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { useProtocol } from '@/chain/lens';
@@ -77,7 +78,10 @@ export default function Demo() {
       </div>
 
       <div className="mt-12 flex flex-wrap items-center gap-3">
-        <LinkButton to="/app">{t('Go to your cabinet')}</LinkButton>
+        <TourStartButton />
+        <LinkButton to="/app" kind="secondary">
+          {t('Go to your cabinet')}
+        </LinkButton>
         <span className="text-body-sm text-ink-secondary">
           {t('If this wallet already holds a role, this is the way straight in.')}
         </span>

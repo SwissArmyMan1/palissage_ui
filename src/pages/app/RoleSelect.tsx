@@ -7,6 +7,8 @@ import { Button, LinkButton } from '@/components/ui/Button';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { WalletChip } from '@/components/layout/WalletChip';
+import { TourStartButton } from '@/tour';
+import { SimulationBar } from '@/sandbox/SimulationBar';
 import { NetworkChip } from '@/components/ui/NetworkChip';
 import { ActionReview } from '@/components/patterns/ActionReview';
 import { ROLE_BASE } from '@/lib/nav';
@@ -46,7 +48,9 @@ export default function RoleSelect() {
   };
 
   return (
-    <div className="min-h-dvh bg-page py-16">
+    <div className="min-h-dvh bg-page">
+      <SimulationBar />
+      <div className="py-16">
       <a href="#roles-main" className="skip-link text-body-sm font-medium">
         Skip to the roles
       </a>
@@ -78,6 +82,12 @@ export default function RoleSelect() {
           ) : null}
 
           <NetworkChip className="mt-4" />
+
+          <div className="mt-6">
+            <TourStartButton kind="secondary" size="sm">
+              Show me how this works
+            </TourStartButton>
+          </div>
         </div>
 
         {!isConnected ? (
@@ -88,7 +98,7 @@ export default function RoleSelect() {
               because the contracts decide what the wallet may do.
             </p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-              <WalletChip />
+              <WalletChip layout="prompt" />
               <LinkButton to="/lots" kind="ghost" size="sm">
                 Keep browsing instead
               </LinkButton>
@@ -106,7 +116,7 @@ export default function RoleSelect() {
             ))}
           </div>
         ) : (
-          <div className="mt-12 grid gap-6 sm:grid-cols-2">
+          <div data-tour="app-role-cards" className="mt-12 grid gap-6 sm:grid-cols-2">
             {offers.map((offer) => (
               <RoleCard
                 key={offer.key}
@@ -177,6 +187,7 @@ export default function RoleSelect() {
             : []
         }
       />
+      </div>
     </div>
   );
 }
@@ -287,7 +298,13 @@ function RoleCard({
               Read a lot record
             </LinkButton>
           ) : offer.qualified ? null : (
-            <LinkButton to="/app/testnet" kind="ghost" size="sm" className="mt-3 self-start">
+            <LinkButton
+              to="/app/testnet"
+              kind="ghost"
+              size="sm"
+              data-tour="app-readiness-link"
+              className="mt-3 self-start"
+            >
               What this needs
             </LinkButton>
           )}

@@ -20,16 +20,23 @@ export function Callout({
   children,
   className,
   role,
+  tour,
 }: {
   tone?: CalloutTone;
   title?: string;
   children: React.ReactNode;
   className?: string;
   role?: 'alert' | 'status';
+  /** Guided-tour anchor id, from `src/tour/engine/targets.ts`. */
+  tour?: string;
 }) {
   const { wrap, Icon } = TONES[tone];
   return (
-    <div role={role} className={cn('flex gap-3 rounded-lg border p-4 text-body-sm', wrap, className)}>
+    <div
+      role={role}
+      data-tour={tour}
+      className={cn('flex gap-3 rounded-lg border p-4 text-body-sm', wrap, className)}
+    >
       <Icon aria-hidden className="mt-0.5 size-4 shrink-0" strokeWidth={1.75} />
       <div className="min-w-0 space-y-1">
         {title ? <p className="font-semibold">{title}</p> : null}

@@ -146,7 +146,11 @@ export default function CreateLot() {
         <StepIndicator steps={STEPS} current={step} />
 
         <div className="mt-8 grid gap-12 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-16">
-          <div key={step} className="step-enter min-w-0 space-y-8">
+          <div
+            key={step}
+            data-tour="create-lot-form"
+            className="step-enter min-w-0 space-y-8"
+          >
             {step === 0 ? (
               <>
                 <h2 className="t-h1">The wine</h2>
@@ -324,7 +328,14 @@ export default function CreateLot() {
               </>
             ) : null}
 
-            <div className="flex flex-wrap items-center justify-between gap-4 border-t border-edge-subtle pt-6">
+            {/* The tour anchors the whole action row, not the final button: a
+                four-step wizard has no Create button until the last step, and a
+                step pointing at something that does not exist yet is a dead
+                tour. */}
+            <div
+              data-tour="create-lot-submit"
+              className="flex flex-wrap items-center justify-between gap-4 border-t border-edge-subtle pt-6"
+            >
               {step > 0 ? (
                 <Button kind="ghost" onClick={() => goto(step - 1)}>
                   ← Back to {STEPS[step - 1]}

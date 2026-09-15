@@ -4,6 +4,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { useRevealFallback } from '@/lib/motion';
 import { PublicShell } from '@/components/layout/PublicShell';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { TourProvider } from '@/tour';
 
 import Landing from '@/pages/public/Landing';
 import NotFoundPage from '@/pages/public/NotFound';
@@ -90,7 +91,10 @@ function RouteFallback() {
 function Frame({ children }: { children: React.ReactNode }) {
   // Observe one-shot entrances, including content mounted by lazy routes.
   useRevealFallback();
-  return <>{children}</>;
+  // The tour needs the router (it navigates and it watches the path), so it
+  // lives inside `BrowserRouter` and outside `Routes` — the chrome it renders
+  // must survive a route change mid-step.
+  return <TourProvider>{children}</TourProvider>;
 }
 
 export function AppRouter() {

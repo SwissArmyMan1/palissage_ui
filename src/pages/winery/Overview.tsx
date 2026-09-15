@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { useAccount, useReadContracts } from 'wagmi';
+import { useAccount } from 'wagmi';
 import { LinkButton } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonTiles } from '@/components/ui/Skeleton';
@@ -8,20 +8,15 @@ import { StatTile } from '@/components/ui/StatTile';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { CabinetPage, PageHeader } from '@/components/layout/PageHeader';
 import { ConnectPrompt } from '@/components/layout/ConnectPrompt';
-import {
-  useLotsOfWinery,
-  useOffersOfWinery,
-  useProtocol,
-  useRedemptionsOfWinery,
-} from '@/chain/lens';
-import { palissageLensAbi } from '@/chain/abis';
+import { useAllocationsOfOffers, useLotsOfWinery, useOffersOfWinery, useProtocol, useRedemptionsOfWinery, useSettlements } from '@/chain/lens';
+
 import { LotThumb } from '@/components/ui/LotThumb';
 import { ActivityFeed } from '@/components/patterns/ActivityFeed';
 import { buildActivity } from '@/components/patterns/activity';
 import { offerPhase } from '@/lib/enums';
 import { tokenMeta } from '@/chain/tokens';
-import type { AllocationView } from '@/chain/types';
-import { CONTRACTS, PAYMENT_TOKEN } from '@/chain/config';
+
+import { PAYMENT_TOKEN } from '@/chain/config';
 import { formatBps, formatCount, formatMoney } from '@/lib/format';
 import { nextProductionStage, productionStage } from '@/lib/enums';
 import type { SettlementView } from '@/chain/types';
@@ -41,34 +36,9 @@ export default function WineryOverview() {
   const protocol = useProtocol();
   const decimals = protocol.data?.paymentDecimals ?? PAYMENT_TOKEN.decimals;
 
-  const settlements = useReadContracts({
-    contracts: offers.items.map((offer) => ({
-      address: CONTRACTS.palissageLens,
-      abi: palissageLensAbi,
-      functionName: 'settlement' as const,
-      args: [offer.id] as const,
-    })),
-    query: { enabled: offers.items.length > 0, refetchInterval: 12_000 },
-  });
+  const settlements = useSettlements(offers.items.map((offer) => offer.id));
 
-  const allocationPages = useReadContracts({
-    contracts: offers.items.map((offer) => ({
-      address: CONTRACTS.palissageLens,
-      abi: palissageLensAbi,
-      functionName: 'allocationsOfOffer' as const,
-      args: [offer.id, 0n, 50n] as const,
-    })),
-    query: { enabled: offers.items.length > 0, refetchInterval: 12_000 },
-  });
-
-  const allocations = useMemo<AllocationView[]>(
-    () =>
-      (allocationPages.data ?? []).flatMap((entry) => {
-        const page = entry?.result as readonly [readonly AllocationView[], bigint] | undefined;
-        return page ? [...page[0]] : [];
-      }),
-    [allocationPages.data],
-  );
+  const allocations = useAllocationsOfOffers(offers.items.map((offer) => offer.id)).items;
 
   const lotName = useMemo(() => {
     const byId = new Map(lots.items.map((lot) => [String(lot.id), lot.name]));
@@ -150,6 +120,7 @@ export default function WineryOverview() {
   return (
     <CabinetPage>
       <PageHeader
+        tour="winery-overview-header"
         title="Overview"
         action={<LinkButton to="/app/winery/lots/new">Create a lot</LinkButton>}
       />

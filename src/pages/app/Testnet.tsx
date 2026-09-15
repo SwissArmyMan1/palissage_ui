@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAccount, useBalance, useDisconnect, useSwitchChain } from 'wagmi';
+import { useAccount,  useDisconnect, useSwitchChain } from 'wagmi';
 import { CircleCheck, CircleX, Clock, ExternalLink, LogOut } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { BrandSeal } from '@/components/ui/Logo';
@@ -10,9 +10,11 @@ import { NetworkChip } from '@/components/ui/NetworkChip';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { AddressValue, ExplorerLink, Mono } from '@/components/ui/Mono';
 import { WalletChip } from '@/components/layout/WalletChip';
+import { SimulationBar } from '@/sandbox/SimulationBar';
 import { TxStatus } from '@/components/patterns/TxStatus';
 import { useMyParticipant, usePaymentBalance, useProtocol } from '@/chain/lens';
 import { roleGatewayAbi } from '@/chain/abis';
+import { useGasBalance } from '@/chain/balance';
 import { CHAIN_ID, CHAIN_LABEL, CONTRACTS, PAYMENT_TOKEN } from '@/chain/config';
 import { useTx } from '@/chain/tx';
 import { formatAmount, formatMoney } from '@/lib/format';
@@ -38,7 +40,7 @@ export default function Testnet() {
   const protocol = useProtocol();
   const participant = useMyParticipant();
   const payment = usePaymentBalance(address);
-  const gas = useBalance({ address, chainId: CHAIN_ID, query: { enabled: Boolean(address) } });
+  const gas = useGasBalance(address);
   const { disconnect } = useDisconnect();
   const { switchChain, isPending: isSwitching } = useSwitchChain();
   const tx = useTx();
@@ -60,7 +62,9 @@ export default function Testnet() {
   const hasPayment = (payment.data ?? 0n) > 0n;
 
   return (
-    <div className="min-h-dvh bg-page py-12">
+    <div className="min-h-dvh bg-page">
+      <SimulationBar />
+      <div className="py-12">
       <a href="#readiness-main" className="skip-link text-body-sm font-medium">
         Skip to the checks
       </a>
@@ -86,6 +90,7 @@ export default function Testnet() {
         <div className="mt-8 grid gap-6 lg:grid-cols-2">
           {/* ---- 1. Deployment ------------------------------------------- */}
           <Check
+            tour="testnet-deployment"
             className="lg:col-span-2"
             columns
             title="Deployment"
@@ -148,6 +153,7 @@ export default function Testnet() {
 
           {/* ---- 2. Wallet ----------------------------------------------- */}
           <Check
+            tour="testnet-wallet"
             title="Wallet"
             ok={isConnected && chainId === CHAIN_ID && hasGas && hasPayment}
             pending={!isConnected}
@@ -166,7 +172,7 @@ export default function Testnet() {
                 <p className="text-body-sm text-ink-secondary">
                   Connect a wallet to check the rest.
                 </p>
-                <WalletChip />
+                <WalletChip layout="prompt" />
               </div>
             ) : (
               <>
@@ -411,6 +417,7 @@ export default function Testnet() {
           <ExplorerLink address={CONTRACTS.roleGateway}>the gateway is on Base</ExplorerLink>.
         </p>
       </main>
+      </div>
     </div>
   );
 }
@@ -423,6 +430,7 @@ function Check({
   children,
   className,
   columns = false,
+  tour,
 }: {
   title: string;
   ok: boolean;
@@ -432,10 +440,16 @@ function Check({
   className?: string;
   /** Wide cards read better with their rows in two columns on a desktop. */
   columns?: boolean;
+  /** Guided-tour anchor id. */
+  tour?: string;
 }) {
   const Icon = pending ? Clock : ok ? CircleCheck : CircleX;
   return (
-    <section className={cn('card p-6', className)} aria-labelledby={`check-${title}`}>
+    <section
+      data-tour={tour}
+      className={cn('card p-6', className)}
+      aria-labelledby={`check-${title}`}
+    >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 id={`check-${title}`} className="flex items-center gap-2 t-h3">
           <Icon

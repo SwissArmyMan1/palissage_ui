@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
-import { ChevronDown, Info, Menu, X } from 'lucide-react';
+import { ChevronDown, Compass, Info, Menu, X } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { BrandMark } from '@/components/ui/Logo';
 import { NetworkChip } from '@/components/ui/NetworkChip';
@@ -10,6 +10,8 @@ import { WalletChip } from './WalletChip';
 import { WalletBalance } from './WalletBalance';
 import { useRoleOffers, type RoleKey } from '@/chain/roles';
 import { useProtocol } from '@/chain/lens';
+import { SimulationBar } from '@/sandbox/SimulationBar';
+import { Beacon, onDrawerRequest, useTour } from '@/tour';
 
 /**
  * `App shell` — a layout route, so the chrome does not remount on navigation.
@@ -22,6 +24,9 @@ import { useProtocol } from '@/chain/lens';
 export function AppShell({ role, orgName }: { role: CabinetRoleKey; orgName?: string }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const items = NAV[role];
+  // A tour step that points at a sidebar item has to open the drawer first,
+  // because below `lg` there is no sidebar to point at.
+  useEffect(() => onDrawerRequest(() => setDrawerOpen(true)), []);
   const tabs = items.filter((item) => item.tab).slice(0, 4);
   const protocol = useProtocol();
 
@@ -38,14 +43,21 @@ export function AppShell({ role, orgName }: { role: CabinetRoleKey; orgName?: st
        */
       className="app-shell min-h-dvh bg-page lg:grid lg:h-dvh lg:min-h-0 lg:overflow-hidden"
       style={{
-        gridTemplateAreas: '"topbar topbar" "sidenav content"',
+        // The simulation bar is a grid row, never an overlay: it must not cover
+        // the top bar, and the dvh grid has to account for its height. With no
+        // simulation running the row has no content and collapses to zero.
+        gridTemplateAreas: '"simbar simbar" "topbar topbar" "sidenav content"',
         gridTemplateColumns: 'var(--sidenav-w) 1fr',
-        gridTemplateRows: 'var(--topbar-h) 1fr',
+        gridTemplateRows: 'auto var(--topbar-h) 1fr',
       }}
     >
       <a href="#app-main" className="skip-link text-body-sm font-medium">
         Skip to the main content
       </a>
+
+      <div style={{ gridArea: 'simbar' }}>
+        <SimulationBar />
+      </div>
 
       <header
         style={{ gridArea: 'topbar' }}
@@ -67,16 +79,9 @@ export function AppShell({ role, orgName }: { role: CabinetRoleKey; orgName?: st
 
         <RoleSwitcher role={role} orgName={orgName} />
 
-        <div className="ml-auto flex shrink-0 items-center gap-2">
+        <div data-tour="shell-wallet" className="ml-auto flex shrink-0 items-center gap-2">
           <NetworkChip className="hidden sm:inline-flex" />
-          <Link
-            to="/how-it-works"
-            aria-label="Help"
-            title="Help"
-            className="grid size-9 place-items-center rounded-md text-ink-secondary hover:bg-surface-sunken hover:text-ink"
-          >
-            <Info aria-hidden className="size-4" strokeWidth={1.75} />
-          </Link>
+          <HelpMenu />
           <ThemeToggle />
           <WalletChip />
         </div>
@@ -118,7 +123,7 @@ export function AppShell({ role, orgName }: { role: CabinetRoleKey; orgName?: st
             </div>
             <SidebarItems role={role} onNavigate={() => setDrawerOpen(false)} />
             <div className="border-t border-edge-subtle p-3">
-              <WalletChip />
+              <WalletChip layout="prompt" />
             </div>
           </nav>
         </div>
@@ -143,6 +148,7 @@ export function AppShell({ role, orgName }: { role: CabinetRoleKey; orgName?: st
             key={item.to}
             to={navHref(role, item)}
             end={item.end}
+            data-tour={item.tourTab}
             className={({ isActive }) =>
               cn(
                 'flex min-h-[56px] flex-1 flex-col items-center justify-center gap-1 text-caption',
@@ -172,6 +178,7 @@ function SidebarItems({ role, onNavigate }: { role: CabinetRoleKey; onNavigate?:
             <NavLink
               to={navHref(role, item)}
               end={item.end}
+              data-tour={item.tour}
               onClick={onNavigate}
               className={({ isActive }) =>
                 cn(
@@ -224,6 +231,75 @@ function SidebarItems({ role, onNavigate }: { role: CabinetRoleKey; onNavigate?:
   );
 }
 
+/**
+ * Help, and the way into a tour.
+ *
+ * The beacon marks it only while a tour for this cabinet exists and has never
+ * been started or dismissed — an always-on dot stops being a signal within one
+ * session. The offer also exists as plain text in the menu, because a pulsing
+ * dot is not an affordance for a screen-reader reader.
+ */
+function HelpMenu() {
+  const [open, setOpen] = useState(false);
+  const { openLauncher, showBeacon, dismissOffer } = useTour();
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        data-tour="shell-help"
+        aria-label="Help and guided tours"
+        aria-expanded={open}
+        aria-haspopup="menu"
+        onClick={() => {
+          setOpen((value) => !value);
+          dismissOffer();
+        }}
+        className="relative grid size-9 place-items-center rounded-md text-ink-secondary hover:bg-surface-sunken hover:text-ink"
+      >
+        <Info aria-hidden className="size-4" strokeWidth={1.75} />
+        <Beacon show={showBeacon} />
+      </button>
+
+      {open ? (
+        <>
+          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} aria-hidden />
+          <div
+            role="menu"
+            className="absolute right-0 top-full z-20 mt-2 w-64 rounded-lg border border-edge-subtle bg-surface-overlay p-2 shadow-2"
+          >
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                setOpen(false);
+                openLauncher();
+              }}
+              className="flex w-full items-start gap-3 rounded-md p-2 text-left hover:bg-surface-sunken"
+            >
+              <Compass aria-hidden className="mt-0.5 size-4 shrink-0 text-accent" strokeWidth={1.75} />
+              <span>
+                <span className="block text-body-sm font-medium text-ink">Show me how this works</span>
+                <span className="block text-caption normal-case tracking-normal text-ink-secondary">
+                  A step-by-step walk through this cabinet.
+                </span>
+              </span>
+            </button>
+            <Link
+              role="menuitem"
+              to="/how-it-works"
+              onClick={() => setOpen(false)}
+              className="mt-1 block rounded-md p-2 text-body-sm text-ink-secondary hover:bg-surface-sunken hover:text-ink"
+            >
+              Read how Palissage works
+            </Link>
+          </div>
+        </>
+      ) : null}
+    </div>
+  );
+}
+
 function RoleSwitcher({ role, orgName }: { role: RoleKey; orgName?: string }) {
   const [open, setOpen] = useState(false);
   const { offers } = useRoleOffers();
@@ -233,6 +309,7 @@ function RoleSwitcher({ role, orgName }: { role: RoleKey; orgName?: string }) {
     <div className="relative min-w-0">
       <button
         type="button"
+        data-tour="shell-role-switcher"
         aria-expanded={open}
         aria-haspopup="menu"
         onClick={() => setOpen((value) => !value)}

@@ -1,16 +1,13 @@
 import { useMemo } from 'react';
-import { useReadContracts } from 'wagmi';
+
 import { LinkButton } from '@/components/ui/Button';
 import { Callout } from '@/components/ui/Callout';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonTiles } from '@/components/ui/Skeleton';
 import { StatTile } from '@/components/ui/StatTile';
 import { CabinetPage, PageHeader } from '@/components/layout/PageHeader';
-import { useLots, useOffers, useRedemptions } from '@/chain/lens';
+import { useLots, useOffers, useRedemptions, useSettlements } from '@/chain/lens';
 import { useCapabilities } from '@/chain/roles';
-import { palissageLensAbi } from '@/chain/abis';
-import { CONTRACTS } from '@/chain/config';
-import type { SettlementView } from '@/chain/types';
 
 /**
  * ADM-01. Four queues with counts, and what this wallet may actually act on.
@@ -24,25 +21,16 @@ export default function AdminQueues() {
   const redemptions = useRedemptions();
   const caps = useCapabilities();
 
-  const settlements = useReadContracts({
-    contracts: offers.items.map((offer) => ({
-      address: CONTRACTS.palissageLens,
-      abi: palissageLensAbi,
-      functionName: 'settlement' as const,
-      args: [offer.id] as const,
-    })),
-    query: { enabled: offers.items.length > 0, refetchInterval: 12_000 },
-  });
+  const settlements = useSettlements(offers.items.map((offer) => offer.id));
 
   const pendingMilestones = useMemo(() => {
     let count = 0;
-    for (const entry of settlements.data ?? []) {
-      const settlement = entry?.result as SettlementView | undefined;
+    for (const settlement of settlements.items) {
       if (!settlement || settlement.settledFunds === 0n) continue;
       count += settlement.milestones.filter((milestone) => !milestone.released).length;
     }
     return count;
-  }, [settlements.data]);
+  }, [settlements.items]);
 
   const drafts = lots.items.filter((lot) => lot.status === 0);
   const suspended = lots.items.filter((lot) => lot.status === 2);
@@ -63,7 +51,7 @@ export default function AdminQueues() {
         lede="What is waiting for a decision, and which of those decisions this wallet actually holds the role for."
       />
 
-      <div className="mt-8 space-y-8">
+      <div data-tour="admin-queues-list" className="mt-8 space-y-8">
         {!caps.canVerifyLot && !caps.canConfirmMilestone && !caps.canResolveRedemption ? (
           <Callout tone="warning" title="You can read these queues but not act on them">
             Verifying a lot needs the verifier role on the token, confirming a milestone needs it

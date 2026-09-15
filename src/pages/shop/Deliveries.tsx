@@ -53,6 +53,7 @@ export default function ShopDeliveries() {
   return (
     <CabinetPage>
       <PageHeader
+        tour="shop-deliveries-request"
         title="Deliveries"
         lede="Bottles you asked to have shipped. They are held in escrow from the moment you request delivery until you confirm receipt, at which point they are burned."
       />

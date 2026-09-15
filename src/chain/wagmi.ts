@@ -1,6 +1,7 @@
 import { http, fallback, createConfig } from 'wagmi';
 import { baseSepolia } from 'wagmi/chains';
-import { injected } from 'wagmi/connectors';
+import { injected, mock } from 'wagmi/connectors';
+import { DEMO_WALLET } from '@/sandbox/seed';
 import { RPC_URLS, WALLETCONNECT_PROJECT_ID } from './config';
 
 /**
@@ -13,7 +14,24 @@ import { RPC_URLS, WALLETCONNECT_PROJECT_ID } from './config';
  */
 export const wagmiConfig = createConfig({
   chains: [baseSepolia],
-  connectors: [injected({ shimDisconnect: true })],
+  /**
+   * The demo connector is appended last on purpose: `connectors[0]` is what the
+   * connect button uses, and that must stay the injected wallet. Nothing
+   * reaches the mock unless a simulation explicitly connects it.
+   *
+   * It is built here rather than imported from `sandbox/connector.ts`, which
+   * needs `wagmiConfig` itself — importing it back would be a module cycle, and
+   * the config would be read before it was initialised.
+   */
+  connectors: [
+    injected({ shimDisconnect: true }),
+    /**
+     * Never auto-reconnected. `SandboxWalletBridge` connects it while a
+     * simulation is running and disconnects it when one is not, so the only
+     * thing that can produce a demo wallet is a running simulation.
+     */
+    mock({ accounts: [DEMO_WALLET], features: { reconnect: false } }),
+  ],
 
   /**
    * Every screen read collapses into one `multicall3` call per tick.

@@ -259,7 +259,11 @@ function Detail({
 
             <div className="mt-6 flex flex-wrap gap-3">
               {lot.status === 0 ? (
-                <Button disabled={!canDecide || !hashReady} onClick={() => onDecide('verify')}>
+                <Button
+                  data-tour="admin-lots-verify"
+                  disabled={!canDecide || !hashReady}
+                  onClick={() => onDecide('verify')}
+                >
                   Verify this lot
                 </Button>
               ) : null}

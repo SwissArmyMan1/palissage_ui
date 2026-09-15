@@ -7,14 +7,20 @@ export function PageHeader({
   lede,
   action,
   className,
+  tour,
 }: {
   title: string;
   lede?: string;
   action?: React.ReactNode;
   className?: string;
+  /** Guided-tour anchor id, from `src/tour/engine/targets.ts`. */
+  tour?: string;
 }) {
   return (
-    <header className={cn('flex flex-wrap items-start justify-between gap-4', className)}>
+    <header
+      data-tour={tour}
+      className={cn('flex flex-wrap items-start justify-between gap-4', className)}
+    >
       <div className="min-w-0">
         <h1 className="t-h1">{title}</h1>
         {lede ? <p className="mt-3 max-w-reading text-body-sm text-ink-secondary">{lede}</p> : null}

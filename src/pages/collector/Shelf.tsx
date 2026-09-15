@@ -11,6 +11,7 @@ import { NetworkChip } from '@/components/ui/NetworkChip';
 import { SkeletonRows } from '@/components/ui/Skeleton';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { ConnectPrompt } from '@/components/layout/ConnectPrompt';
+import { SimulationBar } from '@/sandbox/SimulationBar';
 import { WalletChip } from '@/components/layout/WalletChip';
 import { useAllLots, useMyParticipant, usePositions } from '@/chain/lens';
 import { formatCount } from '@/lib/format';
@@ -50,6 +51,7 @@ export default function CollectorShelf() {
 
   return (
     <div className="min-h-dvh bg-page">
+      <SimulationBar />
       <a href="#shelf-main" className="skip-link text-body-sm font-medium">
         Skip to your shelf
       </a>
@@ -62,7 +64,7 @@ export default function CollectorShelf() {
         <div className="ml-auto flex shrink-0 items-center gap-2">
           <NetworkChip className="hidden sm:inline-flex" />
           <ThemeToggle />
-          <WalletChip />
+          <WalletChip layout="prompt" />
         </div>
       </header>
 
@@ -93,7 +95,11 @@ export default function CollectorShelf() {
         ) : (
           <ul className="mt-8 space-y-4">
             {holdings.map(({ lot, position }) => (
-              <li key={String(lot.id)} className="card flex flex-wrap items-center gap-4 p-4">
+              <li
+                key={String(lot.id)}
+                data-tour="collector-shelf"
+                className="card flex flex-wrap items-center gap-4 p-4"
+              >
                 <LotThumb lotId={lot.id} size={56} />
                 <div className="min-w-0 flex-1">
                   <p className="text-body font-medium">{lot.name}</p>
@@ -122,7 +128,12 @@ export default function CollectorShelf() {
           </ul>
         )}
 
-        <Callout tone="info" title="What a collector wallet can do" className="mt-10 max-w-none">
+        <Callout
+          tone="info"
+          title="What a collector wallet can do"
+          className="mt-10 max-w-none"
+          tour="collector-limits"
+        >
           <p>
             Reading a lot record, opening a passport and holding bottles need no claim at all.
             Buying does: both the primary and the secondary market require the B2B buyer claim,

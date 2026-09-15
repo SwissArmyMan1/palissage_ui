@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { isAddress } from 'viem';
-import { useAccount, useReadContracts } from 'wagmi';
+import { useAccount } from 'wagmi';
 import { CircleCheck, CircleMinus } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Callout } from '@/components/ui/Callout';
@@ -9,7 +9,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { AddressValue, ExplorerLink, Mono } from '@/components/ui/Mono';
 import { CabinetPage, PageHeader } from '@/components/layout/PageHeader';
 import { ActionReview } from '@/components/patterns/ActionReview';
-import { useParticipant } from '@/chain/lens';
+import { useAdminRoles, useParticipant } from '@/chain/lens';
 import type { ParticipantView } from '@/chain/types';
 import { useCapabilities } from '@/chain/roles';
 import { roleGatewayAbi } from '@/chain/abis';
@@ -324,15 +324,10 @@ function OperatorRoles({
   const { address } = useAccount();
   const [pending, setPending] = useState<{ role: OperatorRole; grant: boolean } | null>(null);
 
-  const admin = useReadContracts({
-    contracts: OPERATOR_ROLES.map((role) => ({
-      address: role.address,
-      abi: accessControlAbi,
-      functionName: 'hasRole' as const,
-      args: [DEFAULT_ADMIN_ROLE, address ?? target] as const,
-    })),
-    query: { enabled: Boolean(address), refetchInterval: 12_000 },
-  });
+  const admin = useAdminRoles(
+    OPERATOR_ROLES.map((role) => ({ address: role.address, role: DEFAULT_ADMIN_ROLE })),
+    address ?? target,
+  );
 
   return (
     <section className="card p-6 lg:col-span-2" aria-labelledby="operator-heading">

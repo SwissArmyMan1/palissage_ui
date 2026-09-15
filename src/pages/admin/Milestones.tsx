@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useReadContracts } from 'wagmi';
+
 import { Button } from '@/components/ui/Button';
 import { Callout } from '@/components/ui/Callout';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -9,14 +9,13 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { AddressValue } from '@/components/ui/Mono';
 import { CabinetPage, PageHeader } from '@/components/layout/PageHeader';
 import { ActionReview } from '@/components/patterns/ActionReview';
-import { useLots, useOffers, useProtocol } from '@/chain/lens';
+import { useLots, useOffers, useProtocol, useSettlements } from '@/chain/lens';
 import { useCapabilities } from '@/chain/roles';
-import { palissageLensAbi, primaryMarketAbi } from '@/chain/abis';
+import { primaryMarketAbi } from '@/chain/abis';
 import { CONTRACTS } from '@/chain/config';
 import { useTx } from '@/chain/tx';
 import { formatBps } from '@/lib/format';
 import { formatTokenAmount, tokenMeta, type TokenMeta } from '@/chain/tokens';
-import type { SettlementView } from '@/chain/types';
 
 interface Pending {
   offerId: bigint;
@@ -41,22 +40,13 @@ export default function AdminMilestones() {
   const caps = useCapabilities();
   const [confirming, setConfirming] = useState<Pending | null>(null);
 
-
-  const settlements = useReadContracts({
-    contracts: offers.items.map((offer) => ({
-      address: CONTRACTS.palissageLens,
-      abi: palissageLensAbi,
-      functionName: 'settlement' as const,
-      args: [offer.id] as const,
-    })),
-    query: { enabled: offers.items.length > 0, refetchInterval: 12_000 },
-  });
+  const settlements = useSettlements(offers.items.map((offer) => offer.id));
 
   const pending = useMemo<Pending[]>(() => {
     const byLot = new Map(lots.items.map((lot) => [String(lot.id), lot.name]));
     const rows: Pending[] = [];
     offers.items.forEach((offer, index) => {
-      const settlement = settlements.data?.[index]?.result as SettlementView | undefined;
+      const settlement = settlements.items[index];
       if (!settlement || settlement.settledFunds === 0n) return;
       settlement.milestones.forEach((milestone, milestoneIndex) => {
         if (milestone.released) return;
@@ -75,13 +65,14 @@ export default function AdminMilestones() {
       });
     });
     return rows;
-  }, [offers.items, lots.items, settlements.data, protocol.data]);
+  }, [offers.items, lots.items, settlements.items, protocol.data]);
 
   const loading = offers.isLoading || settlements.isLoading;
 
   return (
     <CabinetPage>
       <PageHeader
+        tour="admin-milestones-confirm"
         title="Milestones"
         lede="Production checkpoints waiting for a verifier. Confirming one releases the agreed share of that offer's escrow to the producer."
       />

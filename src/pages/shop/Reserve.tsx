@@ -338,7 +338,7 @@ export default function Reserve() {
           </div>
 
           {/* ---- Summary rail --------------------------------------------- */}
-          <aside className="lg:sticky lg:top-24 lg:self-start">
+          <aside data-tour="shop-reserve-review" className="lg:sticky lg:top-24 lg:self-start">
             <div className="card p-6 shadow-1">
               <p className="t-caption text-ink-secondary">Summary</p>
 

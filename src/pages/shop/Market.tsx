@@ -92,7 +92,10 @@ export default function Market() {
             action={{ label: 'Browse every lot', to: '/lots' }}
           />
         ) : (
-          <ul className="enter-stagger grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          <ul
+            data-tour="shop-market-list"
+            className="enter-stagger grid gap-6 sm:grid-cols-2 xl:grid-cols-3"
+          >
             {rows.map(({ offer, lot }) => {
               return (
                 <li key={String(offer.id)} className="card flex flex-col overflow-hidden shadow-1">
@@ -134,7 +137,11 @@ export default function Market() {
                       <Row label="Closes" value={formatDeadline(offer.endTime)} />
                     </dl>
                     <div className="mt-auto flex gap-3 pt-2">
-                      <LinkButton to={`/app/shop/reserve/${offer.id}`} size="sm">
+                      <LinkButton
+                        to={`/app/shop/reserve/${offer.id}`}
+                        size="sm"
+                        data-tour="shop-market-reserve"
+                      >
                         Reserve bottles
                       </LinkButton>
                       <LinkButton to={`/lots/${lot!.id}`} kind="secondary" size="sm">

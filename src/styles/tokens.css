@@ -156,6 +156,31 @@
   --motion-scale: 1;
 
   /* ---- tier 3: component aliases ---------------------------------------- */
+  /* ---- tier 3: layering -------------------------------------------------
+     One scale, declared once. An inline z-index in a component is a bug: the
+     stacking bugs this prevents are almost always an ancestor creating a
+     stacking context, not a number that was too low. */
+  --z-raised: 10;
+  --z-sticky: 100;
+  --z-dropdown: 1000;
+  --z-overlay: 1100;
+  --z-tour-shield: 1150;
+  --z-modal: 1200;
+  --z-tour-card: 1250;
+  --z-toast: 1300;
+  --z-tooltip: 1400;
+
+  /* ---- tier 3: guided tour ----------------------------------------------
+     The scrim is darker than the dialog scrim (0.44) on purpose: a dialog mutes
+     the page, a tour must make one small element the only lit thing on it. */
+  --tour-scrim: oklch(0.13 0 0 / 0.62);
+  --tour-ring: var(--color-accent);
+  --tour-ring-width: 2px;
+  --tour-ring-offset: 5px;
+  --tour-card-w: 344px;
+  --beacon-period: 2000ms;
+  --simbar-h: 36px;
+
   --sidenav-w: 240px;
   --topbar-h: 56px;
   --publicnav-h: 66px;
@@ -203,6 +228,8 @@
 
     --color-chain-base: #6097ff;
     --color-chain-base-subtle: var(--azur-975);
+
+    --tour-scrim: oklch(0.10 0 0 / 0.72);
 
     /* Dark expresses elevation by surface lightness, not by shadow. */
     --shadow-1: none;
@@ -252,6 +279,8 @@
   --color-chain-base: #6097ff;
   --color-chain-base-subtle: var(--azur-975);
 
+  --tour-scrim: oklch(0.10 0 0 / 0.72);
+
   --shadow-1: none;
   --shadow-2: none;
   --shadow-3: 0 24px 56px oklch(0.13 0 0 / 0.6);
@@ -262,6 +291,7 @@
 @media (prefers-reduced-motion: reduce) {
   :root {
     --motion-scale: 0;
+    --beacon-period: 0ms;
   }
 }
 

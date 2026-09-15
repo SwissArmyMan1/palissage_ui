@@ -592,4 +592,237 @@ export const FR: Record<string, string> = {
   'View this lot on Base': 'Voir ce lot sur Base',
   'How verification works': 'Comment fonctionne la vérification',
   'Read {date} from Base Sepolia.': 'Données lues le {date} sur Base Sepolia.',
+
+  /* ---- Guided tour ------------------------------------------------------
+     Keys are the English source string, as everywhere else in this file.
+     ---------------------------------------------------------------------- */
+  'Simulation':
+    'Simulation',
+  '— the data on this screen is invented and nothing is sent to {chain}.':
+    '— les données affichées sont fictives et rien n’est envoyé sur {chain}.',
+  'No wallet is involved and no asset is at risk.':
+    'Aucun portefeuille n’est sollicité et aucun actif n’est en jeu.',
+  'Leave simulation':
+    'Quitter la simulation',
+  '{current} of {total}':
+    '{current} sur {total}',
+  'Exit the tour':
+    'Quitter la visite',
+  'Back':
+    'Retour',
+  'Next':
+    'Suivant',
+  'Finish':
+    'Terminer',
+  'Press the highlighted control':
+    'Appuyez sur l’élément mis en évidence',
+  'Tour paused':
+    'Visite en pause',
+  'You left the tour at step {current}.':
+    'Vous avez quitté la visite à l’étape {current}.',
+  'Back to the step':
+    'Revenir à l’étape',
+  'Step {current} of {total}. {body}':
+    'Étape {current} sur {total}. {body}',
+  'Tour complete':
+    'Visite terminée',
+  'Show me how this works':
+    'Montrez-moi comment ça marche',
+  'Pick a cabinet. The tour points at the real controls and waits while you press them.':
+    'Choisissez un espace. La visite désigne les vrais boutons et attend que vous les utilisiez.',
+  'Not now':
+    'Pas maintenant',
+  'Start the tour':
+    'Démarrer la visite',
+  'How it runs':
+    'Mode de la visite',
+  'No wallet. The data is invented and nothing is sent.':
+    'Sans portefeuille. Les données sont fictives et rien n’est envoyé.',
+  'Live':
+    'Réel',
+  'Connect a wallet to run the tour against the real deployment.':
+    'Connectez un portefeuille pour suivre la visite sur le déploiement réel.',
+  'The gateway’s public window is closed right now, so roles cannot be self-assigned.':
+    'L’accès public de la passerelle est fermé actuellement : les rôles ne peuvent pas être attribués librement.',
+  'Your wallet on {chain}. Real transactions.':
+    'Votre portefeuille sur {chain}. Transactions réelles.',
+  'Which cabinet':
+    'Quel espace',
+  '{count} steps':
+    '{count} étapes',
+  'Getting in':
+    'Premiers pas',
+  'What a role is, and what the three readiness checks actually mean.':
+    'Ce qu’est un rôle, et ce que signifient vraiment les trois vérifications.',
+  'Create a lot, watch an operator verify it, publish an offer.':
+    'Créez un lot, voyez un opérateur le vérifier, publiez une offre.',
+  'Reserve an allocation, settle it, take delivery.':
+    'Réservez une allocation, soldez-la, prenez livraison.',
+  'Operations':
+    'Opérations',
+  'Verify a lot, release a milestone, follow a redemption.':
+    'Vérifiez un lot, libérez une étape de paiement, suivez une livraison.',
+  'Read what you hold, and what a collector deliberately cannot do.':
+    'Consultez ce que vous détenez, et ce qu’un collectionneur ne peut délibérément pas faire.',
+  'Four cabinets, one wallet':
+    'Quatre espaces, un portefeuille',
+  'Which one opens is not a setting. It is read from the role gateway and the identity claims on Base.':
+    'Celui qui s’ouvre n’est pas un réglage : il est lu depuis la passerelle de rôles et les attestations d’identité sur Base.',
+  'What each card says':
+    'Ce que dit chaque carte',
+  'A card tells you whether this wallet could actually do the work, not just whether the screen will open.':
+    'Une carte indique si ce portefeuille peut réellement agir, pas seulement si l’écran s’ouvrira.',
+  'Check what is ready':
+    'Vérifiez ce qui est prêt',
+  'Press it. Three independent checks: the deployment, this wallet, and what it is allowed to do.':
+    'Appuyez. Trois vérifications indépendantes : le déploiement, ce portefeuille, et ce qu’il a le droit de faire.',
+  'Gas and EURC are separate':
+    'Le gaz et l’EURC sont deux choses distinctes',
+  'A wallet with no EURC can still reach the faucet, which is why these are shown as two facts and not one.':
+    'Un portefeuille sans EURC peut toujours accéder au robinet : c’est pourquoi ces deux faits sont affichés séparément.',
+  'You know what a role is':
+    'Vous savez ce qu’est un rôle',
+  'A cabinet opens for anyone, but every action re-reads what the wallet may actually do.':
+    'Un espace s’ouvre à tous, mais chaque action revérifie ce que le portefeuille peut réellement faire.',
+  'Operations is never self-assigned — it carries the verifier role on the token.':
+    'Le rôle Opérations ne s’attribue jamais soi-même : il porte le rôle de vérificateur sur le jeton.',
+  'Gas and the settlement asset are separate balances, and the readiness screen says which is missing.':
+    'Le gaz et l’actif de règlement sont deux soldes distincts, et l’écran de vérification indique lequel manque.',
+  'Choose a cabinet':
+    'Choisir un espace',
+  'Your cabinet':
+    'Votre espace',
+  'Everything this wallet may do sits behind these four sections.':
+    'Tout ce que ce portefeuille peut faire se trouve derrière ces quatre sections.',
+  'Open your lots':
+    'Ouvrez vos lots',
+  'Press it. A lot is one barrel or one bottling, recorded on Base before anything can be sold against it.':
+    'Appuyez. Un lot correspond à une cuve ou une mise en bouteille, inscrite sur Base avant toute vente.',
+  'Draft and verified':
+    'Brouillon et vérifié',
+  'A draft lot is yours alone. Nothing can be offered against it until an operator has verified it.':
+    'Un lot en brouillon n’appartient qu’à vous. Rien ne peut être proposé tant qu’un opérateur ne l’a pas vérifié.',
+  'Record a new lot':
+    'Enregistrer un nouveau lot',
+  'Press it. The next screen is the only place bottle count, vintage and royalty are set.':
+    'Appuyez. L’écran suivant est le seul endroit où se fixent le nombre de bouteilles, le millésime et la redevance.',
+  'What is on the chain':
+    'Ce qui est inscrit sur la chaîne',
+  'Bottle count and size are fixed at creation. The tasting note is not on the chain — it is editorial, and the interface says so.':
+    'Le nombre et le format des bouteilles sont figés à la création. La note de dégustation n’est pas sur la chaîne : elle est éditoriale, et l’interface le précise.',
+  'Create the lot':
+    'Créer le lot',
+  'Four short steps, then Create the lot. The tour waits here until the lot exists on the chain.':
+    'Quatre étapes courtes, puis « Créer le lot ». La visite attend ici que le lot existe sur la chaîne.',
+  'Somebody else verifies it':
+    'Quelqu’un d’autre le vérifie',
+  'Your new lot is a draft. Palissage Operations holds the verifier role on the token — a winery cannot verify its own wine. Wait here.':
+    'Votre nouveau lot est un brouillon. Palissage Opérations détient le rôle de vérificateur sur le jeton : un domaine ne peut pas vérifier son propre vin. Patientez ici.',
+  'Where the money lands':
+    'Où arrive l’argent',
+  'Press it. Buyers pay into the market, and Finance shows what has been released to you and what is still held.':
+    'Appuyez. Les acheteurs paient sur le marché, et Finances montre ce qui vous a été libéré et ce qui reste retenu.',
+  'You ran a lot from cellar to offer':
+    'Vous avez mené un lot du chai à l’offre',
+  'A lot is written to the token contract before anyone can buy against it.':
+    'Un lot est inscrit dans le contrat du jeton avant que quiconque puisse acheter.',
+  'An operator verifies the lot — the winery that created it cannot.':
+    'Un opérateur vérifie le lot : le domaine qui l’a créé ne le peut pas.',
+  'Buyers pay the market, not you; Finance shows what has been released.':
+    'Les acheteurs paient le marché, pas vous ; Finances montre ce qui a été libéré.',
+  'Do this for real on Base Sepolia':
+    'Le faire pour de vrai sur Base Sepolia',
+  'What you have reserved, what you owe, and what is on its way to you.':
+    'Ce que vous avez réservé, ce que vous devez, et ce qui est en route.',
+  'What is on offer':
+    'Ce qui est proposé',
+  'Press it. Only verified lots reach the market, and every offer names its producer.':
+    'Appuyez. Seuls les lots vérifiés arrivent sur le marché, et chaque offre nomme son producteur.',
+  'Two kinds of offer':
+    'Deux types d’offre',
+  'A current release is paid in full. En Primeur takes a deposit now and the rest by a deadline the offer states.':
+    'Une mise en vente courante se paie intégralement. En primeur, un acompte est versé maintenant et le solde avant l’échéance indiquée.',
+  'Press it. The next screen shows the fee, the deposit and the deadline before anything is signed.':
+    'Appuyez. L’écran suivant affiche les frais, l’acompte et l’échéance avant toute signature.',
+  'Approve, then reserve':
+    'Autoriser, puis réserver',
+  'Two writes in one review: the first lets the market move your EURC, the second takes the bottles. Run them.':
+    'Deux écritures dans une seule validation : la première autorise le marché à déplacer vos EURC, la seconde réserve les bouteilles. Lancez-les.',
+  'Your allocations':
+    'Vos allocations',
+  'Press it. This is the ledger of what you have reserved and what is still due.':
+    'Appuyez. C’est le registre de ce que vous avez réservé et de ce qui reste dû.',
+  'Settling and delivery':
+    'Solde et livraison',
+  'Pay the remainder from an allocation. Delivery is requested separately, from the bottles you hold in Portfolio.':
+    'Réglez le solde depuis une allocation. La livraison se demande séparément, depuis les bouteilles détenues dans Portefeuille.',
+  'You reserved and settled an allocation':
+    'Vous avez réservé et soldé une allocation',
+  'Only verified lots reach the market.':
+    'Seuls les lots vérifiés arrivent sur le marché.',
+  'Approving EURC and reserving bottles are two writes, shown in one review before either is sent.':
+    'Autoriser les EURC et réserver les bouteilles sont deux écritures, présentées dans une seule validation avant tout envoi.',
+  'Bottles arrive in your portfolio; delivery is a separate request against them.':
+    'Les bouteilles arrivent dans votre portefeuille ; la livraison est une demande distincte.',
+  'What is waiting on you':
+    'Ce qui vous attend',
+  'Everything an operator decides is queued here: lots to review, milestones to confirm, redemptions in flight.':
+    'Tout ce qu’un opérateur décide est en file ici : lots à examiner, étapes à confirmer, livraisons en cours.',
+  'Lots to verify':
+    'Lots à vérifier',
+  'Press it. Verifying a lot is what lets a winery offer it — nothing else in the system does.':
+    'Appuyez. C’est la vérification d’un lot qui permet à un domaine de le proposer : rien d’autre dans le système ne le fait.',
+  'Verify the lot':
+    'Vérifier le lot',
+  'Run it. You are attesting to the documents behind the lot; the hash of them goes on the chain with your address.':
+    'Lancez-la. Vous attestez des documents du lot ; leur empreinte est inscrite sur la chaîne avec votre adresse.',
+  'Milestones hold the money':
+    'Les étapes retiennent l’argent',
+  'Press it. En Primeur money is released in tranches, and each tranche waits on an operator confirming a real event.':
+    'Appuyez. L’argent des ventes en primeur est libéré par tranches, chacune attendant qu’un opérateur confirme un fait réel.',
+  'What confirming does':
+    'Ce que fait une confirmation',
+  'Confirming releases a share of what buyers have already paid. It never moves money to you, only to the winery.':
+    'Confirmer libère une part de ce que les acheteurs ont déjà payé. Cela ne vous verse jamais d’argent, seulement au domaine.',
+  'Deliveries in flight':
+    'Livraisons en cours',
+  'Press it. Operations sees every redemption but ships none of them — the winery does, and disputes come back here.':
+    'Appuyez. Opérations voit chaque livraison mais n’en expédie aucune : c’est le domaine qui expédie, et les litiges reviennent ici.',
+  'You gated a lot without touching the money':
+    'Vous avez validé un lot sans toucher à l’argent',
+  'Verifying a lot is the only thing that lets it be offered.':
+    'La vérification d’un lot est la seule chose qui permet de le proposer.',
+  'Confirming a milestone releases buyers’ money to the winery, never to Operations.':
+    'Confirmer une étape libère l’argent des acheteurs vers le domaine, jamais vers Opérations.',
+  'Operations can see a redemption and resolve a dispute, but the winery ships it.':
+    'Opérations peut voir une livraison et arbitrer un litige, mais c’est le domaine qui expédie.',
+  'Your shelf':
+    'Votre cave',
+  'One card per lot you hold. The count is read from the token contract, not from an account we keep.':
+    'Une carte par lot détenu. Le compte est lu depuis le contrat du jeton, pas depuis un registre que nous tiendrions.',
+  'Every bottle has a passport':
+    'Chaque bouteille a un passeport',
+  'A passport opens from a card, and it opens for anyone with the link — no wallet, no account.':
+    'Un passeport s’ouvre depuis une carte, et il s’ouvre pour quiconque a le lien : sans portefeuille ni compte.',
+  'What a collector cannot do':
+    'Ce qu’un collectionneur ne peut pas faire',
+  'Both markets require a B2B claim, so a collector wallet holds and reads but does not buy. That is a rule in the contract, not a screen we hid.':
+    'Les deux marchés exigent une attestation B2B : un portefeuille de collectionneur détient et consulte, mais n’achète pas. C’est une règle du contrat, pas un écran que nous aurions masqué.',
+  'Asking for the bottles':
+    'Demander les bouteilles',
+  'Redemption turns a holding into a shipment. The winery ships it and the token is burned on delivery.':
+    'Le retrait transforme une détention en expédition. Le domaine expédie et le jeton est brûlé à la livraison.',
+  'You know what a collector holds':
+    'Vous savez ce que détient un collectionneur',
+  'A shelf is read from the token contract, not from an account Palissage keeps.':
+    'Une cave est lue depuis le contrat du jeton, pas depuis un registre tenu par Palissage.',
+  'A bottle passport is public — it needs no wallet at all.':
+    'Un passeport de bouteille est public : il ne requiert aucun portefeuille.',
+  'Buying needs a B2B claim, so a collector holds and reads but does not trade.':
+    'Acheter exige une attestation B2B : un collectionneur détient et consulte, mais n’échange pas.',
+  'Read a bottle passport':
+    'Consulter un passeport de bouteille',
+  'Open a cabinet first — the live tour needs a wallet and the read model.':
+    'Ouvrez d’abord un espace : la visite en réel nécessite un portefeuille et le service de lecture.',
+  Continue: 'Continuer',
 };

@@ -73,10 +73,14 @@ export default function WineryLots() {
     <CabinetPage>
       <PageHeader
         title="Lots"
-        action={<LinkButton to="/app/winery/lots/new">Create a lot</LinkButton>}
+        action={
+          <LinkButton to="/app/winery/lots/new" data-tour="winery-lots-create">
+            Create a lot
+          </LinkButton>
+        }
       />
 
-      <div className="mt-8">
+      <div data-tour="winery-lots-table" className="mt-8">
         {!lots.hasData ? (
           <SkeletonRows count={4} label="Loading your lots…" />
         ) : lots.items.length === 0 ? (

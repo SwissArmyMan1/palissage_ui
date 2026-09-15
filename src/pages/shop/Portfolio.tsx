@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useAccount, useReadContract } from 'wagmi';
+import { useAccount } from 'wagmi';
 import { Button, LinkButton } from '@/components/ui/Button';
 import { Callout } from '@/components/ui/Callout';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -10,7 +10,7 @@ import { LotThumb } from '@/components/ui/LotThumb';
 import { CabinetPage, PageHeader } from '@/components/layout/PageHeader';
 import { ConnectPrompt } from '@/components/layout/ConnectPrompt';
 import { ActionReview } from '@/components/patterns/ActionReview';
-import { useAllLots, usePositions, useProtocol } from '@/chain/lens';
+import { useAllLots, useApprovedForAll, usePositions, useProtocol } from '@/chain/lens';
 import { redemptionManagerAbi, secondaryMarketAbi, wineLotTokenAbi } from '@/chain/abis';
 import { CONTRACTS, PAYMENT_TOKEN } from '@/chain/config';
 import { useTx } from '@/chain/tx';
@@ -207,12 +207,7 @@ function RequestDeliveryDialog({
   const setField = (field: keyof DeliveryDetails) => (value: string) =>
     setDetails((current) => ({ ...current, [field]: value }));
 
-  const approved = useReadContract({
-    address: CONTRACTS.wineLotToken,
-    abi: wineLotTokenAbi,
-    functionName: 'isApprovedForAll',
-    args: [owner, CONTRACTS.redemptionManager],
-  });
+  const approved = useApprovedForAll(owner, CONTRACTS.redemptionManager);
 
   const bottles = parseBottles(quantity);
   const max = Number(holding.position.transferable);
@@ -406,12 +401,7 @@ function CreateListingDialog({
   const approveTx = useTx();
   const listTx = useTx();
 
-  const approved = useReadContract({
-    address: CONTRACTS.wineLotToken,
-    abi: wineLotTokenAbi,
-    functionName: 'isApprovedForAll',
-    args: [owner, CONTRACTS.secondaryMarket],
-  });
+  const approved = useApprovedForAll(owner, CONTRACTS.secondaryMarket);
 
   const bottles = parseBottles(quantity);
   const max = Number(holding.position.transferable);

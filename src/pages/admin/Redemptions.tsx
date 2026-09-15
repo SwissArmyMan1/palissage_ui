@@ -43,6 +43,7 @@ export default function AdminRedemptions() {
   return (
     <CabinetPage>
       <PageHeader
+        tour="admin-redemptions-list"
         title="Redemptions"
         lede="Every delivery request on the deployment, and the exceptions a verifier can resolve."
       />

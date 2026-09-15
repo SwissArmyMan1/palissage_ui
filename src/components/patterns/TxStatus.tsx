@@ -1,6 +1,7 @@
 import { CircleCheck, CircleX, ExternalLink, LoaderCircle, TriangleAlert } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { txUrl } from '@/chain/config';
+import { useSandbox } from '@/sandbox/store';
 import { STAGE_COPY, type TxState } from '@/chain/tx';
 
 /**
@@ -12,6 +13,7 @@ import { STAGE_COPY, type TxState } from '@/chain/tx';
  * behind a disclosure, for support.
  */
 export function TxStatus({ tx, className }: { tx: TxState; className?: string }) {
+  const simulated = useSandbox() !== null;
   if (tx.stage === 'idle') return null;
 
   const copy = STAGE_COPY[tx.stage];
@@ -54,7 +56,9 @@ export function TxStatus({ tx, className }: { tx: TxState; className?: string })
         <p className="font-semibold">{copy.title}</p>
         {tx.error ? <p>{tx.error.message}</p> : copy.body ? <p>{copy.body}</p> : null}
 
-        {tx.hash ? (
+        {/* A simulated hash is not on any explorer. Offering the link anyway
+            would be the one quiet lie in a product built on not telling them. */}
+        {tx.hash && !simulated ? (
           <a
             href={txUrl(tx.hash)}
             target="_blank"
@@ -64,6 +68,12 @@ export function TxStatus({ tx, className }: { tx: TxState; className?: string })
             View the transaction on Basescan
             <ExternalLink aria-hidden className="size-3.5" strokeWidth={1.75} />
           </a>
+        ) : null}
+        {tx.hash && simulated ? (
+          <p className="text-ink-secondary">
+            Simulated — this transaction exists only in your browser, so there is nothing to look
+            up on Basescan.
+          </p>
         ) : null}
 
         {tx.error?.detail ? (

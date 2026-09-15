@@ -612,3 +612,178 @@
     display: block;
   }
 }
+
+/* ============================================================================
+   Guided tour — `Coach mark (guided tour step)` and `Attention beacon`.
+
+   The scrim is four blocking shields around a hole rather than one full-screen
+   layer: pointer events cannot be punched through CSS, so four rects are what
+   both darken the page and leave the anchor operable.
+
+   Every duration is multiplied by --motion-scale, which the reduced-motion
+   block sets to 0. That neutralises travel without deleting the fades.
+   ========================================================================== */
+@layer components {
+  .tour-layer {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-tour-shield);
+    pointer-events: none;
+  }
+
+  .tour-shield {
+    position: fixed;
+    background-color: var(--tour-scrim);
+    pointer-events: auto;
+    transition-property: top, left, width, height, opacity;
+    transition-duration: calc(var(--duration-base) * var(--motion-scale));
+    transition-timing-function: var(--ease-in-out);
+  }
+  /* A step the reader has to work through dims the page without sealing it. */
+  .tour-shield[data-passive] {
+    pointer-events: none;
+  }
+  .tour-shield[data-entering='true'] {
+    animation: tour-scrim-in var(--duration-base) var(--ease-out) both;
+  }
+
+  .tour-ring {
+    position: fixed;
+    top: var(--tour-hy);
+    left: var(--tour-hx);
+    width: var(--tour-hw);
+    height: var(--tour-hh);
+    border: var(--tour-ring-width) solid var(--tour-ring);
+    /* The accent ring alone is 1.48:1 against the scrimmed page in the light
+       theme — visible where it meets the lit area and invisible on its outer
+       edge. This hairline is what carries the boundary on that side, and it
+       flips with the theme so it works on both scrims. */
+    outline: 1px solid var(--color-surface);
+    border-radius: var(--tour-hr, var(--radius-12));
+    pointer-events: none;
+    transition-property: top, left, width, height;
+    transition-duration: calc(var(--duration-base) * var(--motion-scale));
+    transition-timing-function: var(--ease-in-out);
+  }
+  /* A step the reader has to act on breathes twice, then stops. An indefinite
+     pulse stops being a signal and becomes noise. */
+  .tour-ring[data-act='true'] {
+    animation: tour-ring-pulse 1200ms var(--ease-in-out) 2;
+  }
+
+  .tour-card {
+    position: fixed;
+    inset: auto;
+    margin: 0;
+    width: min(var(--tour-card-w), calc(100vw - 2 * var(--space-16)));
+    max-width: none;
+    padding: 0;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-12);
+    background-color: var(--color-surface-overlay);
+    box-shadow: var(--shadow-2);
+    color: var(--color-text-primary);
+    overflow: visible;
+  }
+  .tour-card:popover-open {
+    animation: tour-card-in 200ms var(--ease-out) both;
+  }
+  .tour-card[data-exiting='true'] {
+    animation: tour-card-out 150ms var(--ease-in) both;
+  }
+
+  /* Below 640 px the card is the product's own bottom sheet, pinned above the
+     tab bar so it never covers the anchor it is talking about. */
+  .tour-card[data-sheet='true'] {
+    top: auto !important;
+    left: 0 !important;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    border-radius: var(--radius-16) var(--radius-16) 0 0;
+    border-bottom: 0;
+    padding-block-end: env(safe-area-inset-bottom);
+  }
+  .tour-card[data-sheet='true']:popover-open {
+    animation: sheet-in var(--duration-slow) var(--ease-out) both;
+  }
+
+  .tour-arrow {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    rotate: 45deg;
+    background-color: var(--color-surface-overlay);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 2px;
+  }
+
+  .tour-beacon {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    display: block;
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+    background-color: var(--color-accent);
+    box-shadow: 0 0 0 2px var(--color-surface);
+    pointer-events: none;
+  }
+  .tour-beacon::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    background-color: var(--color-accent);
+    animation: tour-beacon-pulse var(--beacon-period) var(--ease-out) 3;
+  }
+}
+
+@keyframes tour-scrim-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes tour-ring-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 transparent; }
+  50% { box-shadow: 0 0 0 4px color-mix(in oklch, var(--tour-ring) 35%, transparent); }
+}
+
+@keyframes tour-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(calc(8px * var(--motion-scale))) scale(calc(1 - 0.02 * var(--motion-scale)));
+  }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes tour-card-out {
+  from { opacity: 1; transform: none; }
+  to { opacity: 0; transform: translateY(calc(-6px * var(--motion-scale))); }
+}
+
+@keyframes tour-beacon-pulse {
+  0% { opacity: 0.55; transform: scale(1); }
+  70% { opacity: 0; transform: scale(2.2); }
+  100% { opacity: 0; transform: scale(2.2); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tour-ring[data-act='true'],
+  .tour-beacon::after {
+    animation: none;
+  }
+}
+
+/* The scrim conveys nothing in forced colours and the ring must be a real
+   outline there: a box-shadow is dropped outright. */
+@media (forced-colors: active) {
+  .tour-shield { display: none; }
+  .tour-ring {
+    outline: 3px solid Highlight;
+    outline-offset: 2px;
+    border-color: Highlight;
+  }
+  .tour-card { border: 1px solid CanvasText; }
+}

@@ -9,6 +9,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import type { Hex } from 'viem';
 import { BaseError, ContractFunctionRevertedError, UserRejectedRequestError } from 'viem';
 import { CHAIN_ID, CHAIN_LABEL } from './config';
+import { useSandbox } from '@/sandbox/store';
+import { useSimulatedTx } from '@/sandbox/tx.sandbox';
 
 /**
  * The write lifecycle, as the states in doc 05 §1 name them.
@@ -110,7 +112,7 @@ export interface TxState {
  * The duplicate-submit guard lives in the confirmation dialog, which disables
  * its button while `busy` is true.
  */
-export function useTx() {
+function useChainTx() {
   const { chainId } = useAccount();
   const { switchChainAsync } = useSwitchChain();
   const queryClient = useQueryClient();
@@ -222,6 +224,34 @@ export function useTx() {
     busy: stage === 'awaitingSignature' || stage === 'confirming',
     reset,
     send,
+  };
+}
+
+/**
+ * The write seam for the simulation.
+ *
+ * Both lifecycles are always instantiated, so the hook count never changes and
+ * `useTx` stays safe to call unconditionally. Only one of them is wired to the
+ * returned object. In simulation the chain lifecycle is simply never sent to,
+ * so nothing reaches a wallet or an RPC.
+ *
+ * The result is one object type rather than a union of two, so every call site
+ * keeps its inference — including `send`, whose ABI-generic signature is what
+ * makes a wrong argument a compile error instead of a revert.
+ */
+export function useTx() {
+  const sandbox = useSandbox();
+  const chain = useChainTx();
+  const simulated = useSimulatedTx();
+  const active = sandbox !== null;
+
+  return {
+    stage: active ? simulated.stage : chain.stage,
+    hash: active ? simulated.hash : chain.hash,
+    error: active ? simulated.error : chain.error,
+    busy: active ? simulated.busy : chain.busy,
+    reset: active ? simulated.reset : chain.reset,
+    send: active ? (simulated.send as unknown as typeof chain.send) : chain.send,
   };
 }
 

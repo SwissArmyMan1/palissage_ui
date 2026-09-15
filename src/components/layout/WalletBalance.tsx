@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom';
-import { useAccount, useBalance } from 'wagmi';
+import { useAccount } from 'wagmi';
 import { cn } from '@/lib/cn';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { usePaymentBalance, useProtocol } from '@/chain/lens';
-import { CHAIN_ID, PAYMENT_TOKEN } from '@/chain/config';
+import { useGasBalance } from '@/chain/balance';
+import { PAYMENT_TOKEN } from '@/chain/config';
 import { formatAmount, formatMoney } from '@/lib/format';
 
 /**
@@ -25,7 +26,7 @@ export function WalletBalance({ onNavigate }: { onNavigate?: () => void }) {
   const { address, isConnected } = useAccount();
   const protocol = useProtocol();
   const payment = usePaymentBalance(address);
-  const gas = useBalance({ address, chainId: CHAIN_ID, query: { enabled: Boolean(address) } });
+  const gas = useGasBalance(address);
 
   const decimals = protocol.data?.paymentDecimals ?? PAYMENT_TOKEN.decimals;
   const symbol = protocol.data?.paymentSymbol ?? PAYMENT_TOKEN.symbol;

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAccount } from 'wagmi';
-import { useReadContracts } from 'wagmi';
+
 import { Button } from '@/components/ui/Button';
 import { Callout } from '@/components/ui/Callout';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -10,8 +10,8 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { CabinetPage, PageHeader } from '@/components/layout/PageHeader';
 import { ConnectPrompt } from '@/components/layout/ConnectPrompt';
 import { ActionReview } from '@/components/patterns/ActionReview';
-import { useLots, useOffersOfWinery, useProtocol } from '@/chain/lens';
-import { palissageLensAbi, primaryMarketAbi } from '@/chain/abis';
+import { useLots, useOffersOfWinery, useProtocol, useSettlements } from '@/chain/lens';
+import { primaryMarketAbi } from '@/chain/abis';
 import { CONTRACTS, PAYMENT_TOKEN } from '@/chain/config';
 import { useTx } from '@/chain/tx';
 import { formatBps } from '@/lib/format';
@@ -47,24 +47,16 @@ export default function Finance() {
     meta: TokenMeta;
   } | null>(null);
 
-  const settlements = useReadContracts({
-    contracts: offers.items.map((offer) => ({
-      address: CONTRACTS.palissageLens,
-      abi: palissageLensAbi,
-      functionName: 'settlement' as const,
-      args: [offer.id] as const,
-    })),
-    query: { enabled: offers.items.length > 0, refetchInterval: 12_000 },
-  });
+  const settlements = useSettlements(offers.items.map((offer) => offer.id));
 
   const rows = useMemo(() => {
     const byLot = new Map(lots.items.map((lot) => [String(lot.id), lot]));
     return offers.items.map((offer, index) => ({
       offer,
       lot: byLot.get(String(offer.lotId)),
-      settlement: settlements.data?.[index]?.result as SettlementView | undefined,
+      settlement: settlements.items[index],
     }));
-  }, [offers.items, lots.items, settlements.data]);
+  }, [offers.items, lots.items, settlements.items]);
 
   const funded = rows.filter((row) => (row.settlement?.settledFunds ?? 0n) > 0n);
 
@@ -105,7 +97,9 @@ export default function Finance() {
         ) : (
           <>
             <section className="card p-6 shadow-1">
-              <p className="t-caption text-ink-secondary">Withdrawable now</p>
+              <p data-tour="winery-finance-withdrawable" className="t-caption text-ink-secondary">
+                Withdrawable now
+              </p>
               {/*
                 Printing "€0.00 of €0.00" when every funded offer is in the
                 retired asset would be two true numbers that together tell a

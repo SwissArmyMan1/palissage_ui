@@ -1,7 +1,7 @@
 import { LotThumb } from '@/components/ui/LotThumb';
 import { useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useAccount, useReadContract } from 'wagmi';
+import { useAccount } from 'wagmi';
 import { Button } from '@/components/ui/Button';
 import { Callout } from '@/components/ui/Callout';
 import { Field, TextInput } from '@/components/ui/Field';
@@ -12,13 +12,7 @@ import { AddressValue } from '@/components/ui/Mono';
 import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { CabinetPage } from '@/components/layout/PageHeader';
 import { ActionReview } from '@/components/patterns/ActionReview';
-import {
-  useAllocationsOfOffer,
-  useLot,
-  useOffer,
-  useProtocol,
-  useSettlement,
-} from '@/chain/lens';
+import { useAllocationsOfOffer, useLot, useMilestonesLocked, useOffer, useProtocol, useSettlement } from '@/chain/lens';
 import { primaryMarketAbi } from '@/chain/abis';
 import { CONTRACTS } from '@/chain/config';
 import { tokenMeta } from '@/chain/tokens';
@@ -57,13 +51,7 @@ export default function OfferDetail() {
   const meta = tokenMeta(offer.data?.paymentToken, protocol.data);
   const decimals = meta.decimals;
 
-  const locked = useReadContract({
-    address: CONTRACTS.primaryMarket,
-    abi: primaryMarketAbi,
-    functionName: 'milestonesLocked',
-    args: parsed !== undefined ? [parsed] : undefined,
-    query: { enabled: parsed !== undefined },
-  });
+  const locked = useMilestonesLocked(parsed);
 
   const [drafts, setDrafts] = useState<MilestoneDraft[]>([]);
   const [savingMilestones, setSavingMilestones] = useState(false);

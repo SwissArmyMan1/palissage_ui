@@ -3,6 +3,7 @@ import { WagmiProvider } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { wagmiConfig } from './wagmi';
 import { ChainGuard } from './ChainGuard';
+import { SandboxWalletBridge } from '@/sandbox/WalletBridge';
 
 /**
  * A layout route that mounts everything chain-related.
@@ -30,6 +31,7 @@ export default function ChainProviders() {
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
         <ChainGuard />
+        <SandboxWalletBridge />
         <Outlet />
       </QueryClientProvider>
     </WagmiProvider>
