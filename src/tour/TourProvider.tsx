@@ -106,10 +106,9 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
       pendingRoute.current = null;
       return;
     }
-    // A scoped step names where it lives, not somewhere to go.
-    if (!stepRoute.navigable) return;
-    pendingRoute.current = stepRoute.path;
-    navigate(stepRoute.path);
+    if (!stepRoute.navigateTo) return;
+    pendingRoute.current = stepRoute.navigateTo;
+    navigate(stepRoute.navigateTo);
     // The step owns the navigation on entry only; leaving is the reader's.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step?.id, state.status, stepRoute]);
@@ -131,7 +130,7 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
       pendingRoute.current = null;
       return;
     }
-    if (pendingRoute.current === stepRoute.path) return;
+    if (pendingRoute.current === stepRoute.navigateTo) return;
     const timer = window.setTimeout(() => rawDispatch({ type: 'pause' }), 400);
     return () => window.clearTimeout(timer);
   }, [location.pathname, state.status, stepRoute]);

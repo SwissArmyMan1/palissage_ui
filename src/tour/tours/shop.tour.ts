@@ -1,4 +1,3 @@
-import { requestDrawerIfCompact } from '../engine/shell';
 import type { TourDefinition } from '../engine/types';
 
 /** Reserve, settle, take delivery — and what the two-step approval is for. */
@@ -22,12 +21,11 @@ const shop: TourDefinition = {
     {
       id: 'market',
       anchor: 'nav.shop.market',
-      mobileAnchor: 'tab.shop.market',
+      mobile: { anchor: 'tab.shop.market' },
       placement: 'right',
       title: 'What is on offer',
       body: 'Press it. Only verified lots reach the market, and every offer names its producer.',
       advance: { kind: 'route', path: '/app/shop/market' },
-      onEnter: requestDrawerIfCompact,
     },
     {
       id: 'offers',
@@ -60,12 +58,11 @@ const shop: TourDefinition = {
       id: 'allocations',
       route: '/app/shop/market',
       anchor: 'nav.shop.allocations',
-      mobileAnchor: 'tab.shop.allocations',
+      mobile: { anchor: 'tab.shop.allocations' },
       placement: 'right',
       title: 'Your allocations',
       body: 'Press it. This is the ledger of what you have reserved and what is still due.',
       advance: { kind: 'route', path: '/app/shop/allocations' },
-      onEnter: requestDrawerIfCompact,
     },
     {
       id: 'settle',

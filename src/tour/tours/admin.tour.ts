@@ -22,22 +22,34 @@ const admin: TourDefinition = {
     {
       id: 'open-lots',
       anchor: 'nav.admin.lots',
-      mobileAnchor: 'tab.admin.lots',
+      mobile: { anchor: 'tab.admin.lots' },
       placement: 'right',
       title: 'Lots to verify',
       body: 'Press it. Verifying a lot is what lets a winery offer it — nothing else in the system does.',
       advance: { kind: 'route', path: '/app/admin/lots' },
-      onEnter: requestDrawerIfCompact,
     },
     {
       id: 'verify',
+      // The lots screen and a lot opened from it are the same screen with a
+      // record showing, which prefix matching already covers.
       route: '/app/admin/lots',
       anchor: 'admin.lots.verify',
       placement: 'bottom-start',
       spotlight: 'passive',
       title: 'Verify the lot',
-      body: 'Run it. You are attesting to the documents behind the lot; the hash of them goes on the chain with your address.',
+      body: 'Open a lot that is waiting, then run Verify. You are attesting to its documents: their hash goes on the chain with your address.',
       advance: { kind: 'event', event: 'lot.verified' },
+      /**
+       * Not a limitation of the tour. Below `lg` this screen deliberately
+       * offers the queue and withholds the decision, because reviewing evidence
+       * about other people's money on a phone produces bad decisions. Saying so
+       * is the lesson here; pointing at a button that is not there would not be.
+       */
+      mobile: {
+        anchor: 'admin.lots.smallScreenNote',
+        body: 'Not on a phone, on purpose. The queue is readable here, but the decision is kept to a larger screen — evidence about other people’s money deserves one.',
+        advance: { kind: 'next' },
+      },
     },
     {
       id: 'milestones',

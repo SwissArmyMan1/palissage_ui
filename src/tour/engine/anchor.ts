@@ -14,9 +14,21 @@
 
 const WAIT_CAP_MS = 4000;
 
+/**
+ * The first **rendered** match, not the first match.
+ *
+ * The app shell renders its sections twice — once in the desktop sidebar and
+ * once in the mobile drawer — so on a phone `querySelector` returned the hidden
+ * desktop copy, which has no box. The ring was then drawn as a 10 px sliver at
+ * the top of the screen and the step could never be completed.
+ */
 export function findAnchor(selector: string): HTMLElement | null {
-  const node = document.querySelector<HTMLElement>(selector);
-  return node && node.isConnected ? node : null;
+  for (const node of document.querySelectorAll<HTMLElement>(selector)) {
+    if (!node.isConnected) continue;
+    const rect = node.getBoundingClientRect();
+    if (rect.width > 1 && rect.height > 1) return node;
+  }
+  return null;
 }
 
 /**
@@ -37,16 +49,21 @@ export function waitForAnchor(
       if (settled) return;
       settled = true;
       observer.disconnect();
+      window.clearInterval(poll);
       window.clearTimeout(timer);
       signal?.removeEventListener('abort', onAbort);
       resolve(node);
     };
     const onAbort = () => finish(null);
-    const observer = new MutationObserver(() => {
+    const look = () => {
       const node = findAnchor(selector);
       if (node) finish(node);
-    });
+    };
+    const observer = new MutationObserver(look);
     observer.observe(document.body, { childList: true, subtree: true });
+    // An anchor can also become visible with no DOM change at all — a drawer
+    // finishing its transition, a `hidden` class dropping — so poll as well.
+    const poll = window.setInterval(look, 200);
     const timer = window.setTimeout(() => finish(null), capMs);
     signal?.addEventListener('abort', onAbort);
   });

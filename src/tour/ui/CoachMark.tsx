@@ -27,8 +27,44 @@ import { TourProgress } from './TourProgress';
  * covers the control it is describing fails WCAG 2.2 SC 2.4.11, which is the
  * failure this pattern is famous for.
  */
+/**
+ * The bottom sheet, lifted clear of the control it points at.
+ *
+ * The bottom of a phone is where the tab bar lives, so a step pointing at one
+ * was drawing its ring underneath its own card: the control could not be seen,
+ * let alone pressed, and the tour stopped dead there.
+ *
+ * It re-measures after each move, because the figure depends on the card's own
+ * height and moving the card changes it — while `autoUpdate` only watches the
+ * anchor. Without that second pass the first measurement, taken while the
+ * anchor was still being scrolled into view, was the one that stuck.
+ */
+function placeSheet(card: HTMLElement, anchor: HTMLElement | null): void {
+  if (!anchor) {
+    card.style.bottom = '';
+    return;
+  }
+  const apply = () => {
+    if (!card.isConnected || !anchor.isConnected) return;
+    const rect = anchor.getBoundingClientRect();
+    const height = card.getBoundingClientRect().height;
+    const free = window.innerHeight - height;
+    // A region taller than about a third of the screen cannot be cleared:
+    // lifting would only cover its start instead of its end.
+    const liftable = rect.height <= window.innerHeight * 0.35;
+    const overlaps = rect.bottom > free;
+    const lift = Math.max(0, Math.min(window.innerHeight - rect.top + 12, free - 12));
+    const next = liftable && overlaps ? `${Math.round(lift)}px` : '';
+    if (next === card.style.bottom) return;
+    card.style.bottom = next;
+    requestAnimationFrame(apply);
+  };
+  apply();
+}
+
 export function CoachMark({
   step,
+  body,
   index,
   total,
   anchor,
@@ -40,6 +76,8 @@ export function CoachMark({
   onExit,
 }: {
   step: TourStep;
+  /** The effective body: a step can say something else on a phone. */
+  body: string;
   index: number;
   total: number;
   anchor: HTMLElement | null;
@@ -99,8 +137,10 @@ export function CoachMark({
     if (compact) {
       card.style.top = '';
       card.style.left = '';
+      placeSheet(card, anchor);
       return;
     }
+
     if (!anchor) {
       const rect = card.getBoundingClientRect();
       card.style.left = `${Math.max(16, (window.innerWidth - rect.width) / 2)}px`;
@@ -152,9 +192,16 @@ export function CoachMark({
   useEffect(() => {
     position();
     const card = cardRef.current;
-    if (!anchor || !card || compact) return;
-    // Same reason as the spotlight: an anchor can move without scrolling or
-    // resizing, and a card left behind points at nothing.
+    if (!anchor || !card) return;
+    /**
+     * Tracked on a phone too. The sheet's clearance is measured against the
+     * anchor, and the anchor is still being scrolled into view when the step
+     * opens — computing it once left the card parked over the very control it
+     * was pointing at, for the life of the step.
+     *
+     * Same reason as the spotlight otherwise: an anchor can move without
+     * scrolling or resizing, and a card left behind points at nothing.
+     */
     return autoUpdate(anchor, card, position, { animationFrame: true });
   }, [anchor, compact, position]);
 
@@ -212,7 +259,7 @@ export function CoachMark({
           {t(step.title)}
         </h2>
         <p id={bodyId} className="mt-1.5 text-body-sm text-ink-secondary">
-          {t(step.body)}
+          {t(body)}
         </p>
 
         <div className="mt-4 flex items-center gap-2">

@@ -26,7 +26,7 @@ export function AppShell({ role, orgName }: { role: CabinetRoleKey; orgName?: st
   const items = NAV[role];
   // A tour step that points at a sidebar item has to open the drawer first,
   // because below `lg` there is no sidebar to point at.
-  useEffect(() => onDrawerRequest(() => setDrawerOpen(true)), []);
+  useEffect(() => onDrawerRequest(setDrawerOpen), []);
   const tabs = items.filter((item) => item.tab).slice(0, 4);
   const protocol = useProtocol();
 
@@ -79,10 +79,10 @@ export function AppShell({ role, orgName }: { role: CabinetRoleKey; orgName?: st
 
         <RoleSwitcher role={role} orgName={orgName} />
 
-        <div data-tour="shell-wallet" className="ml-auto flex shrink-0 items-center gap-2">
+        <div data-tour="shell-wallet" className="ml-auto flex min-w-0 items-center gap-2">
           <NetworkChip className="hidden sm:inline-flex" />
           <HelpMenu />
-          <ThemeToggle />
+          <ThemeToggle className="hidden sm:grid" />
           <WalletChip />
         </div>
 
@@ -122,7 +122,12 @@ export function AppShell({ role, orgName }: { role: CabinetRoleKey; orgName?: st
               </button>
             </div>
             <SidebarItems role={role} onNavigate={() => setDrawerOpen(false)} />
-            <div className="border-t border-edge-subtle p-3">
+            <div className="space-y-3 border-t border-edge-subtle p-3">
+              {/* The controls the top bar cannot fit at 360 px live here. */}
+              <div className="flex items-center justify-between gap-3">
+                <NetworkChip />
+                <ThemeToggle />
+              </div>
               <WalletChip layout="prompt" />
             </div>
           </nav>
@@ -305,17 +310,27 @@ function RoleSwitcher({ role, orgName }: { role: RoleKey; orgName?: string }) {
   const { offers } = useRoleOffers();
   const location = useLocation();
 
+  /*
+   * `flex-1 min-w-0` is what makes the bar fit a 320 px phone. Everything else
+   * in the row is a fixed-size control, so the switcher has to be the elastic
+   * one — without it the row could not shrink, the right-hand group was laid
+   * over the switcher, and the help button's beacon painted on top of the role
+   * name.
+   */
   return (
-    <div className="relative min-w-0">
+    <div className="relative min-w-[4rem] flex-1">
       <button
         type="button"
         data-tour="shell-role-switcher"
         aria-expanded={open}
         aria-haspopup="menu"
         onClick={() => setOpen((value) => !value)}
-        className="flex min-h-[34px] max-w-[220px] items-center gap-2 rounded-md border border-edge-subtle bg-surface-sunken px-3 text-body-sm"
+        className="flex min-h-[34px] w-full min-w-0 max-w-[220px] items-center gap-2 rounded-md border border-edge-subtle bg-surface-sunken px-3 text-body-sm"
       >
-        <span className="truncate">{orgName ?? ROLE_TITLE[role]}</span>
+        {/* `min-w-0` on the label too: a flex item defaults to `min-width: auto`,
+            which is why the button kept its full text width and overflowed the
+            bar no matter how far its container was told to shrink. */}
+        <span className="min-w-0 truncate">{orgName ?? ROLE_TITLE[role]}</span>
         <ChevronDown aria-hidden className="size-3.5 shrink-0" strokeWidth={1.75} />
       </button>
 
