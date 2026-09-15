@@ -636,3 +636,48 @@ The eager number is the honest cost of the hybrid: a simulation that answers 25 
 synchronously cannot be a dynamic import. Halving it is possible by splitting the seed fixtures
 out behind the already-async `beginSimulation`; it was not done, and it is the first thing to do
 if the initial bundle becomes the constraint.
+
+## B.6 Mobile: six defects found on a real phone
+
+Reported as "panels and buttons overlap in the cabinets, and Connect wallet does nothing".
+Every one of them is invisible on a desktop, which is why the phase-4 mobile checks — card
+geometry, both themes, 320 px — passed while the thing was unusable in the hand.
+
+1. **The top bar overflowed and painted over itself.** At 320–360 px the role switcher and the
+   help button occupied the same pixels: the beacon appeared to sit on the role name, and the
+   wallet ran off the edge. The switcher could not shrink because its label was a flex item at
+   the default `min-width: auto` — the classic one. It is now the bar's only elastic item, with
+   a truncating label, and the controls the row cannot fit at that width — theme, network,
+   disconnect — moved into the drawer rather than being dropped.
+
+2. **A tab-bar step was impossible to complete.** The coach mark is a bottom sheet and the tab
+   bar is at the bottom, so the step ringed a control underneath its own card. The tour stopped
+   there permanently. The sheet now lifts clear of a small anchor it would otherwise cover; a
+   region taller than a third of the screen stays pinned, because lifting only covers its start
+   instead of its end.
+
+3. **The sheet's clearance was computed once, before the anchor arrived.** `autoUpdate` was
+   skipped in compact mode, so the figure was taken while the anchor was still being scrolled
+   into view — and an anchor below the fold made it negative, parking the card off screen for
+   the life of the step. Tracked on mobile now, clamped, and re-measured after each move,
+   because the value depends on the card's own height and moving the card changes it.
+
+4. **Sidebar anchors resolved to the hidden desktop copy.** The shell renders its sections
+   twice, and `querySelector` returned the invisible one: the ring became a 10 px sliver at the
+   top of the screen. `findAnchor` now returns the first *rendered* match, and waits for one.
+
+5. **A drawer opened for one step covered the next.** The drawer is closed on entering every
+   step and reopened only by the steps that anchor inside it — which, now that mobile anchors
+   point at the tab bar, is only the two Operations destinations that have no tab.
+
+6. **`Connect wallet` was a dead button on a phone.** There is no extension to inject, so the
+   injected connector had nothing to connect to and pressing it did nothing at all. The
+   connector is now probed: with no provider, WalletConnect *is* the way in, so it becomes the
+   primary button with the plain label and a line saying why. A step in the Operations tour was
+   dead for the same reason — it asked the reader to verify a lot, which this product
+   deliberately withholds below `lg`. `TourStep.mobile` now lets a step say something different
+   on a phone, and that one says why the decision is kept to a larger screen.
+
+Verified across all five tours at 390 px and all fourteen gate items: no anchor covered, no
+overlap in the bar at 320/360/390, both connect paths correct with and without an injected
+provider, zero RPC in simulation.

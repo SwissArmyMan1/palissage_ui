@@ -39,8 +39,20 @@ export interface TourStep {
   id: string;
   /** Symbolic anchor, or `center` for a step with nothing to point at. */
   anchor: TargetId | 'center';
-  /** Used below `lg`, where the sidebar is a drawer and the tab bar is the nav. */
-  mobileAnchor?: TargetId;
+  /**
+   * How this step differs on a phone.
+   *
+   * Not only which element to point at. Some steps describe something the
+   * product deliberately does not offer on a small screen — verifying a lot is
+   * kept to a larger one on purpose — and a tour that told the reader to press
+   * a control that is not there would be teaching a lie. Those steps carry
+   * their own body and their own way of ending here.
+   */
+  mobile?: {
+    anchor?: TargetId;
+    body?: string;
+    advance?: AdvanceRule;
+  };
   title: string;
   body: string;
   placement?: Placement;

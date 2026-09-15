@@ -71,6 +71,7 @@ export const TARGETS = {
   // ---- operations ------------------------------------------------------
   'admin.queues.list': 'admin-queues-list',
   'admin.lots.verify': 'admin-lots-verify',
+  'admin.lots.smallScreenNote': 'admin-lots-small-screen-note',
   'admin.milestones.confirm': 'admin-milestones-confirm',
   'admin.redemptions.list': 'admin-redemptions-list',
 
