@@ -1,3 +1,4 @@
+import { requestDrawerIfCompact } from '../engine/shell';
 import type { TourDefinition } from '../engine/types';
 
 /**
@@ -24,11 +25,12 @@ const winery: TourDefinition = {
     {
       id: 'open-lots',
       anchor: 'nav.winery.lots',
-      mobile: { anchor: 'tab.winery.lots' },
+      mobileAnchor: 'tab.winery.lots',
       placement: 'right',
       title: 'Open your lots',
       body: 'Press it. A lot is one barrel or one bottling, recorded on Base before anything can be sold against it.',
       advance: { kind: 'route', path: '/app/winery/lots' },
+      onEnter: requestDrawerIfCompact,
     },
     {
       id: 'lots-table',
@@ -85,11 +87,12 @@ const winery: TourDefinition = {
       route: '/app/winery/lots',
       routeMatch: 'exact',
       anchor: 'nav.winery.finance',
-      mobile: { anchor: 'tab.winery.finance' },
+      mobileAnchor: 'tab.winery.finance',
       placement: 'right',
       title: 'Where the money lands',
       body: 'Press it. Buyers pay into the market, and Finance shows what has been released to you and what is still held.',
       advance: { kind: 'route', path: '/app/winery/finance' },
+      onEnter: requestDrawerIfCompact,
     },
   ],
   completion: {

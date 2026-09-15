@@ -825,8 +825,4 @@ export const FR: Record<string, string> = {
   'Open a cabinet first — the live tour needs a wallet and the read model.':
     'Ouvrez d’abord un espace : la visite en réel nécessite un portefeuille et le service de lecture.',
   Continue: 'Continuer',
-  'Open a lot that is waiting, then run Verify. You are attesting to its documents: their hash goes on the chain with your address.':
-    'Ouvrez un lot en attente, puis lancez la vérification. Vous attestez de ses documents : leur empreinte est inscrite sur la chaîne avec votre adresse.',
-  'Not on a phone, on purpose. The queue is readable here, but the decision is kept to a larger screen — evidence about other people’s money deserves one.':
-    'Pas sur un téléphone, et c’est volontaire. La file est consultable ici, mais la décision reste réservée à un grand écran : des preuves engageant l’argent d’autrui le méritent.',
 };

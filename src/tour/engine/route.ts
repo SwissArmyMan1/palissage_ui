@@ -23,48 +23,37 @@ export function tourForPath(pathname: string): TourId | null {
  * named a route answers it for every entry point.
  */
 export interface StepRoute {
-  /** What counts as being on this step's screen. */
   path: string;
   match: 'exact' | 'prefix';
-  /**
-   * Where to send a reader who is somewhere else.
-   *
-   * Not always the same as `path`: a scoped step lives on a parameterised
-   * screen the engine cannot construct a path to, so it sends the reader to
-   * the last screen that *is* addressable and lets them open the record
-   * themselves. Undefined when there is nowhere sensible to go.
-   */
-  navigateTo?: string;
+  /** False for a parameterised screen the engine cannot construct a path to. */
+  navigable: boolean;
 }
 
 export function routeForStep(
   steps: readonly TourStep[],
   index: number,
 ): StepRoute | undefined {
-  const at = Math.min(index, steps.length - 1);
+  const own = steps[Math.min(index, steps.length - 1)];
+  if (own?.routeScope) return { path: own.routeScope, match: 'prefix', navigable: false };
 
-  // The nearest addressable screen at or before this step.
-  let navigateTo: string | undefined;
-  for (let i = at; i >= 0; i -= 1) {
-    if (steps[i]?.route) {
-      navigateTo = steps[i].route;
-      break;
-    }
-  }
-
-  const own = steps[at];
-  if (own?.routeScope) return { path: own.routeScope, match: 'prefix', navigateTo };
-
-  for (let i = at; i >= 0; i -= 1) {
+  for (let i = Math.min(index, steps.length - 1); i >= 0; i -= 1) {
     const step = steps[i];
-    if (step?.routeScope) return { path: step.routeScope, match: 'prefix', navigateTo };
+    if (step?.routeScope) return { path: step.routeScope, match: 'prefix', navigable: false };
     if (step?.route) {
-      return { path: step.route, match: step.routeMatch ?? 'prefix', navigateTo };
+      return { path: step.route, match: step.routeMatch ?? 'prefix', navigable: true };
     }
   }
   return undefined;
 }
 
+/**
+ * Is the reader still on the screen this step belongs to?
+ *
+ * Segment-prefixed, not exact. `/app/admin/lots` and `/app/admin/lots/4` are
+ * the same screen with a row opened — treating them as different paused the
+ * tour the moment a step asked the reader to open a record. The segment check
+ * is what stops `/app/winery` from also matching `/app/wineryX`.
+ */
 export function onRoute(
   pathname: string,
   route: string,

@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/Button';
 import { onSandboxEvent } from '@/sandbox/events';
 import { useTour } from '../context';
 import { scrollAnchorIntoView, waitForAnchor } from '../engine/anchor';
-import { closeDrawer } from '../engine/shell';
 import { targetSelector } from '../engine/targets';
 import { CoachMark } from './CoachMark';
 import { CompletionCard } from './CompletionCard';
@@ -56,15 +55,10 @@ export default function TourRunner() {
   /** Set when a waiting step has no way left to satisfy itself. */
   const [stalledFor, setStalledFor] = useState<string | null>(null);
 
-  // On a phone a step may point somewhere else, say something else, and end
-  // differently — see `TourStep.mobile`.
-  const override = compact ? step?.mobile : undefined;
-  const anchorId = step ? (override?.anchor ?? step.anchor) : null;
-  const advance = step ? (override?.advance ?? step.advance) : null;
-  const body = step ? (override?.body ?? step.body) : '';
+  const anchorId = step ? (compact && step.mobileAnchor ? step.mobileAnchor : step.anchor) : null;
   const anchor = resolved && step && resolved.stepId === step.id ? resolved.el : null;
   const searching = Boolean(step) && anchorId !== 'center' && resolved?.stepId !== step?.id;
-  const waiting = Boolean(advance && advance.kind !== 'next');
+  const waiting = Boolean(step && step.advance.kind !== 'next');
   const stalled = Boolean(step && stalledFor === step.id);
 
   const advanceOnce = useCallback(
@@ -80,9 +74,6 @@ export default function TourRunner() {
   /* ---- resolve the anchor, then bring it into view --------------------- */
   useEffect(() => {
     if (!step || !anchorId || state.status !== 'running') return;
-    // Closed first, every time: a drawer opened for one step covers the tab bar
-    // the next one points at. Only a step that anchors inside it asks it back.
-    closeDrawer();
     step.onEnter?.();
 
     const stepId = step.id;
@@ -101,10 +92,7 @@ export default function TourRunner() {
       }
     });
     return () => controller.abort();
-    // `location.pathname` is a dependency on purpose: a step can span a list and
-    // the record it opens, and the control it points at only exists on one of
-    // them. Without this the anchor was resolved once, on the wrong screen.
-  }, [step, anchorId, compact, state.status, location.pathname]);
+  }, [step, anchorId, compact, state.status]);
 
   useEffect(() => {
     entryPath.current = location.pathname;
@@ -118,8 +106,8 @@ export default function TourRunner() {
 
   /* ---- what ends the step --------------------------------------------- */
   useEffect(() => {
-    if (!step || !advance || state.status !== 'running') return;
-    const rule = advance;
+    if (!step || state.status !== 'running') return;
+    const rule = step.advance;
 
     const stepId = step.id;
 
@@ -158,18 +146,18 @@ export default function TourRunner() {
       }, rule.pollMs ?? 400);
       return () => window.clearInterval(timer);
     }
-  }, [step, advance, anchor, advanceOnce, state.status]);
+  }, [step, anchor, advanceOnce, state.status]);
 
   // A route rule is checked on render rather than in a listener, because the
   // router is the source of truth and it already re-renders on every change.
   useEffect(() => {
-    if (!step || advance?.kind !== 'route' || state.status !== 'running') return;
-    const target = advance.path;
-    const matches = advance.exact
+    if (!step || state.status !== 'running' || step.advance.kind !== 'route') return;
+    const target = step.advance.path;
+    const matches = step.advance.exact
       ? location.pathname === target
       : location.pathname.startsWith(target);
     if (matches && location.pathname !== entryPath.current) advanceOnce(step.id);
-  }, [location.pathname, step, advance, advanceOnce, state.status]);
+  }, [location.pathname, step, advanceOnce, state.status]);
 
   /**
    * A waiting step must always have a way out.
@@ -187,8 +175,7 @@ export default function TourRunner() {
   useEffect(() => {
     if (!step || !waiting || state.status !== 'running') return;
     const stepId = step.id;
-    const rule = advance;
-    if (!rule) return;
+    const rule = step.advance;
     /**
      * Two ways to know a step cannot complete itself. The reader is behind the
      * furthest point this run reached, so they pressed Back onto something they
@@ -209,7 +196,7 @@ export default function TourRunner() {
     // Deliberately keyed to the step, not to every navigation: the entry path is
     // what decides this, and it is fixed for the life of the step.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step?.id, advance, waiting, state.status, state.stepIndex, state.furthest]);
+  }, [step?.id, waiting, state.status, state.stepIndex, state.furthest]);
 
   /* ---- keyboard -------------------------------------------------------- */
   useEffect(() => {
@@ -269,7 +256,6 @@ export default function TourRunner() {
       <CoachMark
         key={step.id}
         step={step}
-        body={body}
         index={state.stepIndex}
         total={steps.length}
         anchor={anchor}
@@ -287,7 +273,7 @@ export default function TourRunner() {
           {t('Step {current} of {total}. {body}', {
             current: state.stepIndex + 1,
             total: steps.length,
-            body: t(body),
+            body: t(step.body),
           })}
         </div>
       ) : null}

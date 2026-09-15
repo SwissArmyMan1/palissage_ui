@@ -229,7 +229,7 @@ function Detail({
         </div>
 
         {!isDesktop ? (
-          <Callout tone="info" className="mt-6 max-w-none" tour="admin-lots-small-screen-note">
+          <Callout tone="info" className="mt-6 max-w-none">
             Decisions are made on a larger screen. This queue is readable here on purpose;
             reviewing evidence on a phone produces bad decisions about other people’s money.
           </Callout>
