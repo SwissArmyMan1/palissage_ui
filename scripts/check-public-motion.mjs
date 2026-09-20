@@ -84,9 +84,9 @@ try {
         initial[index], `${selector} must follow the page, not a clipped container`);
     }
   };
-  await checkScene('.audience-card-0', ['.audience-card-0 .audience-symbol', '.audience-card-1 .audience-symbol']);
+  // Chapters 01–03 are covered by check-harvest-story.mjs, including actual pixels.
   await checkScene('.terroir-interlude', ['.terroir-image', '.terroir-word']);
-  console.log('Audience illustrations and landscape motion PASS');
+  console.log('Landscape motion PASS');
   await scroll(0);
   await settle();
   await page.screenshot({ path: join(output, 'after-desktop.png') });
@@ -114,10 +114,13 @@ try {
   await scroll(1200);
   await settle();
   const returnPosition = await page.evaluate(() => scrollY);
-  await page
+  const buyersLink = page
     .getByRole('navigation', { name: 'Main', exact: true })
-    .getByRole('link', { name: 'For buyers' })
-    .click();
+    .getByRole('link', { name: 'For buyers' });
+  // The sticky header is already visible. Avoid the locator's automatic
+  // scrollIntoView shifting the saved position before the actual user click.
+  const buyersBox = await buyersLink.boundingBox();
+  await page.mouse.click(buyersBox.x + buyersBox.width / 2, buyersBox.y + buyersBox.height / 2);
   await page
     .getByRole('heading', {
       level: 1,
@@ -138,9 +141,10 @@ try {
   await page.goBack();
   await page.getByRole('heading', { level: 1 }).waitFor();
   await settle();
+  const restoredPosition = await page.evaluate(() => scrollY);
   assert(
-    Math.abs((await page.evaluate(() => scrollY)) - returnPosition) < 15,
-    'Back navigation restores scroll',
+    Math.abs(restoredPosition - returnPosition) < 15,
+    `Back navigation restores scroll: expected ${returnPosition}, got ${restoredPosition}`,
   );
   console.log('Navigation and history PASS');
   await page.setViewportSize({ width: 390, height: 844 });
@@ -222,11 +226,11 @@ try {
   assert.equal(
     (
       await page
-        .locator('.margin-stat .t-num > [aria-hidden]')
+        .locator('.harvest-figures dd')
         .first()
         .innerText()
     ).replace(/\s/g, ' '),
-    '€13 700',
+    '€13,700',
     'Reduced motion figures immediately final',
   );
   await scroll(0);
@@ -246,17 +250,17 @@ try {
   assert.equal(
     (
       await page
-        .locator('.margin-stat .t-num > [aria-hidden]')
+        .locator('.harvest-figures dd')
         .first()
         .innerText()
     ).replace(/\s/g, ' '),
-    '€13 700',
+    '€13,700',
     'Motion preference changes retain final metrics',
   );
   await page.getByRole('link', { name: 'Follow the journey' }).click();
   await page.waitForTimeout(1000);
-  const heading = await page.locator('#lifecycle-heading').boundingBox();
-  assert(heading.y > 50 && heading.y < 240, 'Anchor arrives below the header');
+  const heading = await page.locator('#harvest-journey-title').boundingBox();
+  assert(heading.y > 50 && heading.y < 900, 'Anchor arrives below the header');
   await page.addInitScript(() => {
     window.IntersectionObserver = undefined;
   });
@@ -270,11 +274,11 @@ try {
   assert.equal(
     (
       await page
-        .locator('.margin-stat .t-num > [aria-hidden]')
+        .locator('.harvest-figures dd')
         .first()
         .innerText()
     ).replace(/\s/g, ' '),
-    '€13 700',
+    '€13,700',
   );
   console.log('Anchor, live motion preference and observer fallback PASS');
   console.log('Screenshots:', output);

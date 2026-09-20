@@ -1,11 +1,10 @@
 import { useLocale } from '@/lib/i18n/context';
 import { Link } from 'react-router-dom';
-import { ArrowDown, ArrowUpRight, ArrowRight, Fingerprint, Grape, Wine } from 'lucide-react';
+import { ArrowDown, ArrowUpRight, ArrowRight, Fingerprint, Grape } from 'lucide-react';
 import { LinkButton } from '@/components/ui/Button';
 import { Plate } from '@/components/ui/Plate';
-import { CountUpMoney } from '@/components/ui/StatTile';
 import { Section, SectionHead } from '@/components/layout/Section';
-import { TrellisLifecycle } from '@/components/patterns/TrellisLifecycle';
+import { HarvestStory } from '@/components/motion/HarvestStory';
 import { ASSETS } from '@/lib/content/assets';
 import { LANDING } from '@/lib/content/copy';
 
@@ -127,113 +126,7 @@ export default function Landing() {
         </div>
       </div>
 
-      <Section
-        id="journey"
-        tone="surface"
-        labelledBy="lifecycle-heading"
-        className="journey-section"
-      >
-        <Chapter number="01">{t('A wine’s journey')}</Chapter>
-        <div className="section-heading-row">
-          <SectionHead
-            id="lifecycle-heading"
-            title={t(LANDING.lifecycleTitle)}
-            lede={t(LANDING.lifecycleLede)}
-          />
-          <Link to="/how-it-works" className="text-link">
-            {t('See how it works')}
-            <ArrowUpRight aria-hidden size={17} />
-          </Link>
-        </div>
-        <div className="journey-rail">
-          <TrellisLifecycle
-            stage={6}
-            variant="animated"
-            label={t('The seven stages of a wine’s journey, illustrated')}
-          />
-        </div>
-        <div className="journey-notes">
-          <p>
-            {t('Buy wine that’s ready today.')}
-            <br />
-            <strong>{t('Or be part of the next vintage.')}</strong>
-          </p>
-          <p>
-            {t('Every lot records its production stage on Base.')}
-            <br />
-            {t('From the first allocation to the last delivery.')}
-          </p>
-        </div>
-      </Section>
-
-      <Section labelledBy="audiences-heading" className="audience-section">
-        <Chapter number="02">{t('Closer to each other')}</Chapter>
-        <SectionHead id="audiences-heading" title={t(LANDING.audiencesTitle)} />
-        <div className="reveal-stagger audience-grid">
-          {LANDING.audiences.map((audience, index) => (
-            <article key={audience.title} className={`audience-card audience-card-${index}`}>
-              <div className="audience-art" aria-hidden="true">
-                <span className="audience-art-label">
-                  {index === 0 ? t('AT THE ORIGIN') : t('AT YOUR TABLE')}
-                </span>
-                <span className="audience-art-word">
-                  {index === 0 ? t('Cultivate.') : t('Discover.')}
-                </span>
-                <div className="audience-orbit orbit-one" />
-                <div className="audience-orbit orbit-two" />
-                <div className="audience-symbol">
-                  {index === 0 ? (
-                    <Grape size={54} strokeWidth={1} />
-                  ) : (
-                    <Wine size={54} strokeWidth={1} />
-                  )}
-                </div>
-                <span className="audience-art-number">0{index + 1}</span>
-              </div>
-              <div className="audience-card-copy">
-                <h3 className="t-h2">{t(audience.title)}</h3>
-                <p>{t(audience.body)}</p>
-                <Link to={audience.to} className="audience-link">
-                  {t(audience.cta)}
-                  <span>
-                    <ArrowUpRight aria-hidden size={20} />
-                  </span>
-                </Link>
-              </div>
-            </article>
-          ))}
-        </div>
-      </Section>
-
-      <Section tone="surface" labelledBy="margin-heading" className="margin-section">
-        <Chapter number="03">{t('Better on both sides')}</Chapter>
-        <div className="margin-layout">
-          <div>
-            <SectionHead
-              id="margin-heading"
-              title={t(LANDING.marginTitle)}
-              lede={t(LANDING.marginLede)}
-            />
-            <p className="margin-footnote">{t(LANDING.marginFootnote)}</p>
-          </div>
-          <div className="margin-stats reveal-stagger">
-            {LANDING.marginTiles.map((tile, index) => (
-              <div className="margin-stat" key={tile.label}>
-                <span className="margin-stat-index" aria-hidden>
-                  0{index + 1}
-                </span>
-                <div>
-                  <p>{t(tile.label)}</p>
-                  <strong>
-                    <CountUpMoney target={tile.value} />
-                  </strong>
-                </div>
-                <ArrowUpRight aria-hidden size={23} />
-              </div>
-            ))}
-          </div>
-        </div>
-      </Section>
+      <HarvestStory />
 
       <section className="terroir-interlude" aria-labelledby="terroir-heading">
         <Plate

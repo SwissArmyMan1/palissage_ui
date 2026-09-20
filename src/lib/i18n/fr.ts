@@ -1,5 +1,15 @@
 // Public website copy. Keys are the original English text; technical values remain unchanged.
 export const FR: Record<string, string> = {
+  'The vine. The harvest.': 'La vigne. Les vendanges.',
+  'Scroll to follow the journey': 'Faites défiler le parcours',
+  'The harvest, after hours.': 'Les vendanges, à la nuit tombée.',
+  'Scroll to follow the harvest': 'Faites défiler les vendanges',
+  'It starts': 'Tout commence',
+  'with the vine.': 'par la vigne.',
+  'Closer to the wine.': 'Plus près du vin.',
+  'And its people.': 'Et de ses artisans.',
+  'A shorter path.': 'Un chemin plus court.',
+  'More to share.': 'Plus à partager.',
   'Cabardès AOC · organic': 'AOC Cabardès · bio',
   'Sort by': 'Trier par',
   'We could not read the catalogue from Base.': 'Impossible de charger le catalogue depuis Base.',
