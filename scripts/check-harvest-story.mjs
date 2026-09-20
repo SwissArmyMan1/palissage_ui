@@ -43,13 +43,13 @@ try {
   await page.evaluate(() => document.fonts.ready);
   assert.equal(await page.locator('.harvest-story video').count(), 0);
   await scroll(page, .2);
-  assert(Number(await page.locator('.harvest-story').getAttribute('data-frame')) < 132,
+  assert(Number(await page.locator('.harvest-story').getAttribute('data-frame')) < 66,
     'Chapter 01 must show the vineyard before the harvest crossfade');
   const before = await pixels(page);
   await page.waitForTimeout(1000);
   assert.equal(await pixels(page), before, 'The scene must stay still without scrolling');
   await scroll(page, .7);
-  assert(Number(await page.locator('.harvest-story').getAttribute('data-frame')) > 143,
+  assert(Number(await page.locator('.harvest-story').getAttribute('data-frame')) > 71,
     'Later chapters must show the trimmed harvest');
   assert.notEqual(await pixels(page), before, 'Scrolling must change actual canvas pixels');
   await scroll(page, .2);
