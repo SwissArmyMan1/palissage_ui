@@ -4,10 +4,8 @@ import type { OfferView } from './types';
 /**
  * Offer selection rules, in one place.
  *
- * The deployment carries offers in two settlement assets: the current EURC
- * offers, and earlier TestEURe offers that were cancelled when TestEURe was
- * removed from both markets' allowlists. Only offers in the configured
- * settlement asset can be paid, so only those are shown to a buyer.
+ * Offers retain their payment asset. A buyer selects one settlement asset at
+ * a time, so actions are shown only for offers in that asset.
  */
 export function isPayable(offer: OfferView): boolean {
   return offer.paymentToken.toLowerCase() === PAYMENT_TOKEN.address.toLowerCase();
@@ -37,7 +35,7 @@ export function openOffers(offers: readonly OfferView[]): OfferView[] {
 export function depositDue(offer: OfferView, quantity: number): bigint {
   const total = offer.pricePerBottle * BigInt(quantity);
   if (offer.depositBps === 0) return total;
-  return (total * BigInt(offer.depositBps)) / 10_000n;
+  return (total * BigInt(offer.depositBps) + 9_999n) / 10_000n;
 }
 
 export function offerTotal(offer: OfferView, quantity: number): bigint {

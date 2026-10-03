@@ -4,11 +4,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { wagmiConfig } from './wagmi';
 import { ChainGuard } from './ChainGuard';
 import { SandboxWalletBridge } from '@/sandbox/WalletBridge';
+import { PendingTransactionMonitor } from './pending';
 
 /**
  * A layout route that mounts everything chain-related.
  *
- * It is loaded lazily, so the pages that read nothing from Base — the landing
+ * It is loaded lazily, so the pages that read nothing from the selected network — the landing
  * page, the audience pages, how-it-works, the pilot page and the legal pages —
  * never download wagmi, viem or the read model at all. That is what keeps
  * PUB-01 inside its 90 KB budget on a phone (doc 06 §4).
@@ -32,6 +33,7 @@ export default function ChainProviders() {
       <QueryClientProvider client={queryClient}>
         <ChainGuard />
         <SandboxWalletBridge />
+        <PendingTransactionMonitor />
         <Outlet />
       </QueryClientProvider>
     </WagmiProvider>

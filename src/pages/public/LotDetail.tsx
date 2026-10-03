@@ -105,7 +105,7 @@ export default function LotDetail() {
           <p className="mt-3 text-body text-ink-secondary">
             {[
               t(content?.appellation ?? lot.region),
-              content?.grapes || lot.grapes || undefined,
+              lot.grapes || content?.grapes || undefined,
               content?.alcohol,
               `${formatCount(lot.bottleSizeMl)} ml`,
             ]
@@ -130,7 +130,7 @@ export default function LotDetail() {
                   <p className="max-w-reading text-body text-ink-secondary">
                     {t(content.note)}{' '}
                     <span className="text-body-sm">
-                      {t('(Producer-supplied description. Not recorded on Base.)')}
+                      {t('(Producer-supplied description. Not recorded on the selected network.)')}
                     </span>
                   </p>
                 ) : null}
@@ -153,7 +153,7 @@ export default function LotDetail() {
 
                 <Callout tone="info" title={t('What this record is')}>
                   {t(
-                    'The lot, its bottle count and its verification are on Base. The description, photograph and grape blend are supplied by the producer and held off-chain.',
+                    'The lot, its bottle count and its verification are on the selected network. The description, photograph and grape blend are supplied by the producer and held off-chain.',
                   )}
                 </Callout>
               </div>
@@ -228,7 +228,7 @@ export default function LotDetail() {
               <h2 className="t-h3">{t('Activity')}</h2>
               <p className="mt-4 max-w-reading text-body-sm text-ink-secondary">
                 {t(
-                  'This interface reads current state, not an event history — it does not run an indexer, so it will not show you a timeline it has not verified. The token’s full transfer and mint history is on Base.',
+                  'This interface reads current state, not an event history — it does not run an indexer, so it will not show you a timeline it has not verified. The token’s full transfer and mint history is on the selected network.',
                 )}
               </p>
               <div className="mt-6 space-y-3">
@@ -243,7 +243,7 @@ export default function LotDetail() {
                   rel="noreferrer noopener"
                   className="inline-block text-body-sm font-medium text-accent underline underline-offset-4"
                 >
-                  {t('See every transfer of this lot on Basescan')}
+                  {t('See every transfer of this lot on the block explorer')}
                 </a>
               </div>
             </TabPanel>
@@ -330,7 +330,7 @@ export default function LotDetail() {
               )}
             </p>
             <ExplorerLink address={lot.winery} className="mt-4">
-              {t('Producer wallet on Base')}
+              {t('Producer wallet on the selected network')}
             </ExplorerLink>
           </div>
         </aside>

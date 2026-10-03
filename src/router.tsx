@@ -12,7 +12,7 @@ import NotFoundPage from '@/pages/public/NotFound';
 /**
  * Two groups of routes.
  *
- * The first reads nothing from Base — landing, audiences, how it works, the
+ * The first reads nothing from the selected network — landing, audiences, how it works, the
  * pilot page, the legal pages. They render without the chain stack at all.
  *
  * The second sits under `ChainProviders`, a lazy layout route that brings in
@@ -113,7 +113,7 @@ export function AppRouter() {
               <Route path="contacts" element={<Contacts />} />
               <Route path="legal/:slug" element={<Marketing.Legal />} />
 
-              {/* ---- Public, but reads Base --------------------------- */}
+              {/* ---- Public, but reads the selected network --------------------------- */}
               <Route element={<ChainProviders />}>
                 <Route path="lots" element={<Catalogue />} />
                 <Route path="lots/:lotId" element={<LotDetail />} />

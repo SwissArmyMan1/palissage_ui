@@ -30,7 +30,7 @@ export function EvidencePanel({ lot }: { lot: LotView }) {
 
       <p className="text-body-sm text-ink-secondary">
         {t(
-          'Verification records the hash of the producer’s documents on Base together with the operator who checked them. It states what was checked; it is not a guarantee of quality or legal compliance.',
+          'Verification records the hash of the producer’s documents on the selected network together with the operator who checked them. It states what was checked; it is not a guarantee of quality or legal compliance.',
         )}
       </p>
 
@@ -46,7 +46,7 @@ export function EvidencePanel({ lot }: { lot: LotView }) {
               <div className="min-w-0 space-y-1">
                 <p className="text-body font-medium">{t('Production documents')}</p>
                 <p className="text-body-sm text-ink-secondary">
-                  {t('Held by the operator · hash recorded on Base · files not published')}
+                  {t('Held by the operator · hash recorded on the selected network · files not published')}
                 </p>
                 <p className="text-body-sm text-ink-secondary">
                   {t('docsHash')}{' '}

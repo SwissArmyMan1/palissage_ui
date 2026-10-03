@@ -5,8 +5,7 @@ import { ASSETS, type ImageAsset } from './assets';
  *
  * The chain stores a lot's `winery` as an address and nothing else. Producer
  * names, stories and photographs are editorial and live here. Every screen that
- * shows a producer name alongside on-chain data says which is which, because in
- * the current testnet seed one operator wallet stands in for every actor.
+ * shows a producer name alongside on-chain data says which is which, because editorial names and on-chain identity are separate facts.
  *
  * Relationship language follows doc 07: "in discussion", never "partner".
  */
@@ -26,6 +25,14 @@ export interface Producer {
 }
 
 export const PRODUCERS: Producer[] = [
+  {
+    slug: 'demonstration-winery', name: 'Demonstration winery',
+    place: 'Fictional testnet inventory', appellation: 'Demonstration only',
+    lede: 'Test lots for reviewing the complete wine-trading workflow.',
+    story: 'These lots were created by a controlled test winery wallet. They do not represent a named commercial producer or physical wine.',
+    relationship: 'Fictional demonstration. No wine is sold and no commercial agreement is implied.',
+    hero: ASSETS.bottleStudio,
+  },
   {
     slug: 'domaine-de-cazaban',
     name: 'Domaine de Cazaban',
@@ -78,6 +85,7 @@ export const PRODUCERS: Producer[] = [
 ];
 
 export const PRODUCERS_BY_SLUG = new Map(PRODUCERS.map((p) => [p.slug, p]));
+PRODUCERS_BY_SLUG.set('on-chain-winery', { slug: 'on-chain-winery', name: 'On-chain winery', place: 'See the wallet address in the lot record', appellation: '', lede: 'A producer recorded by its on-chain wallet.', story: 'This entry groups lots without a published editorial producer profile.', relationship: 'No commercial relationship or certified identity is implied by a testnet record.', hero: null });
 
 export function producerBySlug(slug?: string): Producer | undefined {
   return slug ? PRODUCERS_BY_SLUG.get(slug) : undefined;

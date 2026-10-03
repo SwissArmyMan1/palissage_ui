@@ -82,9 +82,9 @@ export function ExplorerLink({
         className,
       )}
     >
-      {children ?? t('View on Base')}
+      {children ?? t('View on the selected network')}
       <ExternalLink aria-hidden className="size-3.5" strokeWidth={1.75} />
-      <span className="sr-only"> {t(' (opens Basescan in a new tab)')}</span>
+      <span className="sr-only"> {t(' (opens the block explorer in a new tab)')}</span>
     </a>
   );
 }

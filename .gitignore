@@ -18,6 +18,9 @@ dist-ssr
 !.env.example
 !.env.production
 *.bak
+docs/DESIGN-PLAN-*.md
+docs/editorial-motion.md
+docs/harvest-scroll-story.md
 
 # Editor directories and files
 .vscode/*

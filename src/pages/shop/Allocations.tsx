@@ -10,9 +10,9 @@ import { CabinetPage, PageHeader } from '@/components/layout/PageHeader';
 import { ConnectPrompt } from '@/components/layout/ConnectPrompt';
 import { useAllocationsOfBuyer, useLots, useProtocol } from '@/chain/lens';
 import type { ProtocolView } from '@/chain/types';
-import { formatCount, formatDeadline, formatMoney } from '@/lib/format';
+import { formatCount, formatDeadline } from '@/lib/format';
 import { allocationState } from '@/lib/enums';
-import { tokenMeta } from '@/chain/tokens';
+import { formatTokenAmount, tokenMeta } from '@/chain/tokens';
 
 /**
  * SHO-05. `Dense list` grouped by required action, because the buyer's question
@@ -134,7 +134,7 @@ function Group({
                   </Link>
                   <p className="text-body-sm text-ink-secondary tabular-nums">
                     {formatCount(allocation.quantity)} bottles · allocation #{String(allocation.id)}
-                    {allocation.remaining > 0n
+                    {allocation.state === 0 && allocation.remaining > 0n
                       ? ` · due ${formatDeadline(allocation.fullPaymentDeadline)}`
                       : ''}
                   </p>
@@ -143,12 +143,12 @@ function Group({
                   <p className="text-body font-medium tabular-nums">
                     {!meta.known
                       ? '—'
-                      : allocation.remaining > 0n
-                        ? formatMoney(allocation.remaining, meta.decimals)
-                        : formatMoney(allocation.totalDue, meta.decimals)}
+                      : allocation.state === 0
+                        ? formatTokenAmount(allocation.remaining, meta)
+                        : formatTokenAmount(allocation.state === 1 ? allocation.totalDue : allocation.paidAmount, meta)}
                   </p>
                   <p className="text-body-sm text-ink-secondary">
-                    {allocation.remaining > 0n ? 'outstanding' : 'paid'}
+                    {allocation.state === 0 ? 'outstanding' : allocation.state === 1 ? 'paid' : allocation.state === 2 ? 'refunded' : 'forfeited'}
                   </p>
                 </div>
                 <StatusBadge tone={allocation.overdue && allocation.state === 0 ? 'danger' : state.tone}>
@@ -159,7 +159,7 @@ function Group({
                   kind="secondary"
                   size="sm"
                 >
-                  {allocation.remaining > 0n ? 'Pay' : 'Open'}
+                  {allocation.state === 0 && allocation.remaining > 0n ? 'Pay' : 'Open'}
                 </LinkButton>
               </li>
             );

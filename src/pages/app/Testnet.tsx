@@ -6,6 +6,7 @@ import { cn } from '@/lib/cn';
 import { BrandSeal } from '@/components/ui/Logo';
 import { Button, ExternalButton, LinkButton } from '@/components/ui/Button';
 import { Callout } from '@/components/ui/Callout';
+import { NetworkPicker } from '@/components/ui/NetworkPicker';
 import { NetworkChip } from '@/components/ui/NetworkChip';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { AddressValue, ExplorerLink, Mono } from '@/components/ui/Mono';
@@ -13,9 +14,11 @@ import { WalletChip } from '@/components/layout/WalletChip';
 import { SimulationBar } from '@/sandbox/SimulationBar';
 import { TxStatus } from '@/components/patterns/TxStatus';
 import { useMyParticipant, usePaymentBalance, useProtocol } from '@/chain/lens';
-import { roleGatewayAbi } from '@/chain/abis';
+import { useDeploymentHealth } from '@/chain/health';
+import { PendingTransactionBar } from '@/chain/pending';
+import { erc20Abi, roleGatewayAbi } from '@/chain/abis';
 import { useGasBalance } from '@/chain/balance';
-import { CHAIN_ID, CHAIN_LABEL, CONTRACTS, PAYMENT_TOKEN } from '@/chain/config';
+import { CHAIN_ID, CHAIN_LABEL, CONTRACTS, DEPLOYMENT_READY, GAS_FAUCET_URL, PAYMENT_TOKEN } from '@/chain/config';
 import { useTx } from '@/chain/tx';
 import { formatAmount, formatMoney } from '@/lib/format';
 import { GATEWAY_ROLE } from '@/lib/enums';
@@ -38,6 +41,8 @@ import { ROLE_BASE, ROLE_TITLE } from '@/lib/nav';
 export default function Testnet() {
   const { address, isConnected, chainId } = useAccount();
   const protocol = useProtocol();
+  const health = useDeploymentHealth();
+  const faucetTx = useTx();
   const participant = useMyParticipant();
   const payment = usePaymentBalance(address);
   const gas = useGasBalance(address);
@@ -51,12 +56,7 @@ export default function Testnet() {
   const symbol = protocol.data?.paymentSymbol ?? PAYMENT_TOKEN.symbol;
   const testMode = Boolean(protocol.data?.testMode);
 
-  const deploymentOk =
-    !protocol.isError &&
-    protocol.data !== undefined &&
-    Number(protocol.data.chainId) === CHAIN_ID &&
-    protocol.data.paymentAllowedPrimary &&
-    protocol.data.paymentMetadataOk;
+  const deploymentOk = DEPLOYMENT_READY && health.data?.ready === true && !health.error;
 
   const hasGas = (gas.data?.value ?? 0n) > 0n;
   const hasPayment = (payment.data ?? 0n) > 0n;
@@ -64,6 +64,7 @@ export default function Testnet() {
   return (
     <div className="min-h-dvh bg-page">
       <SimulationBar />
+      <PendingTransactionBar />
       <div className="py-12">
       <a href="#readiness-main" className="skip-link text-body-sm font-medium">
         Skip to the checks
@@ -80,7 +81,7 @@ export default function Testnet() {
 
         <header className="mt-8">
           <h1 className="t-h1">Testnet readiness</h1>
-          <NetworkChip className="mt-4" />
+          <div className="mt-4 flex flex-wrap gap-3"><NetworkPicker assets /><NetworkChip /></div>
           <p className="mt-4 max-w-reading text-body text-ink-secondary">
             Three independent checks. They are shown separately on purpose: a wallet with no{' '}
             {symbol} must still be able to reach the faucet.
@@ -95,15 +96,18 @@ export default function Testnet() {
             columns
             title="Deployment"
             ok={deploymentOk}
-            pending={protocol.isLoading}
+            pending={health.isPending && DEPLOYMENT_READY}
             badge={
-              protocol.isError
+              health.isError || protocol.isError
                 ? 'Read failed'
                 : deploymentOk
                   ? 'Reading the live deployment'
                   : 'Not ready'
             }
           >
+            {!DEPLOYMENT_READY ? <Callout tone="warning">No verified deployment has been published for this network yet. Transactions are disabled.</Callout> : null}
+            {health.error ? <Callout tone="danger">{health.error.message}</Callout> : null}
+            <Row label="RPC chain" value={<Mono>{health.data?.actualChainId ?? 'not checked'}</Mono>} />
             <Row label="Chain" value={<Mono>{`${CHAIN_LABEL} · ${CHAIN_ID}`}</Mono>} />
             <Row
               label="Protocol version"
@@ -145,7 +149,7 @@ export default function Testnet() {
               value={<Mono>{testMode ? 'open — roles are self-service' : 'closed'}</Mono>}
             />
             <div className="pt-2">
-              <Button kind="secondary" size="sm" onClick={() => void protocol.refetch()}>
+              <Button kind="secondary" size="sm" onClick={() => { void protocol.refetch(); void health.refetch(); }}>
                 Re-check the deployment
               </Button>
             </div>
@@ -230,12 +234,15 @@ export default function Testnet() {
                   }
                 />
                 <div className="flex flex-wrap gap-3 pt-2">
-                  <ExternalButton href={PAYMENT_TOKEN.faucetUrl} size="sm">
-                    Get test {symbol} from Circle
-                    <ExternalLink aria-hidden className="size-4" strokeWidth={1.75} />
-                  </ExternalButton>
-                  <ExternalButton href="https://portal.cdp.coinbase.com/products/faucet" size="sm">
-                    Get Base Sepolia ETH
+                  {PAYMENT_TOKEN.selfService ? (
+                    <Button size="sm" pending={faucetTx.busy} disabled={!deploymentOk || !hasGas} onClick={() => faucetTx.send({ address: PAYMENT_TOKEN.address, abi: erc20Abi, functionName: 'claim' })}>
+                      Claim 5,000 test EUR
+                    </Button>
+                  ) : (
+                    <ExternalButton href={PAYMENT_TOKEN.faucetUrl} size="sm">Get test {symbol} from Paxos<ExternalLink aria-hidden className="size-4" strokeWidth={1.75} /></ExternalButton>
+                  )}
+                  <ExternalButton href={GAS_FAUCET_URL} size="sm">
+                    Get {CHAIN_LABEL} ETH
                     <ExternalLink aria-hidden className="size-4" strokeWidth={1.75} />
                   </ExternalButton>
                   <Button size="sm" kind="ghost" onClick={() => disconnect()}>
@@ -243,6 +250,7 @@ export default function Testnet() {
                     Disconnect this wallet
                   </Button>
                 </div>
+                <TxStatus tx={faucetTx} />
               </>
             )}
           </Check>
@@ -314,7 +322,7 @@ export default function Testnet() {
                   }
                 />
 
-                {testMode ? (
+                {testMode && deploymentOk ? (
                   <div className="space-y-3 border-t border-edge-subtle pt-4">
                     <p className="text-body-sm text-ink-secondary">
                       The sandbox is open, so you can take a role yourself. One role at a time:
@@ -412,9 +420,8 @@ export default function Testnet() {
         </div>
 
         <p className="mt-6 max-w-reading text-body-sm text-ink-secondary">
-          This screen reads. The role buttons above are the one exception, and they are separate,
-          explicit actions —{' '}
-          <ExplorerLink address={CONTRACTS.roleGateway}>the gateway is on Base</ExplorerLink>.
+          Deployment and permissions are read from the selected network. Faucet and role actions submit separate testnet transactions. Gateway contract:{' '}
+          <ExplorerLink address={CONTRACTS.roleGateway}>View role gateway</ExplorerLink>.
         </p>
       </main>
       </div>
@@ -483,8 +490,7 @@ function chainName(id?: number): string {
   if (id === undefined) return 'an unknown network';
   const known: Record<number, string> = {
     1: 'Ethereum Mainnet',
-    8453: 'Base',
-    84532: 'Base Sepolia',
+    46630: 'Robinhood Testnet',
     10: 'OP Mainnet',
     42161: 'Arbitrum One',
     421614: 'Arbitrum Sepolia',

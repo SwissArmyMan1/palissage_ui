@@ -111,7 +111,7 @@ export default function ManageLot() {
       {lot.status === 0 ? (
         <Callout tone="warning" className="mt-6 max-w-none">
           This lot is a draft. An operator has to verify it before you can publish an offer.
-          Verification records the hash of your production documents on Base together with the
+          Verification records the hash of your production documents on the selected network together with the
           operator’s address.
         </Callout>
       ) : null}
@@ -146,7 +146,7 @@ export default function ManageLot() {
                     {next ? `Next stage: ${next}` : 'This lot is ready for delivery'}
                   </p>
                   <p className="mt-1 max-w-reading text-body-sm text-ink-secondary">
-                    Production moves forward only. A stage cannot be undone once recorded on Base.
+                    Production moves forward only. A stage cannot be undone once recorded on the selected network.
                   </p>
                 </div>
                 {next ? (
@@ -218,7 +218,7 @@ export default function ManageLot() {
                           {formatCount(offer.available)} of {formatCount(offer.quantity)} left
                           {offerMeta.settlement
                             ? ''
-                            : ' · settled in a token the markets no longer accept'}
+                            : ' · settled in another payment asset'}
                         </p>
                       </div>
                       <StatusBadge tone={phase.tone}>{phase.label}</StatusBadge>
@@ -246,7 +246,7 @@ export default function ManageLot() {
             </h2>
             <p className="mt-2 max-w-reading text-body-sm text-ink-secondary">
               The lot&rsquo;s <code className="t-mono">metadataURI</code> — your own description,
-              images or tasting notes, stored with the lot on Base. It is the one field the
+              images or tasting notes, stored with the lot on the selected network. It is the one field the
               producer may change after verification, because it carries no attestation: the{' '}
               <code className="t-mono">docsHash</code> a verifier set is separate and is not
               touched by this.
@@ -358,7 +358,7 @@ function MetadataDialog({
       consequence={
         <>
           <p>
-            The new link is recorded on Base and is what the public lot page and the passport
+            The new link is recorded on the selected network and is what the public lot page and the passport
             read from.
           </p>
           <p className="mt-2">
@@ -414,7 +414,7 @@ function AdvanceDialog({
       }
       consequence={
         <>
-          <p>The new stage is recorded on Base and shown on the public lot page.</p>
+          <p>The new stage is recorded on the selected network and shown on the public lot page.</p>
           <p className="mt-2">
             {nextName === 'Ready for delivery'
               ? 'This also unlocks redemption for every holder of this lot.'

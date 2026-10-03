@@ -15,7 +15,7 @@ const ROLE_OF: Record<TourId, RoleKey> = {
  * Starts the simulated world before the first render when the URL asks for a
  * tour.
  *
- * Without this the page mounts, issues its own reads against Base, and only
+ * Without this the page mounts, issues its own reads against the selected network, and only
  * then does the tour's effect switch the simulation on — so a deep-linked demo
  * fires a real request or two before going quiet. Seeding here closes that
  * window, which is what makes "a simulation generates no network traffic" true

@@ -61,7 +61,7 @@ export default function Producer() {
             </div>
           ) : theirs.length === 0 ? (
             <p className="mt-6 text-body text-ink-secondary">
-              {t('No lot from this producer is published on Base Sepolia right now.')}
+              {t('No lot from this producer is published on the selected testnet right now.')}
             </p>
           ) : (
             <div className="reveal-stagger mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

@@ -15,9 +15,9 @@ import { ActionReview } from '@/components/patterns/ActionReview';
 import { useAllocationsOfOffer, useLot, useMilestonesLocked, useOffer, useProtocol, useSettlement } from '@/chain/lens';
 import { primaryMarketAbi } from '@/chain/abis';
 import { CONTRACTS } from '@/chain/config';
-import { tokenMeta } from '@/chain/tokens';
+import { formatTokenAmount, type TokenMeta, tokenMeta } from '@/chain/tokens';
 import { useTx } from '@/chain/tx';
-import { formatBps, formatCount, formatDeadline, formatMoney } from '@/lib/format';
+import { formatBps, formatCount, formatDeadline } from '@/lib/format';
 import { allocationState, offerPhase } from '@/lib/enums';
 import type { AllocationView } from '@/chain/types';
 import { NotFound } from '../public/NotFound';
@@ -49,7 +49,6 @@ export default function OfferDetail() {
   // offer's own asset. See `chain/tokens.ts` for why that is not the
   // deployment's asset.
   const meta = tokenMeta(offer.data?.paymentToken, protocol.data);
-  const decimals = meta.decimals;
 
   const locked = useMilestonesLocked(parsed);
 
@@ -102,7 +101,7 @@ export default function OfferDetail() {
             <span>Offer #{String(view.id)} · {view.kind === 1 ? 'En Primeur' : 'Current release'}</span>
           </h1>
           <p className="mt-3 text-body-sm text-ink-secondary tabular-nums">
-            {formatMoney(view.pricePerBottle, decimals)} per bottle ·{' '}
+            {formatTokenAmount(view.pricePerBottle, meta)} per bottle ·{' '}
             {formatCount(view.reserved)} of {formatCount(view.quantity)} reserved ·{' '}
             {view.depositBps > 0 ? `${formatBps(view.depositBps)} deposit` : 'full payment'} · closes{' '}
             {formatDeadline(view.endTime)}
@@ -118,7 +117,7 @@ export default function OfferDetail() {
       <div className="mt-8 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
         <StatTile
           label="Settled in escrow"
-          value={formatMoney(settlement.data?.settledFunds ?? 0n, decimals)}
+          value={formatTokenAmount(settlement.data?.settledFunds ?? 0n, meta)}
           footnote="What buyers have paid against this offer"
         />
         <StatTile
@@ -128,12 +127,12 @@ export default function OfferDetail() {
         />
         <StatTile
           label="Withdrawable now"
-          value={formatMoney(settlement.data?.withdrawable ?? 0n, decimals)}
+          value={formatTokenAmount(settlement.data?.withdrawable ?? 0n, meta)}
           footnote="Take it out from the finance screen"
         />
         <StatTile
           label="Withdrawn"
-          value={formatMoney(settlement.data?.withdrawnGross ?? 0n, decimals)}
+          value={formatTokenAmount(settlement.data?.withdrawnGross ?? 0n, meta)}
           footnote="Gross, before the protocol fee"
         />
       </div>
@@ -162,8 +161,8 @@ export default function OfferDetail() {
                         <AddressValue address={allocation.buyer} label="buyer wallet" />
                       </p>
                       <p className="text-body-sm text-ink-secondary tabular-nums">
-                        {formatMoney(allocation.paidAmount, decimals)} paid of{' '}
-                        {formatMoney(allocation.totalDue, decimals)}
+                        {formatTokenAmount(allocation.paidAmount, meta)} paid of{' '}
+                        {formatTokenAmount(allocation.totalDue, meta)}
                         {allocation.remaining > 0n
                           ? ` · due ${formatDeadline(allocation.fullPaymentDeadline)}`
                           : ''}
@@ -352,7 +351,7 @@ export default function OfferDetail() {
       {cancelling ? (
         <AllocationAction
           allocation={cancelling}
-          decimals={decimals}
+          meta={meta}
           mode="cancel"
           onClose={() => setCancelling(null)}
         />
@@ -360,7 +359,7 @@ export default function OfferDetail() {
       {defaulting ? (
         <AllocationAction
           allocation={defaulting}
-          decimals={decimals}
+          meta={meta}
           mode="default"
           onClose={() => setDefaulting(null)}
         />
@@ -372,12 +371,12 @@ export default function OfferDetail() {
 
 function AllocationAction({
   allocation,
-  decimals,
+  meta,
   mode,
   onClose,
 }: {
   allocation: AllocationView;
-  decimals: number;
+  meta: TokenMeta;
   mode: 'cancel' | 'default';
   onClose: () => void;
 }) {
@@ -392,7 +391,7 @@ function AllocationAction({
       object={
         <div className="space-y-1">
           <p className="text-body font-medium tabular-nums">
-            {formatCount(allocation.quantity)} bottles · {formatMoney(allocation.paidAmount, decimals)} paid
+            {formatCount(allocation.quantity)} bottles · {formatTokenAmount(allocation.paidAmount, meta)} paid
           </p>
           <p className="text-body-sm text-ink-secondary">Buyer {allocation.buyer}</p>
         </div>
@@ -400,7 +399,7 @@ function AllocationAction({
       consequence={
         cancel ? (
           <p>
-            The buyer is refunded {formatMoney(allocation.paidAmount, decimals)} and the{' '}
+            The buyer is refunded {formatTokenAmount(allocation.paidAmount, meta)} and the{' '}
             {formatCount(allocation.quantity)} bottles return to the offer.
           </p>
         ) : (

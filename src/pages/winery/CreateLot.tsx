@@ -184,7 +184,7 @@ export default function CreateLot() {
                 </Field>
                 <Field
                   label="Grapes"
-                  hint="For example “Grenache Noir · Syrah”. Recorded on Base with the lot."
+                  hint="For example “Grenache Noir · Syrah”. Recorded on the selected network with the lot."
                 >
                   {(props) => (
                     <TextInput
@@ -256,7 +256,7 @@ export default function CreateLot() {
               <>
                 <h2 className="t-h1">Terms</h2>
                 <p className="max-w-reading text-body-sm text-ink-secondary">
-                  These become part of the lot record on Base.
+                  These become part of the lot record on the selected network.
                 </p>
                 <Field
                   label="Producer royalty on resale"
@@ -304,7 +304,7 @@ export default function CreateLot() {
                 <h2 className="t-h1">Evidence</h2>
                 <p className="max-w-reading text-body-sm text-ink-secondary">
                   Verification happens off this screen. You send your production documents to the
-                  operator, who reviews them and records their hash on Base with the lot. The files
+                  operator, who reviews them and records their hash on the selected network with the lot. The files
                   themselves are never published.
                 </p>
                 <Callout tone="info">
@@ -313,7 +313,7 @@ export default function CreateLot() {
                 </Callout>
                 <Field
                   label="Metadata URI"
-                  hint="Optional. A link to your own description or images, stored with the lot on Base. Leave it empty if you do not have one."
+                  hint="Optional. A link to your own description or images, stored with the lot on the selected network. Leave it empty if you do not have one."
                 >
                   {(props) => (
                     <TextInput
@@ -408,7 +408,7 @@ export default function CreateLot() {
         consequence={
           <>
             <p>
-              The lot is created on Base in Draft, owned by {address ? address.slice(0, 6) : 'your'}…
+              The lot is created on the selected network in Draft, owned by {address ? address.slice(0, 6) : 'your'}…
               — the bottle count is fixed from this moment.
             </p>
             <p className="mt-2">

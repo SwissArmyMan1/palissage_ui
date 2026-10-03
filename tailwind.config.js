@@ -42,7 +42,7 @@ export default {
         warning: { DEFAULT: v('warning'), subtle: v('warning-subtle') },
         danger: { DEFAULT: v('danger'), subtle: v('danger-subtle') },
         info: { DEFAULT: v('info'), subtle: v('info-subtle') },
-        chain: { DEFAULT: v('chain-base'), subtle: v('chain-base-subtle') },
+        chain: { DEFAULT: v('chain-network'), subtle: v('chain-network-subtle') },
         ring: v('focus-ring'),
       },
       fontFamily: {

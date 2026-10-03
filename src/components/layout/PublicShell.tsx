@@ -71,7 +71,7 @@ export function PublicShell() {
             <LanguageToggle className="hidden sm:flex" />
             <ThemeToggle />
             <LinkButton to="/demo" size="sm" className="hidden sm:inline-flex">
-              {t('Try it on Base Sepolia')}
+              {t('Try the testnets')}
             </LinkButton>
             <button
               ref={menuButtonRef}
@@ -118,7 +118,7 @@ export function PublicShell() {
             <div className="flex items-center gap-4 py-3">
               <LanguageToggle />
               <LinkButton to="/demo" size="sm" className="sm:hidden">
-                {t('Try it on Base Sepolia')}
+                {t('Try the testnets')}
               </LinkButton>
             </div>
           </nav>
@@ -152,7 +152,7 @@ export function PublicShell() {
           >
             <span>{t('Prototype on a test network')}</span>
             <Link to="/network" className="hover:text-ink">
-              {t('On Base')}
+              {t('On the selected network')}
             </Link>
             <Link to="/legal/privacy" className="hover:text-ink">
               {t('Privacy')}

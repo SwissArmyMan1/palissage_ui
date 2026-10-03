@@ -18,7 +18,7 @@ const frenchTime = new Intl.DateTimeFormat('fr-FR', {
 export function useFormat() {
   const { locale } = useLocale();
   const money = (value: string) =>
-    locale === 'fr' ? `${value.replace('€', '').replace('.', ',')}\u00a0€` : value;
+    locale === 'fr' ? value.replace('.', ',') : value;
   const date = (value: bigint | number, deadline: boolean) => {
     if (locale === 'en') return deadline ? format.formatDeadline(value) : format.formatDate(value);
     const ms = Number(value) * 1000;

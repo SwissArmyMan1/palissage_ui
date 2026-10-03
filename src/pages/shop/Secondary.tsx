@@ -25,7 +25,7 @@ import { erc20Abi, secondaryMarketAbi } from '@/chain/abis';
 import { CONTRACTS } from '@/chain/config';
 import { formatTokenAmount, tokenMeta, type TokenMeta } from '@/chain/tokens';
 import { useTx } from '@/chain/tx';
-import { formatAmount, formatBps, formatCount, formatMoney, parseAmount, parseBottles } from '@/lib/format';
+import { formatAmount, formatBps, formatCount, parseAmount, parseBottles } from '@/lib/format';
 import type { ListingView } from '@/chain/types';
 
 /**
@@ -238,7 +238,7 @@ function RepriceListing({
           </p>
           <Field
             label={`New price per bottle (${symbol})`}
-            hint={`Currently ${formatMoney(listing.pricePerBottle, decimals)} per bottle.`}
+            hint={`Currently ${formatTokenAmount(listing.pricePerBottle, meta)} per bottle.`}
             // The field opens at the current price on purpose, so "unchanged"
             // is only an error once the reader has been in it.
             error={
@@ -269,9 +269,9 @@ function RepriceListing({
           <p>
             The listing keeps its {formatCount(listing.quantity)} bottles and its place on the
             market; only the unit price changes. At the new price the full listing is{' '}
-            {formatMoney(gross, decimals)} gross — {formatMoney(fee, decimals)} protocol fee,{' '}
-            {formatMoney(royalty, decimals)} producer royalty, {' '}
-            {formatMoney(gross - fee - royalty, decimals)} to you.
+            {formatTokenAmount(gross, meta)} gross — {formatTokenAmount(fee, meta)} protocol fee,{' '}
+            {formatTokenAmount(royalty, meta)} producer royalty, {' '}
+            {formatTokenAmount(gross - fee - royalty, meta)} to you.
           </p>
           <p className="mt-2">
             Buyers purchase with a price cap of their own, so a raised price cannot be charged to
@@ -282,7 +282,7 @@ function RepriceListing({
       steps={[
         {
           id: 'reprice',
-          label: `Set the price to ${formatMoney(unit ?? 0n, decimals)}`,
+          label: `Set the price to ${formatTokenAmount(unit ?? 0n, meta)}`,
           required: true,
           run: () =>
             tx.send({
@@ -318,7 +318,6 @@ function BuyListing({
 }) {
   const { address } = useAccount();
   const [quantity, setQuantity] = useState(String(listing.quantity));
-  const decimals = meta.decimals;
   const balance = usePaymentBalance(address);
   const allowance = usePaymentAllowance(address, CONTRACTS.secondaryMarket);
   const approveTx = useTx();
@@ -340,13 +339,10 @@ function BuyListing({
       // wrong token and the purchase cannot be prepared here.
       !meta.settlement
       ? meta.known
-        ? `This listing is priced in ${meta.symbol}, which the markets no longer accept. It cannot be bought; the seller can cancel it.`
+        ? `This listing is priced in ${meta.symbol}, which differs from your selected payment asset. Select that asset on the readiness page before buying.`
         : 'This listing is priced in an asset this interface cannot read, so it will not offer a purchase it cannot describe.'
       : (balance.data ?? 0n) < total
-        ? `You need ${formatMoney(total, decimals)}. This wallet holds ${formatMoney(
-            balance.data ?? 0n,
-            decimals,
-          )}.`
+        ? `You need ${formatTokenAmount(total, meta)}. This wallet holds ${formatTokenAmount(balance.data ?? 0n, meta)}.`
         : undefined;
 
   return (
@@ -377,26 +373,23 @@ function BuyListing({
         <FeeBreakdown
           lines={[
             {
-              label: `${formatCount(bottles ?? 0)} bottles × ${formatMoney(
-                listing.pricePerBottle,
-                decimals,
-              )}`,
-              value: formatMoney(total, decimals),
+              label: `${formatCount(bottles ?? 0)} bottles × ${formatTokenAmount(listing.pricePerBottle, meta)}`,
+              value: formatTokenAmount(total, meta),
               emphasis: true,
             },
             {
               label: `Protocol fee ${formatBps(listing.feeBps)}`,
-              value: formatMoney(fee, decimals),
+              value: formatTokenAmount(fee, meta),
               muted: true,
             },
             {
               label: `Producer royalty ${formatBps(listing.royaltyBps)}`,
-              value: formatMoney(royalty, decimals),
+              value: formatTokenAmount(royalty, meta),
               muted: true,
             },
             {
               label: 'Seller receives',
-              value: formatMoney(proceeds, decimals),
+              value: formatTokenAmount(proceeds, meta),
               muted: true,
             },
           ]}
@@ -409,14 +402,14 @@ function BuyListing({
       consequence={
         <p>
           {formatCount(bottles ?? 0)} bottles move from the seller to your wallet and{' '}
-          {formatMoney(total, decimals)} is split between the seller, the producer and the
+          {formatTokenAmount(total, meta)} is split between the seller, the producer and the
           protocol treasury.
         </p>
       }
       steps={[
         {
           id: 'approve',
-          label: `Allow the market to use ${formatMoney(total, decimals)}`,
+          label: `Allow the market to use ${formatTokenAmount(total, meta)}`,
           required: needsApproval,
           run: () =>
             approveTx.send({
@@ -430,7 +423,7 @@ function BuyListing({
         },
         {
           id: 'buy',
-          label: `Buy ${formatCount(bottles ?? 0)} bottles for ${formatMoney(total, decimals)}`,
+          label: `Buy ${formatCount(bottles ?? 0)} bottles for ${formatTokenAmount(total, meta)}`,
           required: true,
           run: () =>
             buyTx.send({
@@ -442,7 +435,7 @@ function BuyListing({
                 bottles!,
                 listing.pricePerBottle,
                 // The contract takes a price cap and a deadline. Ten minutes is
-                // generous for Base and short enough that a stale confirmation
+                // generous for the selected network and short enough that a stale confirmation
                 // fails closed. Read at send time, not at render time.
                 BigInt(Math.floor(Date.now() / 1000) + 600),
               ],

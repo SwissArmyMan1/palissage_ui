@@ -30,7 +30,7 @@ export const DEMO_SHOP = '0xdecafe0000000000000000000000000000000003' as Address
 const NO_HASH = '0x0000000000000000000000000000000000000000000000000000000000000000' as Hex;
 const DOCS_HASH = '0x9d2f1c7a41b8e6530af4c2b19e7d85630bb41f2a6c8d9e0714a35c6b8f2d4e91' as Hex;
 
-const EUR = (whole: number): bigint => BigInt(Math.round(whole * 1_000_000));
+const EUR = (whole: number): bigint => BigInt(Math.round(whole * 100)) * 10n ** BigInt(PAYMENT_TOKEN.decimals - 2);
 
 function hoursFromNow(hours: number): bigint {
   return BigInt(Math.floor(Date.now() / 1000) + hours * 3600);
@@ -99,7 +99,7 @@ export function operatorParticipant(): ParticipantView {
 export function seedProtocol(): ProtocolView {
   return {
     chainId: BigInt(CHAIN_ID),
-    version: '1.0.0-mvp',
+    version: '1.1.0',
     wineLotToken: CONTRACTS.wineLotToken,
     primaryMarket: CONTRACTS.primaryMarket,
     secondaryMarket: CONTRACTS.secondaryMarket,
@@ -107,8 +107,8 @@ export function seedProtocol(): ProtocolView {
     identityRegistry: CONTRACTS.identityRegistry,
     trustedIssuersRegistry: CONTRACTS.trustedIssuersRegistry,
     roleGateway: CONTRACTS.roleGateway,
-    primaryFeeBps: 150,
-    secondaryFeeBps: 100,
+    primaryFeeBps: 300,
+    secondaryFeeBps: 200,
     primaryTreasury: DEMO_OPERATOR,
     secondaryTreasury: DEMO_OPERATOR,
     primaryPaused: false,
@@ -270,6 +270,6 @@ export function seedRedemptions(): RedemptionView[] {
   return [];
 }
 
-/** Enough EURC to run a reservation, and enough gas that no step is blocked. */
+/** Enough payment tokens to run a reservation, and enough gas that no step is blocked. */
 export const SEED_PAYMENT_BALANCE = EUR(8500);
 export const SEED_GAS_BALANCE = 42_000_000_000_000_000n;

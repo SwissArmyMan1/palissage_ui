@@ -132,7 +132,7 @@ export default function AdminParticipants() {
               <Row label="Can send bottles" value={<Mono>{p.canSend ? 'yes' : 'no'}</Mono>} />
             </dl>
             <ExplorerLink address={target} className="mt-4">
-              This wallet on Base
+              This wallet on the selected network
             </ExplorerLink>
           </section>
 

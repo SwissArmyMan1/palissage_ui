@@ -174,7 +174,7 @@ export default function AdminSettings() {
                   Which asset the markets accept. Removing one does not migrate the offers and
                   allocations already denominated in it: they keep their asset, and buyers can no
                   longer obtain it. This deployment has been through that once, which is why some
-                  records on the producer and buyer screens are labelled as a retired asset.
+                  records on the producer and buyer screens are labelled as another payment asset.
                 </dd>
               </div>
             </dl>

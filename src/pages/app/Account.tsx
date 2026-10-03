@@ -34,7 +34,7 @@ export default function Account() {
     <CabinetPage>
       <PageHeader
         title="Account"
-        lede="What this wallet is on Base, and what the contracts will let it do."
+        lede="What this wallet is on the selected network, and what the contracts will let it do."
       />
 
       {!isConnected ? (
@@ -66,7 +66,7 @@ export default function Account() {
               />
             </dl>
             <ExplorerLink address={address!} className="mt-4">
-              This wallet on Base
+              This wallet on the selected network
             </ExplorerLink>
           </section>
 

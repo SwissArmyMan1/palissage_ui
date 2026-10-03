@@ -72,7 +72,7 @@ export default function Passport() {
               role="alert"
             >
               {t(
-                'The Base Sepolia read did not answer. The code on the label is fine — this is a network read.',
+                'The the selected testnet read did not answer. The code on the label is fine — this is a network read.',
               )}{' '}
               <button
                 type="button"
@@ -139,9 +139,9 @@ function PassportBody({ lot }: { lot: NonNullable<ReturnType<typeof useLot>['lot
         <p className="mt-3 text-body-sm text-ink-secondary">
           {verified
             ? hasHash
-              ? t('An operator reviewed the producer’s documents and recorded their hash on Base.')
+              ? t('An operator reviewed the producer’s documents and recorded their hash on the selected network.')
               : t(
-                  'An operator marked this lot verified on Base. No document hash was recorded with that decision.',
+                  'An operator marked this lot verified on the selected network. No document hash was recorded with that decision.',
                 )
             : t(
                 'This lot has not been verified by an operator, so it cannot be sold on the platform.',
@@ -194,7 +194,7 @@ function PassportBody({ lot }: { lot: NonNullable<ReturnType<typeof useLot>['lot
           rel="noreferrer noopener"
           className="text-body-sm font-medium text-accent underline underline-offset-4"
         >
-          {t('View this lot on Base')}
+          {t('View this lot on the selected network')}
         </a>
       </div>
 
@@ -208,7 +208,7 @@ function PassportBody({ lot }: { lot: NonNullable<ReturnType<typeof useLot>['lot
       </div>
 
       <p className="mt-4 text-center text-body-sm text-ink-secondary">
-        {t('Read {date} from Base Sepolia.', { date: formatDate(readAt) })}
+        {t('Read {date} from the selected testnet.', { date: formatDate(readAt) })}
       </p>
     </>
   );

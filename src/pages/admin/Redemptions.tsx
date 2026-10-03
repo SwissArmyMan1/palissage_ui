@@ -230,7 +230,7 @@ function ResolveDialog({
             {isZeroHash(redemption.shipmentDocsHash) ? (
               <p className="mt-2">
                 The producer has attached no shipment documents to this request, so nothing on
-                Base evidences that the wine left the warehouse. The contract still allows the
+                the selected network evidences that the wine left the warehouse. The contract still allows the
                 burn; the evidence has to come from somewhere else, and it should exist before
                 you confirm.
               </p>

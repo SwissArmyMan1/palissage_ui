@@ -27,7 +27,7 @@ const winery: TourDefinition = {
       mobile: { anchor: 'tab.winery.lots' },
       placement: 'right',
       title: 'Open your lots',
-      body: 'Press it. A lot is one barrel or one bottling, recorded on Base before anything can be sold against it.',
+      body: 'Press it. A lot is one barrel or one bottling, recorded on the selected network before anything can be sold against it.',
       advance: { kind: 'route', path: '/app/winery/lots' },
     },
     {
@@ -106,7 +106,7 @@ const winery: TourDefinition = {
       'An operator verifies the lot — the winery that created it cannot.',
       'Buyers pay the market, not you; Finance shows what has been released.',
     ],
-    next: { label: 'Do this for real on Base Sepolia', to: '/app/testnet' },
+    next: { label: 'Do this for real on the selected testnet', to: '/app/testnet' },
   },
 };
 

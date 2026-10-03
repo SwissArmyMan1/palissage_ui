@@ -1,0 +1,62 @@
+{
+  "46630": {
+    "deploymentId": "palissage-46630-v1.1.0",
+    "chainId": 46630,
+    "status": "verified",
+    "contracts": {
+      "trustedIssuersRegistry": "0x798cc1a405eb3bc6179db81de5a9d1e5b2349201",
+      "identityRegistry": "0x313d7a63c717ad25a0c49bfbaa8fe142cd28e0bd",
+      "wineLotToken": "0x0fef031115e60105c09458e4e28031daf62d1abd",
+      "primaryMarket": "0x98edc97b03ae9901d4af73f62dbf3c10f3927fa1",
+      "secondaryMarket": "0x4f0862a4346a3eb88545f66b3e0b423966f6ace0",
+      "redemptionManager": "0x67c05db79223707635f9f386c57227afe1c782ae",
+      "testEURe": "0xfdfe0aec7689a31c07c1f9ddded9040c01ef2e12",
+      "claimIssuer": "0xb758e782daa8dc3442d9d81a8e1f5a569757a92d",
+      "roleGateway": "0xa00158736e17e260a195488f6078fa01ddcaf663",
+      "palissageLens": "0x90ddd6c7ddbba078812bc0aa4eb152e080aa1aa3"
+    },
+    "runtimeCodeHashes": {
+      "trustedIssuersRegistry": "0x45c54478c9c78b0d3e6c272e75af83f5d97d4450080b6199d680284a4ac6b5bf",
+      "identityRegistry": "0x9257ef0496c421cc8b107daae1a14e68d3ed3b86ee24401fab460a6bddc53981",
+      "wineLotToken": "0xc52a8bde7bb7d69e663686406e25ed29d8d8dc91b1c3d5fa2fe4446a42a6a0de",
+      "primaryMarket": "0x787e033c35e160b5fdee2fd41e071dc0c7ece1674a0153969fea9eba25fa3274",
+      "secondaryMarket": "0xa6a8fb4614922bc3ab92cdadbaae2c30461a63191ebf6b24db60bbea9d845489",
+      "redemptionManager": "0x6f4edb5cd22a85909ac1729457f4705c7fbcc76d3c17cbdb67010c4d32e0d09e",
+      "testEURe": "0xc7e62d4f36fbdb16f0e20384f869c9d4443269fe219ddaf75186244b247320dc",
+      "claimIssuer": "0x7d9e808f9e637aeeb9b428f1ac05f987d4384fb7a841c2fccc028c7554d27ddb",
+      "roleGateway": "0x0d3b45681ff6f46729e6cb6407ae2c8c4b1c47768d23f069c1f9846616e077d6",
+      "palissageLens": "0xb1709c9139d794874ff31f1fb4076eda160312f2fe45a4998f1e1073b330ea32"
+    },
+    "usdgEnabled": true
+  },
+  "421614": {
+    "deploymentId": "palissage-421614-v1.1.0",
+    "chainId": 421614,
+    "status": "verified",
+    "contracts": {
+      "trustedIssuersRegistry": "0x9b826155728e81ea8a9593873f34a3dd74abc69b",
+      "identityRegistry": "0x2e437d9d52ece33fa59ad5ff13e0c7106ba93e1f",
+      "wineLotToken": "0x9bc6bca932359c336c13b0ea9d4b249774882a7b",
+      "primaryMarket": "0x191af3012e33228f2a6c6e4df33c81f87cddfeb4",
+      "secondaryMarket": "0x6515e7162e973529420d1e44ab1f7a6b34f37a42",
+      "redemptionManager": "0x7a8fbcd3c566baf7f58049933be64f7e61413d4c",
+      "testEURe": "0xe390ee524b4507a9dd3be640b2c8138bfa1e94b4",
+      "claimIssuer": "0xd9714867075d0edaa000587c649bbf9525257efd",
+      "roleGateway": "0xfc62b6faedc073766d85a860c31d92740b35e1a5",
+      "palissageLens": "0x524976f78992406ed5dc09bea34962c70dce0478"
+    },
+    "runtimeCodeHashes": {
+      "trustedIssuersRegistry": "0x45c54478c9c78b0d3e6c272e75af83f5d97d4450080b6199d680284a4ac6b5bf",
+      "identityRegistry": "0x9257ef0496c421cc8b107daae1a14e68d3ed3b86ee24401fab460a6bddc53981",
+      "wineLotToken": "0xc52a8bde7bb7d69e663686406e25ed29d8d8dc91b1c3d5fa2fe4446a42a6a0de",
+      "primaryMarket": "0x91f91e224e3ba520b966c892f10a0d64ba49c1247277fa13596599aed6f326cd",
+      "secondaryMarket": "0x2d8a5f7bcf55bde21cd5ab32022049fe6c75340d23211791d123f681521f14e5",
+      "redemptionManager": "0xbf68ea0eb2f8be019b24e6fbdac30565a1324a78003f3f9b3969f095b5d07a54",
+      "testEURe": "0xc7e62d4f36fbdb16f0e20384f869c9d4443269fe219ddaf75186244b247320dc",
+      "claimIssuer": "0x7d9e808f9e637aeeb9b428f1ac05f987d4384fb7a841c2fccc028c7554d27ddb",
+      "roleGateway": "0x23f48c274452bda1b0a20bed1ad0d8cf6a01a90e94d83a16c1f1bfe2a05c6867",
+      "palissageLens": "0x2876715ee98c04a7a51cf8fd3951a1f9235be898e0b0eb286df674a665e0d9b4"
+    },
+    "usdgEnabled": true
+  }
+}

@@ -20,7 +20,7 @@ import {
 } from '@/chain/lens';
 import { erc20Abi, primaryMarketAbi } from '@/chain/abis';
 import { CHAIN_ID, CONTRACTS } from '@/chain/config';
-import { tokenMeta } from '@/chain/tokens';
+import { formatTokenAmount, tokenMeta } from '@/chain/tokens';
 import { useTx } from '@/chain/tx';
 import {
   formatCount,
@@ -55,7 +55,7 @@ export default function AllocationDetail() {
   /**
    * The allocation's own asset, not the deployment's current one. An allocation
    * taken before the settlement asset changed is denominated in an 18-decimal
-   * token; formatting it with EURC's six turned €7 440.00 into a sixteen-digit
+   * token; formatting it with payment tokens's six turned €7 440.00 into a sixteen-digit
    * number on this very screen.
    */
   const meta = tokenMeta(allocation.data?.paymentToken, protocol.data);
@@ -96,11 +96,11 @@ export default function AllocationDetail() {
     amountInput === ''
       ? undefined
       : typed === null
-        ? `Enter an amount in ${symbol}, for example ${formatMoney(remaining, decimals).replace('€', '')}.`
+        ? `Enter an amount in ${symbol}, for example ${formatTokenAmount(remaining, meta).replace('€', '')}.`
         : typed <= 0n
           ? 'Enter an amount greater than zero.'
           : typed > remaining
-            ? `The outstanding balance is ${formatMoney(remaining, decimals)}. Enter that or less.`
+            ? `The outstanding balance is ${formatTokenAmount(remaining, meta)}. Enter that or less.`
             : undefined;
 
   const payAmount = typed !== null && !amountError ? typed : 0n;
@@ -110,7 +110,7 @@ export default function AllocationDetail() {
   const blocked = (() => {
     if (!isConnected) return 'Connect the wallet that holds this allocation to pay.';
     if (chainId !== CHAIN_ID)
-      return 'Your wallet is on another network. Palissage runs on Base Sepolia for this release.';
+      return 'Your wallet is on another network. Palissage runs on the selected testnet for this release.';
     if (address && view.buyer.toLowerCase() !== address.toLowerCase())
       return 'This allocation belongs to another wallet, so only that wallet can pay it.';
     if (!outstanding) return 'There is nothing outstanding on this allocation.';
@@ -120,7 +120,7 @@ export default function AllocationDetail() {
     // token the market will never move.
     if (!meta.settlement)
       return meta.known
-        ? `This allocation is denominated in ${meta.symbol}, which the markets no longer accept. It cannot be paid down; the producer can cancel it and refund what was paid, or claim the default once the deadline passes.`
+        ? `This allocation is denominated in ${meta.symbol}, which differs from your selected payment asset. Select that asset on the readiness page to pay the remainder.`
         : 'This allocation is denominated in an asset this interface cannot read, so it will not offer a payment it cannot describe.';
     if (payAmount === 0n) return 'Enter how much you want to pay.';
     if ((balance.data ?? 0n) < payAmount)
@@ -168,16 +168,16 @@ export default function AllocationDetail() {
         />
         <StatTile
           label="Paid to date"
-          value={formatMoney(view.paidAmount, decimals)}
+          value={formatTokenAmount(view.paidAmount, meta)}
           footnote={
             view.paidAmount === view.totalDue
               ? 'Paid in full'
-              : `of ${formatMoney(view.totalDue, decimals)} due`
+              : `of ${formatTokenAmount(view.totalDue, meta)} due`
           }
         />
         <StatTile
           label="Remaining"
-          value={formatMoney(remaining, decimals)}
+          value={formatTokenAmount(remaining, meta)}
           tone={remaining > 0n ? 'danger' : 'default'}
           footnote={remaining > 0n ? `Due ${formatDeadline(view.fullPaymentDeadline)}` : 'Nothing outstanding'}
         />
@@ -200,15 +200,15 @@ export default function AllocationDetail() {
           <ol className="mt-6 space-y-6">
             <Event
               tone="done"
-              title={`Reserved · ${formatMoney(view.paidAmount, decimals)} paid`}
+              title={`Reserved · ${formatTokenAmount(view.paidAmount, meta)} paid`}
               meta={formatDeadline(view.createdAt)}
-              amount={formatMoney(view.paidAmount, decimals)}
+              amount={formatTokenAmount(view.paidAmount, meta)}
             />
             <Event
               tone={remaining > 0n ? 'due' : 'done'}
               title={remaining > 0n ? 'Balance due' : 'Paid in full'}
               meta={remaining > 0n ? formatDeadline(view.fullPaymentDeadline) : 'Nothing outstanding'}
-              amount={remaining > 0n ? formatMoney(remaining, decimals) : '—'}
+              amount={remaining > 0n ? formatTokenAmount(remaining, meta) : '—'}
             />
             <Event
               tone={held > 0n ? 'done' : 'future'}
@@ -251,7 +251,7 @@ export default function AllocationDetail() {
                     error={amountError}
                     hint={
                       payAmount > 0n && payAmount < remaining
-                        ? `${formatMoney(afterPayment, decimals)} would still be outstanding, and bottles are minted only at zero.`
+                        ? `${formatTokenAmount(afterPayment, meta)} would still be outstanding, and bottles are minted only at zero.`
                         : 'A part payment is accepted. Bottles are minted when the balance reaches zero.'
                     }
                   >
@@ -276,7 +276,7 @@ export default function AllocationDetail() {
                   disabled={Boolean(blocked)}
                   onClick={() => setReviewing(true)}
                 >
-                  Pay {formatMoney(payAmount > 0n ? payAmount : remaining, decimals)}
+                  Pay {formatTokenAmount(payAmount > 0n ? payAmount : remaining, meta)}
                 </Button>
                 {blocked ? (
                   <p className="mt-3 text-body-sm text-ink-secondary">{blocked}</p>
@@ -309,26 +309,26 @@ export default function AllocationDetail() {
           <div className="space-y-1">
             <p className="text-body font-medium">{lot.lot?.name ?? `Lot #${String(view.lotId)}`}</p>
             <p className="text-body-sm text-ink-secondary">
-              Allocation #{String(view.id)} · paying {formatMoney(payAmount, decimals)}
+              Allocation #{String(view.id)} · paying {formatTokenAmount(payAmount, meta)}
             </p>
           </div>
         }
         consequence={
           <>
             <p>
-              {formatMoney(payAmount, decimals)} moves into escrow against this allocation.
+              {formatTokenAmount(payAmount, meta)} moves into escrow against this allocation.
             </p>
             <p className="mt-2">
               {afterPayment === 0n
                 ? `The allocation is then paid in full and ${formatCount(view.quantity)} bottles are minted to your wallet.`
-                : `${formatMoney(afterPayment, decimals)} would still be outstanding, so no bottles are minted yet.`}
+                : `${formatTokenAmount(afterPayment, meta)} would still be outstanding, so no bottles are minted yet.`}
             </p>
           </>
         }
         steps={[
           {
             id: 'approve',
-            label: `Allow Palissage to use ${formatMoney(payAmount, decimals)}`,
+            label: `Allow Palissage to use ${formatTokenAmount(payAmount, meta)}`,
             note: `The market can only move the ${symbol} you allow it to move.`,
             required: needsApproval,
             run: () =>
@@ -343,7 +343,7 @@ export default function AllocationDetail() {
           },
           {
             id: 'pay',
-            label: `Pay ${formatMoney(payAmount, decimals)}`,
+            label: `Pay ${formatTokenAmount(payAmount, meta)}`,
             note: 'Sends the payment to the primary market.',
             required: true,
             run: () =>

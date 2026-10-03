@@ -91,7 +91,7 @@ const admin: TourDefinition = {
       'Confirming a milestone releases buyers’ money to the winery, never to Operations.',
       'Operations can see a redemption and resolve a dispute, but the winery ships it.',
     ],
-    next: { label: 'Do this for real on Base Sepolia', to: '/app/testnet' },
+    next: { label: 'Do this for real on the selected testnet', to: '/app/testnet' },
   },
 };
 

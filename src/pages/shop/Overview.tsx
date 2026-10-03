@@ -113,7 +113,7 @@ export default function ShopOverview() {
                 /*
                  * `€0.00` next to "1 still to pay" would be two true values
                  * that contradict each other. When nothing is owed in the
-                 * settlement asset but something is owed in a retired one, the
+                 * settlement asset but something is owed in another one, the
                  * figure is not zero — it is not expressible here.
                  */
                 value={
@@ -124,7 +124,7 @@ export default function ShopOverview() {
                 tone={outstanding > 0n ? 'danger' : 'default'}
                 footnote={
                   legacyDue.length > 0
-                    ? `${duePayments.length} still to pay · ${legacyDue.length} in a retired asset, shown on their own rows`
+                    ? `${duePayments.length} still to pay · ${legacyDue.length} in another payment asset, shown on their own rows`
                     : duePayments.length > 0
                       ? `${duePayments.length} ${duePayments.length === 1 ? 'allocation' : 'allocations'} still to pay`
                       : 'Nothing outstanding'

@@ -57,8 +57,8 @@ export const OFFER_PHASE: readonly EnumLabel[] = [
 export const ALLOCATION_STATE: readonly EnumLabel[] = [
   { label: 'Deposit paid', tone: 'warning' },
   { label: 'Paid in full', tone: 'success' },
-  { label: 'Defaulted', tone: 'danger' },
   { label: 'Cancelled', tone: 'neutral' },
+  { label: 'Defaulted', tone: 'danger' },
 ];
 
 /** RedemptionManager.RedemptionState — "Delivered" and "Returned" in buyer copy. */

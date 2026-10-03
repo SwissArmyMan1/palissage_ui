@@ -2,13 +2,16 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   useAccount,
   useSwitchChain,
+  usePublicClient,
   useWaitForTransactionReceipt,
   useWriteContract,
 } from 'wagmi';
 import { useQueryClient } from '@tanstack/react-query';
 import type { Hex } from 'viem';
 import { BaseError, ContractFunctionRevertedError, UserRejectedRequestError } from 'viem';
-import { CHAIN_ID, CHAIN_LABEL } from './config';
+import { useDeploymentHealth } from './health';
+import { CHAIN_ID, CHAIN_LABEL, DEPLOYMENT_READY } from './config';
+import { beginTransactionRequest, finishTransactionRequest, pendingTransaction, savePendingTransaction } from './pending-store';
 import { useSandbox } from '@/sandbox/store';
 import { useSimulatedTx } from '@/sandbox/tx.sandbox';
 
@@ -59,7 +62,7 @@ export function describeWriteError(error: unknown, chainLabel = CHAIN_LABEL): Tx
     if (reverted instanceof ContractFunctionRevertedError) {
       const name = reverted.data?.errorName ?? reverted.reason ?? 'the contract rejected it';
       return {
-        message: `The contract did not accept this transaction (${name}). Nothing was charged.`,
+        message: `The contract did not accept this transaction (${name}).`,
         action: 'Review the terms',
         detail: reverted.shortMessage,
       };
@@ -113,16 +116,20 @@ export interface TxState {
  * its button while `busy` is true.
  */
 function useChainTx() {
-  const { chainId } = useAccount();
+  const { chainId, address, connector } = useAccount();
+  const client = usePublicClient({ chainId: CHAIN_ID });
+  const health = useDeploymentHealth();
+  const inFlight = useRef(false);
   const { switchChainAsync } = useSwitchChain();
   const queryClient = useQueryClient();
   const [switchError, setSwitchError] = useState<unknown>(null);
   const [switching, setSwitching] = useState(false);
-  const { writeContract, data: hash, error: writeError, isPending, reset: resetWrite } =
+  const { writeContractAsync, data: hash, error: writeError, isPending, reset: resetWrite } =
     useWriteContract();
 
   const receipt = useWaitForTransactionReceipt({
     hash,
+    chainId: CHAIN_ID,
     confirmations: 1,
     query: { enabled: Boolean(hash) },
   });
@@ -132,11 +139,14 @@ function useChainTx() {
   // A confirmed write means the read model is behind, not that the screen is
   // wrong: repeat the read, never the write (ST-K).
   useEffect(() => {
+    if (receipt.data && pendingTransaction()?.hash === hash) savePendingTransaction(null);
     if (receipt.data?.status === 'success' && invalidated.current !== hash) {
       invalidated.current = hash ?? null;
-      void queryClient.invalidateQueries({ queryKey: ['readContract'] });
+      for (const key of ['readContract', 'readContracts', 'balance', 'deployment-health']) {
+        void queryClient.invalidateQueries({ queryKey: [key] });
+      }
     }
-  }, [receipt.data?.status, hash, queryClient]);
+  }, [receipt.data, hash, queryClient]);
 
   const stage: TxStage = useMemo(() => {
     if (writeError || switchError) return 'rejected';
@@ -160,11 +170,7 @@ function useChainTx() {
   const error = useMemo<TxError | undefined>(() => {
     if (switchError) {
       const described = describeWriteError(switchError);
-      return {
-        ...described,
-        message: `Palissage runs on ${CHAIN_LABEL}, and your wallet stayed on another network. ${described.message}`,
-        action: `Switch to ${CHAIN_LABEL}`,
-      };
+      return described;
     }
     if (writeError) return describeWriteError(writeError);
     if (receipt.data?.status === 'reverted') {
@@ -198,24 +204,34 @@ function useChainTx() {
    */
   const send = useMemo(() => {
     const wrapped = (variables: never, options: never) => {
+      if (inFlight.current || !beginTransactionRequest()) return;
+      inFlight.current = true;
       setSwitchError(null);
-      if (chainId === CHAIN_ID) {
-        writeContract(variables, options);
-        return;
-      }
       setSwitching(true);
-      switchChainAsync({ chainId: CHAIN_ID })
-        .then(() => {
+      void (async () => {
+        try {
+          if (pendingTransaction()) throw new Error('A previous transaction is still awaiting confirmation. Check its result before submitting another.');
+          if (!DEPLOYMENT_READY || !client) throw new Error('No verified deployment is published for this network.');
+          if (!address || connector?.id === 'mock') throw new Error('Connect a real wallet to submit a testnet transaction.');
+          const checked = await health.refetch();
+          if (!checked.data?.ready || checked.error) throw checked.error ?? new Error('The deployment checks have not passed.');
+          if (chainId !== CHAIN_ID) await switchChainAsync({ chainId: CHAIN_ID });
+          const supplied = variables as Parameters<typeof client.simulateContract>[0];
+          const { request } = await client.simulateContract({ ...supplied, account: address });
           setSwitching(false);
-          writeContract(variables, options);
-        })
-        .catch((cause: unknown) => {
+          const submitted = await writeContractAsync({ ...request, chainId: CHAIN_ID } as never, options);
+          savePendingTransaction({ hash: submitted, sender: address });
+        } catch (cause) {
           setSwitching(false);
           setSwitchError(cause);
-        });
+        } finally {
+          inFlight.current = false;
+          finishTransactionRequest();
+        }
+      })();
     };
-    return wrapped as unknown as typeof writeContract;
-  }, [chainId, switchChainAsync, writeContract]);
+    return wrapped as unknown as ReturnType<typeof useWriteContract>['writeContract'];
+  }, [address, connector, client, health, chainId, switchChainAsync, writeContractAsync]);
 
   return {
     stage,
@@ -263,7 +279,7 @@ export const STAGE_COPY: Record<TxStage, { title: string; body?: string }> = {
     body: 'Approve the request in your wallet. Nothing has been submitted yet.',
   },
   confirming: {
-    title: 'Submitted — waiting for Base',
+    title: `Submitted — waiting for ${CHAIN_LABEL}`,
     body: 'Closing this dialog does not cancel the transaction.',
   },
   confirmed: { title: 'Confirmed', body: 'Updating your records from the chain…' },

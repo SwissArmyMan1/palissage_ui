@@ -51,7 +51,7 @@ export const LANDING = {
     {
       title: 'Every lot is checked before it can be sold.',
       body:
-        'An operator reviews the producer’s documents and records their hash on Base. The lot page shows who checked it, when, and against which documents.',
+        'An operator reviews the producer’s documents and records their hash on the selected network. The lot page shows who checked it, when, and against which documents.',
     },
     {
       title: 'Only qualified businesses can hold a lot.',
@@ -72,7 +72,7 @@ export const LANDING = {
 
   stageTitle: 'Where the project is.',
   stageBody:
-    'The contracts are written, tested and deployed to Base Sepolia. The interface runs against that deployment. No real wine has been traded and no real money has settled. We are preparing a closed pilot with producers in the Cabardès, in the south of France.',
+    'The protocol runs on Arbitrum Sepolia and Robinhood Testnet. Primary purchases, resale and redemption have been executed with test assets on both networks. The network page reports the live status of the selected deployment. No real wine has been traded and no real money has settled. We are preparing a closed pilot with producers in the Cabardès, in the south of France.',
   stageCta: 'Talk to us about the pilot',
 
   footerMotto: 'The trellis that carries the vine — and the structure that carries the trade.',
@@ -112,7 +112,7 @@ export const FOR_WINERIES = {
 export const FOR_BUYERS = {
   title: 'Buy closer to the source, on terms you can see.',
   lede:
-    'Every lot on Palissage is verified before it is sold, priced per bottle, and settled in a euro stablecoin on Base.',
+    'Every lot on Palissage is verified before it is sold, priced per bottle, and settled in the payment asset named by its offer on the selected network.',
   points: [
     {
       title: 'Every lot is verified before it is sold',
@@ -148,7 +148,7 @@ export const HOW_IT_WORKS = {
     {
       title: 'An operator verifies it',
       body:
-        'The producer attaches production documents. An operator reviews them and records their hash on Base together with their own address. Verification records what was checked; it is not a guarantee of quality or legal compliance.',
+        'The producer attaches production documents. An operator reviews them and records their hash on the selected network together with their own address. Verification records what was checked; it is not a guarantee of quality or legal compliance.',
     },
     {
       title: 'The producer publishes an offer',
@@ -179,9 +179,9 @@ export const HOW_IT_WORKS = {
 } as const;
 
 export const NETWORK = {
-  title: 'What runs on Base.',
+  title: 'What runs on-chain.',
   lede:
-    'Palissage settles on Base. Base Sepolia today; Base mainnet after an independent security review and pilot preparation.',
+    'Palissage supports Arbitrum Sepolia and Robinhood Testnet. Mainnet remains a later step, after an independent security review and pilot preparation.',
   onChain: [
     'Lot issuance and bottle balances',
     'Participant eligibility and transfer restrictions',
@@ -196,13 +196,13 @@ export const NETWORK = {
     'Physical inspection, storage and shipping',
     'Authorised participants submit the attestations and document hashes that connect these to the on-chain record',
   ],
-  whyTitle: 'Why Base',
+  whyTitle: 'Why Arbitrum and Robinhood Chain',
   whyBody:
     'Low, predictable fees matter when a single lot generates a reservation, a balance payment, a milestone release and a redemption — four transactions per buyer per lot. Stablecoin settlement matters when the two sides are in different countries. And a business that has never held crypto has to be able to complete a purchase without learning what a gas token is.',
   deploymentNote:
     'Rendered from the deployment the interface is reading, never hand-typed.',
   historicalNote:
-    'Earlier prototype contracts were deployed to Arbitrum Sepolia. Those addresses are historical and are not the deployment this interface reads.',
+    'The two networks have independent inventories and records. Switching networks does not bridge assets.',
 } as const;
 
 export const PILOT = {
@@ -218,9 +218,9 @@ export const PASSPORT = {
 } as const;
 
 export const MODE_MARKERS = {
-  testnet: 'Base Sepolia · test assets only',
+  testnet: 'the selected testnet · test assets only',
   demo: 'Demo · sample data',
 } as const;
 
 export const ROADMAP_STRIP =
-  'Roadmap — this programme is not implemented. Nothing on this screen is recorded on Base.';
+  'Roadmap — this programme is not implemented. Nothing on this screen is recorded on the selected network.';

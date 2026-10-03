@@ -1,7 +1,7 @@
-import { formatCount, formatDeadline, formatMoney } from '@/lib/format';
+import { formatCount, formatDeadline } from '@/lib/format';
 import { allocationState, redemptionState } from '@/lib/enums';
 import type { AllocationView, ProtocolView, RedemptionView } from '@/chain/types';
-import { tokenMeta } from '@/chain/tokens';
+import { formatTokenAmount, tokenMeta } from '@/chain/tokens';
 
 /**
  * Recent activity, built only from timestamps the read model actually returns:
@@ -29,8 +29,7 @@ function amountLabel(
 ): string {
   const meta = tokenMeta(token, protocol);
   if (!meta.known) return '—';
-  const money = formatMoney(value, meta.decimals);
-  return meta.settlement ? money : `${money} ${meta.symbol}`;
+  return formatTokenAmount(value, meta);
 }
 
 export function buildActivity(input: {

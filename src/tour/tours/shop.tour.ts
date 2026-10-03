@@ -51,7 +51,7 @@ const shop: TourDefinition = {
       anchor: 'shop.reserve.review',
       spotlight: 'passive',
       title: 'Approve, then reserve',
-      body: 'Two writes in one review: the first lets the market move your EURC, the second takes the bottles. Run them.',
+      body: 'Two writes in one review: the first lets the market move your payment tokens, the second takes the bottles. Run them.',
       advance: { kind: 'event', event: 'allocation.reserved' },
       waitLabel: 'Waiting for the reservation',
       // Two writes and two wallet confirmations.
@@ -81,10 +81,10 @@ const shop: TourDefinition = {
     title: 'You reserved and settled an allocation',
     learned: [
       'Only verified lots reach the market.',
-      'Approving EURC and reserving bottles are two writes, shown in one review before either is sent.',
+      'Approving payment tokens and reserving bottles are two writes, shown in one review before either is sent.',
       'Bottles arrive in your portfolio; delivery is a separate request against them.',
     ],
-    next: { label: 'Do this for real on Base Sepolia', to: '/app/testnet' },
+    next: { label: 'Do this for real on the selected testnet', to: '/app/testnet' },
   },
 };
 

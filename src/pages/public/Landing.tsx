@@ -44,7 +44,7 @@ export default function Landing() {
                 <ArrowUpRight aria-hidden size={18} />
               </LinkButton>
               <Link to="/demo" className="text-link">
-                {t('Try it on Base Sepolia')}
+                {t('Try the testnets')}
                 <ArrowRight aria-hidden size={16} />
               </Link>
             </div>

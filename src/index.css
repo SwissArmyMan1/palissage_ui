@@ -18,7 +18,7 @@
 }
 
 /* ============================================================================
-   Base layer — element defaults, focus construction, reading measure.
+   the selected network layer — element defaults, focus construction, reading measure.
    Tokens live in src/styles/tokens.css, imported before this file.
    ========================================================================== */
 @layer base {

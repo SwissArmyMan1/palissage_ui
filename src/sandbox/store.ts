@@ -91,7 +91,7 @@ export type SandboxAction =
   | { type: 'bottles.approve'; operator: Address; approved: boolean }
   | { type: 'reset' };
 
-const KEY = 'palissage.sandbox.v1';
+const KEY = 'palissage.sandbox.v2';
 const key = (a: Address | string) => String(a).toLowerCase();
 const posKey = (a: Address | string, lotId: bigint) => `${key(a)}:${lotId}`;
 

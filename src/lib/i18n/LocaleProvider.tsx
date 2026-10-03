@@ -29,8 +29,8 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
         : 'Palissage — wine direct from producers';
     const description =
       locale === 'fr'
-        ? 'Achetez du vin directement auprès de producteurs indépendants du Cabardès. Lots disponibles et ventes en primeur. Prototype sur Base Sepolia.'
-        : 'Buy wine directly from independent producers in the Cabardès. Available lots and En Primeur sales. A prototype on Base Sepolia.';
+        ? 'Achetez du vin directement auprès de producteurs indépendants du Cabardès. Lots disponibles et ventes en primeur. Prototype sur Arbitrum et Robinhood Chain.'
+        : 'Buy wine directly from independent producers in the Cabardès. Available lots and En Primeur sales. A prototype on Arbitrum and Robinhood Chain testnets.';
     document.querySelector('meta[name="description"]')?.setAttribute('content', description);
     document.querySelector('meta[property="og:title"]')?.setAttribute('content', document.title);
     document.querySelector('meta[property="og:description"]')?.setAttribute('content', description);

@@ -7,15 +7,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { useProtocol } from '@/chain/lens';
 import { CHAIN_LABEL, PAYMENT_TOKEN } from '@/chain/config';
 
-/**
- * PUB-12.
- *
- * The wallet-free simulator specified in doc 00 §6 is **not built** (doc 10 §5
- * records it as an open gap). Rather than send a reader to a CTA that leads
- * nowhere, this page offers the sandbox that genuinely exists: with the
- * gateway's test mode open, three of the four roles are self-service on Base
- * Sepolia in one transaction. The operator role is not, and the page says so.
- */
+/** Local guided simulation and separate wallet-connected testnet workflows. */
 export default function Demo() {
   const { t } = useLocale();
   const { data } = useProtocol();
@@ -26,14 +18,10 @@ export default function Demo() {
       <div className="max-w-reading">
         <p className="t-caption text-accent">{t('Try it')}</p>
         <h1 className="mt-4 t-h1">
-          {t('Three ways in, and one that is honest about its limits.')}
+          {t('Explore the workflow, then try it on a testnet.')}
         </h1>
         <p className="mt-6 text-body text-ink-secondary">
-          {t('There is no wallet-free simulator yet. What exists is the real deployment on')}{' '}
-          {CHAIN_LABEL}
-          {t(
-            ', with a public sandbox open on the role gateway — so you can hold a role and send real transactions against test assets.',
-          )}
+          {t('Start a guided simulation without a wallet, or connect to Arbitrum Sepolia or Robinhood Testnet to submit real transactions using test assets. Simulated actions never reach a blockchain.')}
         </p>
       </div>
 
@@ -58,7 +46,7 @@ export default function Demo() {
           body={
             open
               ? t(
-                  "Connect a wallet, take the Winery or Shop role in one transaction, get {symbol} from Circle's faucet, and run a real reservation end to end.",
+                  "Connect a wallet, take the Winery or Shop role in one transaction, get {symbol} from the testnet faucet, and run a real reservation end to end.",
                   { symbol: PAYMENT_TOKEN.symbol },
                 )
               : t(
@@ -73,7 +61,7 @@ export default function Demo() {
           body={t(
             'Operations carries the verifier role on the token, so it is deliberately not self-assignable — a self-service operator could suspend a live lot. A gateway admin has to grant it.',
           )}
-          cta={{ label: 'What runs on Base', to: '/network' }}
+          cta={{ label: 'What runs on-chain', to: '/network' }}
         />
       </div>
 

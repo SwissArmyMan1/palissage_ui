@@ -65,14 +65,14 @@ export function TxStatus({ tx, className }: { tx: TxState; className?: string })
             rel="noreferrer noopener"
             className="inline-flex items-center gap-1 font-medium underline underline-offset-4"
           >
-            View the transaction on Basescan
+            View the transaction on the block explorer
             <ExternalLink aria-hidden className="size-3.5" strokeWidth={1.75} />
           </a>
         ) : null}
         {tx.hash && simulated ? (
           <p className="text-ink-secondary">
             Simulated — this transaction exists only in your browser, so there is nothing to look
-            up on Basescan.
+            up on the block explorer.
           </p>
         ) : null}
 

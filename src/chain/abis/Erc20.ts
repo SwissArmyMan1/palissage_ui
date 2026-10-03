@@ -1,5 +1,8 @@
 // Hand-written: only the ERC-20 surface the interface actually uses.
 export const erc20Abi = [
+  { type: 'function', name: 'claim', stateMutability: 'nonpayable', inputs: [], outputs: [] },
+  { type: 'function', name: 'faucetAvailableAt', stateMutability: 'view', inputs: [{ name: 'account', type: 'address' }], outputs: [{ name: '', type: 'uint256' }] },
+  { type: 'error', name: 'FaucetCooldownActive', inputs: [{ name: 'account', type: 'address' }, { name: 'availableAt', type: 'uint256' }] },
   {
     type: 'function',
     name: 'balanceOf',

@@ -5,7 +5,7 @@
  * silently points at nothing:
  *
  * 1. An anchor may not exist yet — the route is still loading, the drawer has
- *    not opened, the row has not been read from Base. So the engine waits, with
+ *    not opened, the row has not been read from the selected network. So the engine waits, with
  *    a cap, and degrades to an un-anchored card rather than dying.
  * 2. On a desktop the app shell's `main` is the scroller, not the document.
  *    `window.scrollTo` moves nothing there; the anchor has to be scrolled

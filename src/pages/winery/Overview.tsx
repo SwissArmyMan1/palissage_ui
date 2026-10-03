@@ -14,7 +14,7 @@ import { LotThumb } from '@/components/ui/LotThumb';
 import { ActivityFeed } from '@/components/patterns/ActivityFeed';
 import { buildActivity } from '@/components/patterns/activity';
 import { offerPhase } from '@/lib/enums';
-import { tokenMeta } from '@/chain/tokens';
+import { formatTokenAmount, tokenMeta } from '@/chain/tokens';
 
 import { PAYMENT_TOKEN } from '@/chain/config';
 import { formatBps, formatCount, formatMoney } from '@/lib/format';
@@ -58,7 +58,7 @@ export default function WineryOverview() {
     [allocations, redemptions.items, lotName, protocol.data],
   );
 
-  // What a producer can still act on comes first; the pre-EURC records last.
+  // What a producer can still act on comes first; the other-asset records last.
   const orderedOffers = useMemo(
     () =>
       offers.items
@@ -74,7 +74,7 @@ export default function WineryOverview() {
 
   /**
    * Only the settlement asset. The per-offer rows below have been asset-aware
-   * since the EURC migration, but this tile was still adding 18-decimal base
+   * since the payment tokens migration, but this tile was still adding 18-decimal base
    * units to 6-decimal ones and printing the result as euros.
    */
   const { withdrawable, legacyWithdrawable } = useMemo(() => {
@@ -136,7 +136,7 @@ export default function WineryOverview() {
           >
             <ol className="mx-auto max-w-reading space-y-2 text-left text-body-sm text-ink-secondary">
               <li>1. Describe the batch and its bottle count.</li>
-              <li>2. An operator verifies it and records your documents’ hash on Base.</li>
+              <li>2. An operator verifies it and records your documents’ hash on the selected network.</li>
               <li>3. Publish an offer, and set the milestones that release the money.</li>
             </ol>
           </EmptyState>
@@ -152,7 +152,7 @@ export default function WineryOverview() {
                 }
                 footnote={
                   legacyWithdrawable > 0n
-                    ? `${milestoneCounts.released} of ${milestoneCounts.total} milestones confirmed · escrow in a retired asset is shown in Finance`
+                    ? `${milestoneCounts.released} of ${milestoneCounts.total} milestones confirmed · escrow in another payment asset is shown in Finance`
                     : `${milestoneCounts.released} of ${milestoneCounts.total} milestones confirmed`
                 }
                 action={
@@ -280,7 +280,7 @@ export default function WineryOverview() {
                         | SettlementView
                         | undefined;
                       // Each offer is priced in its own token: this deployment
-                      // still holds records from before the move to EURC.
+                      // still holds records from before the move to payment tokens.
                       const meta = tokenMeta(offer.paymentToken, protocol.data);
                       return (
                         <li key={String(offer.id)} className="flex flex-wrap items-center gap-4 py-4">
@@ -288,20 +288,20 @@ export default function WineryOverview() {
                           <div className="min-w-0 flex-1">
                             <p className="text-body font-medium">{lotName(offer.lotId)}</p>
                             <p className="text-body-sm text-ink-secondary tabular-nums">
-                              {meta.known ? formatMoney(offer.pricePerBottle, meta.decimals) : '—'} ·{' '}
+                              {meta.known ? formatTokenAmount(offer.pricePerBottle, meta) : '—'} ·{' '}
                               {formatCount(offer.reserved)} of {formatCount(offer.quantity)} reserved
                               {offer.depositBps > 0 ? ` · ${formatBps(offer.depositBps)} deposit` : ''}
                             </p>
                             {meta.settlement ? null : (
                               <p className="text-body-sm text-warning">
-                                Priced in {meta.symbol}, which the markets no longer accept.
+                                Priced in {meta.symbol}. Select this asset on the readiness page to trade.
                               </p>
                             )}
                           </div>
                           <div className="text-right">
                             <p className="text-body-sm tabular-nums">
                               {meta.known
-                                ? formatMoney(settlement?.settledFunds ?? 0n, meta.decimals)
+                                ? formatTokenAmount(settlement?.settledFunds ?? 0n, meta)
                                 : '—'}
                             </p>
                             <p className="text-body-sm text-ink-secondary">in escrow</p>

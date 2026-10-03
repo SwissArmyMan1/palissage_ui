@@ -158,7 +158,7 @@ export default function Catalogue() {
         {!hasData && failed ? (
           <Callout
             tone="danger"
-            title={t('We could not read the catalogue from Base.')}
+            title={t('We could not read the catalogue from the selected network.')}
             role="alert"
           >
             {t(
@@ -194,7 +194,7 @@ export default function Catalogue() {
             {failed ? (
               <Callout tone="warning" role="status">
                 {t(
-                  'These lots are the last successful read from Base. The most recent re-read did not answer, so the figures may have moved.',
+                  'These lots are the last successful read from the selected network. The most recent re-read did not answer, so the figures may have moved.',
                 )}{' '}
                 <button
                   type="button"

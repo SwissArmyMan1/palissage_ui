@@ -23,7 +23,7 @@ import {
 import { depositDue, offerTotal, protocolFee } from '@/chain/select';
 import { erc20Abi, primaryMarketAbi } from '@/chain/abis';
 import { CHAIN_ID, CONTRACTS } from '@/chain/config';
-import { tokenMeta } from '@/chain/tokens';
+import { formatTokenAmount, tokenMeta } from '@/chain/tokens';
 import { useTx } from '@/chain/tx';
 import { formatBps, formatCount, formatDeadline, formatMoney, parseBottles,
   formatAmount,
@@ -116,9 +116,9 @@ export default function Reserve() {
         : customAmount === null
           ? `Enter an amount in ${symbol}, for example ${formatAmount(deposit, decimals, 2)}.`
           : customAmount < deposit
-            ? `The minimum this offer accepts is ${formatMoney(deposit, decimals)}.`
+            ? `The minimum this offer accepts is ${formatTokenAmount(deposit, offerMeta)}.`
             : customAmount > total
-              ? `That is more than the ${formatMoney(total, decimals)} total.`
+              ? `That is more than the ${formatTokenAmount(total, offerMeta)} total.`
               : undefined;
   const fee = protocolFee(total, feeBps);
 
@@ -147,14 +147,14 @@ export default function Reserve() {
   const blocked = (() => {
     if (!isConnected) return 'Connect a wallet to reserve. Your quantity and choice are kept.';
     if (chainId !== CHAIN_ID)
-      return `Your wallet is on another network. Palissage runs on Base Sepolia for this release. Switch network in your wallet — nothing has been submitted.`;
+      return `Your wallet is on another network. Palissage runs on the selected testnet for this release. Switch network in your wallet — nothing has been submitted.`;
     if (view.phase !== 1) return 'This offer is not open, so it cannot be reserved.';
     // The market catalogue filters these out, but this route is reachable by id.
     // `reserve` pulls the *offer's* token, so approving the deployment's current
     // one would prepare a payment the market will never take.
     if (!offerMeta.settlement)
       return offerMeta.known
-        ? `This offer is denominated in ${offerMeta.symbol}, which the markets no longer accept, so it cannot be reserved.`
+        ? `This offer is denominated in ${offerMeta.symbol}, which differs from your selected payment asset. Select that asset on the readiness page before reserving.`
         : 'This offer is denominated in an asset this interface cannot read, so it will not offer a reservation it cannot describe.';
     if (!participant.data?.b2bClaim)
       return 'This wallet is not qualified as a B2B buyer, so the market contract would reject the reservation. Take the Shop role on the readiness screen.';
@@ -175,7 +175,7 @@ export default function Reserve() {
   const steps = [
     {
       id: 'approve',
-      label: `Allow Palissage to use ${formatMoney(dueNow, decimals)}`,
+      label: `Allow Palissage to use ${formatTokenAmount(dueNow, offerMeta)}`,
       note: `The market can only move the ${symbol} you allow it to move.`,
       required: needsApproval,
       run: () =>
@@ -265,10 +265,7 @@ export default function Reserve() {
                     title={`Pay the ${formatBps(view.depositBps)} minimum deposit now`}
                     body={
                       validQuantity
-                        ? `${formatMoney(deposit, decimals)} now · ${formatMoney(
-                            total - deposit,
-                            decimals,
-                          )} due ${formatDeadline(view.fullPaymentDeadline)}`
+                        ? `${formatTokenAmount(deposit, offerMeta)} now · ${formatTokenAmount(total - deposit, offerMeta)} due ${formatDeadline(view.fullPaymentDeadline)}`
                         : `The balance is due ${formatDeadline(view.fullPaymentDeadline)}`
                     }
                   />
@@ -280,10 +277,7 @@ export default function Reserve() {
                     title="Pay another amount now"
                     body={
                       validQuantity
-                        ? `Anything from ${formatMoney(deposit, decimals)} to ${formatMoney(
-                            total,
-                            decimals,
-                          )}. The rest stays due ${formatDeadline(view.fullPaymentDeadline)}.`
+                        ? `Anything from ${formatTokenAmount(deposit, offerMeta)} to ${formatTokenAmount(total, offerMeta)}. The rest stays due ${formatDeadline(view.fullPaymentDeadline)}.`
                         : 'Anything between the minimum deposit and the full total.'
                     }
                   />
@@ -292,7 +286,7 @@ export default function Reserve() {
                       label={`Amount to pay now (${symbol})`}
                       hint={
                         validQuantity
-                          ? `Between ${formatMoney(deposit, decimals)} and ${formatMoney(total, decimals)}.`
+                          ? `Between ${formatTokenAmount(deposit, offerMeta)} and ${formatTokenAmount(total, offerMeta)}.`
                           : 'Enter a quantity first to see the range.'
                       }
                       error={customError}
@@ -315,7 +309,7 @@ export default function Reserve() {
                     onChange={() => setPayMode('full')}
                     title={
                       validQuantity
-                        ? `Pay ${formatMoney(total, decimals)} in full now`
+                        ? `Pay ${formatTokenAmount(total, offerMeta)} in full now`
                         : 'Pay in full now'
                     }
                     body="Bottles are minted as soon as the allocation is paid in full."
@@ -348,7 +342,7 @@ export default function Reserve() {
                     lines={reserveLines({
                       quantity: bottles!,
                       pricePerBottle: view.pricePerBottle,
-                      decimals,
+                      meta: offerMeta,
                       depositBps: effectiveMode === 'full' ? 0 : view.depositBps,
                       total,
                       dueNow,
@@ -390,7 +384,7 @@ export default function Reserve() {
                 >
                   {validQuantity
                     ? needsApproval
-                      ? `Approve ${formatMoney(dueNow, decimals)}`
+                      ? `Approve ${formatTokenAmount(dueNow, offerMeta)}`
                       : `Reserve ${formatCount(bottles!)} bottles`
                     : 'Reserve bottles'}
                 </Button>
@@ -427,7 +421,7 @@ export default function Reserve() {
               lines={reserveLines({
                 quantity: bottles!,
                 pricePerBottle: view.pricePerBottle,
-                decimals,
+                meta: offerMeta,
                 depositBps: effectiveMode === 'full' ? 0 : view.depositBps,
                 total,
                 dueNow,
@@ -442,15 +436,12 @@ export default function Reserve() {
         consequence={
           <>
             <p>
-              {formatMoney(dueNow, decimals)} moves into escrow on Base and{' '}
+              {formatTokenAmount(dueNow, offerMeta)} moves into escrow on the selected network and{' '}
               {formatCount(bottles ?? 0)} bottles are committed to you.
             </p>
             <p className="mt-2">
               {remaining > 0n
-                ? `Bottles are minted when the balance of ${formatMoney(
-                    remaining,
-                    decimals,
-                  )} is paid, by ${formatDeadline(view.fullPaymentDeadline)}. Palissage does not offer a buyer-controlled refund — cancellation is governed by the offer terms and the contract.`
+                ? `Bottles are minted when the balance of ${formatTokenAmount(remaining, offerMeta)} is paid, by ${formatDeadline(view.fullPaymentDeadline)}. Palissage does not offer a buyer-controlled refund — cancellation is governed by the offer terms and the contract.`
                 : 'Bottles are minted to your wallet as part of this transaction.'}
             </p>
           </>

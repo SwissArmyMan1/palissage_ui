@@ -1,5 +1,6 @@
+import { formatTokenAmount, type TokenMeta } from '@/chain/tokens';
 import { cn } from '@/lib/cn';
-import { formatBps, formatCount, formatDeadline, formatMoney } from '@/lib/format';
+import { formatBps, formatCount, formatDeadline } from '@/lib/format';
 
 /**
  * Quantity x price, due now, remaining, fee, royalty, and what is excluded.
@@ -65,7 +66,7 @@ export function FeeBreakdown({
 export function reserveLines(input: {
   quantity: number;
   pricePerBottle: bigint;
-  decimals: number;
+  meta: TokenMeta;
   depositBps: number;
   total: bigint;
   dueNow: bigint;
@@ -76,32 +77,32 @@ export function reserveLines(input: {
 }): FeeLine[] {
   const lines: FeeLine[] = [
     {
-      label: `${formatCount(input.quantity)} bottles × ${formatMoney(input.pricePerBottle, input.decimals)}`,
-      value: formatMoney(input.total, input.decimals),
+      label: `${formatCount(input.quantity)} bottles × ${formatTokenAmount(input.pricePerBottle, input.meta)}`,
+      value: formatTokenAmount(input.total, input.meta),
     },
   ];
 
   if (input.depositBps > 0) {
     lines.push({
       label: `${formatBps(input.depositBps)} deposit — due now`,
-      value: formatMoney(input.dueNow, input.decimals),
+      value: formatTokenAmount(input.dueNow, input.meta),
       emphasis: true,
     });
     lines.push({
       label: `Balance — due ${formatDeadline(input.fullPaymentDeadline)}`,
-      value: formatMoney(input.balance, input.decimals),
+      value: formatTokenAmount(input.balance, input.meta),
     });
   } else {
     lines.push({
       label: 'Due now, in full',
-      value: formatMoney(input.dueNow, input.decimals),
+      value: formatTokenAmount(input.dueNow, input.meta),
       emphasis: true,
     });
   }
 
   lines.push({
     label: `Protocol fee ${formatBps(input.feeBps)} (from producer proceeds)`,
-    value: formatMoney(input.fee, input.decimals),
+    value: formatTokenAmount(input.fee, input.meta),
     muted: true,
   });
 

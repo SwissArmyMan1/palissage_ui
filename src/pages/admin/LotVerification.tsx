@@ -214,7 +214,7 @@ function Detail({
           Decision
         </p>
         <p className="mt-3 max-w-reading text-body-sm text-ink-secondary">
-          Verifying sets the lot’s <code className="t-mono">docsHash</code> and verifier on Base
+          Verifying sets the lot’s <code className="t-mono">docsHash</code> and verifier on the selected network
           and moves it to Verified, which lets the producer publish offers. It records what was
           checked — it is not a guarantee of quality or legal compliance.
         </p>
@@ -224,7 +224,7 @@ function Detail({
             {canDecide ? 'You hold the token verifier role' : 'Verifier role missing'}
           </StatusBadge>
           <span className="text-body-sm text-ink-secondary">
-            Read from ParticipantView on Base Sepolia. Suspending needs the same role.
+            Read from ParticipantView on the selected testnet. Suspending needs the same role.
           </span>
         </div>
 
@@ -240,7 +240,7 @@ function Detail({
                 <Field
                   label="Hash of the documents you reviewed"
                   error={hashError}
-                  hint="Recorded on Base as the lot's docsHash. The files themselves are never published."
+                  hint="Recorded on the selected network as the lot's docsHash. The files themselves are never published."
                 >
                   {(props) => (
                     <TextInput
@@ -341,7 +341,7 @@ function DecisionDialog({
       consequence: (
         <>
           <p>
-            The lot moves to Verified on Base, with your address and the document hash recorded
+            The lot moves to Verified on the selected network, with your address and the document hash recorded
             against it. The producer can then publish offers.
           </p>
           <p className="mt-2">

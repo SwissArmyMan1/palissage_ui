@@ -85,7 +85,7 @@ export function ForBuyers() {
             <div className="mt-8 flex flex-wrap gap-3">
               <LinkButton to="/lots">{t('Explore the lots')}</LinkButton>
               <LinkButton to="/demo" kind="secondary">
-                {t('Try it on Base Sepolia')}
+                {t('Try the testnets')}
               </LinkButton>
             </div>
           </div>
@@ -156,7 +156,7 @@ export function HowItWorks() {
         <div className="mt-16 flex flex-wrap gap-3">
           <LinkButton to="/lots">{t('Explore the lots')}</LinkButton>
           <LinkButton to="/network" kind="secondary">
-            {t('What runs on Base')}
+            {t('What runs on the selected network')}
             <ArrowRight aria-hidden className="size-4" strokeWidth={1.75} />
           </LinkButton>
         </div>
@@ -202,7 +202,7 @@ export function Pilot() {
         <p className="mt-8 text-body-sm text-ink-secondary">
           {t('Or read ')}
           <Link to="/network" className="text-accent underline underline-offset-4">
-            {t('what runs on Base')}
+            {t('what runs on the selected network')}
           </Link>{' '}
           {t('first.')}
         </p>
@@ -219,7 +219,7 @@ function getLegalPages(t: Translate): Record<string, { title: string; body: Reac
         <>
           <p>
             {t(
-              'Palissage is a prototype. The contracts in this release are deployed to Base Sepolia, a test network. The settlement asset is a test asset with no monetary value.',
+              'Palissage is a prototype. The contracts in this release are deployed to the selected testnet, a test network. The settlement asset is a test asset with no monetary value.',
             )}
           </p>
           <p>
@@ -229,12 +229,12 @@ function getLegalPages(t: Translate): Record<string, { title: string; body: Reac
           </p>
           <p>
             {t(
-              'The contracts have not been audited by an independent security reviewer. Base mainnet is not reachable from this build.',
+              'The contracts have not been audited by an independent security reviewer. This build supports testnets only.',
             )}
           </p>
           <p>
             {t(
-              'Verification, where the interface shows it, means an operator reviewed documents a producer supplied and recorded their hash on Base. It is not a guarantee of quality, authenticity, or legal compliance, and it is not an inspection of the physical wine.',
+              'Verification, where the interface shows it, means an operator reviewed documents a producer supplied and recorded their hash on the selected network. It is not a guarantee of quality, authenticity, or legal compliance, and it is not an inspection of the physical wine.',
             )}
           </p>
         </>
@@ -256,7 +256,7 @@ function getLegalPages(t: Translate): Record<string, { title: string; body: Reac
           </p>
           <p>
             {t(
-              'Reading the catalogue requires reading the Base Sepolia network. Those reads go to public RPC endpoints, which can see your IP address like any web request. Connecting a wallet shares your address with this page and with the network.',
+              'Reading the catalogue requires reading the the selected testnet network. Those reads go to public RPC endpoints, which can see your IP address like any web request. Connecting a wallet shares your address with this page and with the network.',
             )}
           </p>
         </>
@@ -273,7 +273,7 @@ function getLegalPages(t: Translate): Record<string, { title: string; body: Reac
           </p>
           <p>
             {t(
-              'Bottle balances recorded on Base represent a claim described by the producer against a physical lot. Whether that claim can be enforced is a matter of the agreement between the parties, not of this software.',
+              'Bottle balances recorded on the selected network represent a claim described by the producer against a physical lot. Whether that claim can be enforced is a matter of the agreement between the parties, not of this software.',
             )}
           </p>
           <p>

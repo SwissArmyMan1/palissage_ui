@@ -1,3 +1,5 @@
+import { PAYMENT_TOKEN } from '@/chain/config';
+
 /**
  * Every user-visible number and date passes through here.
  *
@@ -40,7 +42,7 @@ export function formatAmount(value: bigint, decimals: number, fractionDigits = 2
 
 /** `€14 640.00` — the money format used everywhere a price appears. */
 export function formatMoney(value: bigint, decimals: number): string {
-  return `€${formatAmount(value, decimals, 2)}`;
+  return `${PAYMENT_TOKEN.currency === 'USD' ? '$' : '€'}${formatAmount(value, decimals, 2)} ${PAYMENT_TOKEN.symbol}`;
 }
 
 /**

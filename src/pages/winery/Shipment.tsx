@@ -109,7 +109,7 @@ export default function Shipment() {
           </h2>
           <p className="mt-2 max-w-reading text-body-sm text-ink-secondary">
             Send the documents to the buyer through your usual channel, then record their hash
-            here. The hash goes on Base as <code className="t-mono">shipmentDocsHash</code>; the
+            here. The hash goes on the selected network as <code className="t-mono">shipmentDocsHash</code>; the
             files themselves are never published.
           </p>
 
@@ -174,7 +174,7 @@ export default function Shipment() {
               done={view.state >= 1}
               current={view.state === 0}
               title="You mark it shipped"
-              body="Records shipmentDocsHash on Base."
+              body="Records shipmentDocsHash on the selected network."
             />
             <Step
               done={view.state >= 2}
@@ -210,7 +210,7 @@ export default function Shipment() {
           }
           consequence={
             <p>
-              The hash is recorded on Base and the buyer is able to confirm receipt. The bottles
+              The hash is recorded on the selected network and the buyer is able to confirm receipt. The bottles
               stay in escrow until they do.
             </p>
           }

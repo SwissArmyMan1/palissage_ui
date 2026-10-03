@@ -1,16 +1,18 @@
 import { useFormat } from '@/lib/i18n/useFormat';
 import { useLocale } from '@/lib/i18n/context';
 import { CircleMinus, CircleCheck } from 'lucide-react';
+import { NetworkPicker } from '@/components/ui/NetworkPicker';
+import { useDeploymentHealth } from '@/chain/health';
 import { Section, SectionHead } from '@/components/layout/Section';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { AddressValue, ExplorerLink, Mono } from '@/components/ui/Mono';
 import { useProtocol } from '@/chain/lens';
-import { CHAIN_ID, CHAIN_LABEL, CONTRACTS, DEPLOYMENT_ID, PAYMENT_TOKEN } from '@/chain/config';
+import { CHAIN_ID, CHAIN_LABEL, CONTRACTS, DEPLOYMENT_ID, DEPLOYMENT_READY, PAYMENT_TOKEN } from '@/chain/config';
 import { formatCount } from '@/lib/format';
 import { NETWORK } from '@/lib/content/copy';
 
 /**
- * PUB-09. The page a Base reviewer reads. No overstatement, no omission.
+ * PUB-09. The page a the selected network reviewer reads. No overstatement, no omission.
  *
  * Every value below is read from `PalissageLens.protocol()` at the address this
  * build points at — never hand-typed. If the read fails, the page says the read
@@ -19,6 +21,7 @@ import { NETWORK } from '@/lib/content/copy';
 export default function Network() {
   const { t } = useLocale();
   const { formatBps } = useFormat();
+  const health = useDeploymentHealth();
   const { data, isLoading, isError } = useProtocol();
 
   const rows: { label: string; value: React.ReactNode }[] = [
@@ -114,7 +117,7 @@ export default function Network() {
     { label: 'ClaimIssuer', address: CONTRACTS.claimIssuer },
     { label: 'RoleGateway', address: CONTRACTS.roleGateway },
     { label: 'PalissageLens', address: CONTRACTS.palissageLens },
-    { label: `${PAYMENT_TOKEN.symbol} (Circle)`, address: PAYMENT_TOKEN.address },
+    { label: `${PAYMENT_TOKEN.symbol} (${PAYMENT_TOKEN.issuer})`, address: PAYMENT_TOKEN.address },
   ];
 
   return (
@@ -123,6 +126,8 @@ export default function Network() {
         <div className="shell max-w-reading">
           <h1 className="t-display text-[clamp(2rem,1.4rem+2.6vw,3.5rem)]">{t(NETWORK.title)}</h1>
           <p className="mt-6 text-body text-ink-secondary">{t(NETWORK.lede)}</p>
+          <div className="mt-6"><NetworkPicker assets /></div>
+          <p className="mt-3 text-body-sm">{!DEPLOYMENT_READY ? t('No verified deployment published yet.') : health.data?.ready ? t('Live deployment checks passed.') : health.error?.message ?? t('Checking the live deployment…')}</p>
         </div>
       </section>
 
@@ -177,7 +182,7 @@ export default function Network() {
             className="mt-6 rounded-lg border border-danger/25 bg-danger-subtle p-4 text-body-sm text-danger"
           >
             {t(
-              'We could not read the deployment from Base just now, so nothing is shown here. This page never prints a remembered value.',
+              'We could not read the deployment from the selected network just now, so nothing is shown here. This page never prints a remembered value.',
             )}
           </p>
         ) : (
@@ -195,7 +200,7 @@ export default function Network() {
 
         <h3 className="mt-12 t-h3">{t('Contracts')}</h3>
         <p className="mt-2 text-body-sm text-ink-secondary">
-          {t('Each address links to its verified source on Basescan.')}
+          {t('Each address links to its record on the block explorer.')}
         </p>
         <ul className="mt-4 divide-y divide-edge-subtle">
           {contracts.map((contract) => (
@@ -206,7 +211,7 @@ export default function Network() {
                 label={t('{name} address', { name: contract.label })}
               />
               <ExplorerLink address={contract.address} className="ml-auto">
-                {t('Basescan')}
+                {t('the block explorer')}
               </ExplorerLink>
             </li>
           ))}

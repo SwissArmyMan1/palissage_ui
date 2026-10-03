@@ -245,7 +245,7 @@ function RequestDeliveryDialog({
             <legend className="sr-only">Delivery details</legend>
             <p className="text-body-sm text-ink-secondary">
               Where the wine should go. None of this is published: only a hash of it is recorded
-              on Base, as proof that neither side changed the terms afterwards.
+              on the selected network, as proof that neither side changed the terms afterwards.
             </p>
             <Field label="Recipient">
               {(props) => (
@@ -291,13 +291,13 @@ function RequestDeliveryDialog({
 
           <div className="rounded-md bg-surface-sunken p-3">
             <p className="text-body-sm text-ink-secondary">
-              {detailsEmpty ? 'Nothing to anchor yet' : 'Recorded on Base as'}
+              {detailsEmpty ? 'Nothing to anchor yet' : 'Recorded on the selected network as'}
             </p>
             <p className="t-mono mt-1 break-all text-body-sm">{dataHash}</p>
             {detailsEmpty ? (
               <p className="mt-2 text-body-sm text-ink-secondary">
                 A request with no details carries the zero hash. The contract accepts it — but
-                then nothing on Base says what was agreed, and the producer still needs an address
+                then nothing on the selected network says what was agreed, and the producer still needs an address
                 from you.
               </p>
             ) : (
@@ -331,7 +331,7 @@ function RequestDeliveryDialog({
           {!detailsEmpty ? (
             <p className="mt-2">
               Your delivery details are not sent by this interface — it has no server to send them
-              with. Copy them above and pass them to the producer; the hash on Base is what lets
+              with. Copy them above and pass them to the producer; the hash on the selected network is what lets
               either of you prove later that they did not change.
             </p>
           ) : null}

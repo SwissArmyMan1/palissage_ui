@@ -3,7 +3,7 @@ import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { ChevronDown, Compass, Info, Menu, X } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { BrandMark } from '@/components/ui/Logo';
-import { NetworkChip } from '@/components/ui/NetworkChip';
+import { NetworkPicker } from '@/components/ui/NetworkPicker';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { NAV, ROLE_BASE, ROLE_TITLE, navHref, type CabinetRoleKey } from '@/lib/nav';
 import { WalletChip } from './WalletChip';
@@ -11,6 +11,7 @@ import { WalletBalance } from './WalletBalance';
 import { useRoleOffers, type RoleKey } from '@/chain/roles';
 import { useProtocol } from '@/chain/lens';
 import { SimulationBar } from '@/sandbox/SimulationBar';
+import { PendingTransactionBar } from '@/chain/pending';
 import { Beacon, onDrawerRequest, useTour } from '@/tour';
 
 /**
@@ -57,6 +58,7 @@ export function AppShell({ role, orgName }: { role: CabinetRoleKey; orgName?: st
 
       <div style={{ gridArea: 'simbar' }}>
         <SimulationBar />
+        <PendingTransactionBar />
       </div>
 
       <header
@@ -80,7 +82,7 @@ export function AppShell({ role, orgName }: { role: CabinetRoleKey; orgName?: st
         <RoleSwitcher role={role} orgName={orgName} />
 
         <div data-tour="shell-wallet" className="ml-auto flex min-w-0 items-center gap-2">
-          <NetworkChip className="hidden sm:inline-flex" />
+          <div className="hidden md:block"><NetworkPicker /></div>
           <HelpMenu />
           <ThemeToggle className="hidden sm:grid" />
           <WalletChip />
@@ -125,7 +127,7 @@ export function AppShell({ role, orgName }: { role: CabinetRoleKey; orgName?: st
             <div className="space-y-3 border-t border-edge-subtle p-3">
               {/* The controls the top bar cannot fit at 360 px live here. */}
               <div className="flex items-center justify-between gap-3">
-                <NetworkChip />
+                <NetworkPicker />
                 <ThemeToggle />
               </div>
               <WalletChip layout="prompt" />

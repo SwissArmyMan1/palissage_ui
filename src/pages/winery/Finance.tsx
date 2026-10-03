@@ -138,7 +138,7 @@ export default function Finance() {
               {legacy.length > 0 ? (
                 <Callout tone="warning" className="mt-4 max-w-none">
                   {legacy.length === 1 ? 'One offer of yours is' : `${legacy.length} offers of yours are`}{' '}
-                  denominated in an asset the markets no longer accept, so{' '}
+                  denominated in a different asset from your selection, so{' '}
                   {legacy.length === 1 ? 'its' : 'their'} escrow is not part of the figure above.
                   It is listed separately below, in its own asset.
                 </Callout>
@@ -165,13 +165,12 @@ export default function Finance() {
                   <section aria-labelledby="legacy-heading" className="space-y-6">
                     <div className="border-t border-edge-subtle pt-6">
                       <h2 id="legacy-heading" className="t-h3">
-                        Escrow in a retired asset
+                        Escrow in another payment asset
                       </h2>
                       <p className="mt-2 max-w-reading text-body-sm text-ink-secondary">
-                        These offers were taken in the settlement asset this deployment used
-                        before EURC. They are still yours to withdraw, and the milestone rules are
-                        unchanged — but the amounts are denominated in that asset and are not
-                        comparable with the figures above.
+                        These offers use a different payment asset from your current selection.
+                        Each amount keeps its original token and decimals. Available funds can
+                        be withdrawn under the same milestone rules.
                       </p>
                     </div>
                     {legacy.map((row) => (
@@ -207,7 +206,7 @@ export default function Finance() {
                   <p className="mt-3 text-body-sm text-ink-secondary">
                     Your royalty is paid to you directly at the moment a resale settles. The read
                     model does not total those payments, so this interface does not print a figure
-                    it has not read. Your wallet balance on Base is the record.
+                    it has not read. Your wallet balance on the selected network is the record.
                   </p>
                 </div>
               </aside>

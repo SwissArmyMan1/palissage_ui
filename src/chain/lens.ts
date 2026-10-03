@@ -6,7 +6,7 @@ import { erc20Abi, palissageLensAbi, primaryMarketAbi, wineLotTokenAbi } from '.
 import { accessControlAbi } from './access';
 import { useSandbox, type SandboxState } from '@/sandbox/store';
 import * as sim from '@/sandbox/select';
-import { CONTRACTS, PAYMENT_TOKEN } from './config';
+import { CHAIN_ID, DEPLOYMENT_READY, CONTRACTS, PAYMENT_TOKEN } from './config';
 import type { AllocationView, LotView, PositionView, SettlementView } from './types';
 import { PAGE_LIMIT } from './types';
 
@@ -26,9 +26,9 @@ import { PAGE_LIMIT } from './types';
  * different facts and the interface may not confuse them.
  */
 
-const lens = { address: CONTRACTS.palissageLens, abi: palissageLensAbi } as const;
+const lens = { chainId: CHAIN_ID, address: CONTRACTS.palissageLens, abi: palissageLensAbi } as const;
 
-/** Poll cadence. Base blocks land every ~2 s; a screen does not need each one. */
+/** Poll cadence. the selected network blocks land every ~2 s; a screen does not need each one. */
 const REFRESH_MS = 12_000;
 
 /** `PalissageLens.positions` reverts above this many ids in one call. */
@@ -71,7 +71,7 @@ export function useProtocol() {
     ...lens,
     functionName: 'protocol',
     args: [PAYMENT_TOKEN.address],
-    query: { enabled: !sandbox, refetchInterval: REFRESH_MS, staleTime: 30_000 },
+    query: { enabled: !sandbox && DEPLOYMENT_READY, refetchInterval: REFRESH_MS, staleTime: 30_000 },
   });
   const result = merge(
     query,
@@ -87,7 +87,7 @@ export function useParticipant(wallet?: Address) {
     ...lens,
     functionName: 'participant',
     args: wallet ? [wallet] : undefined,
-    query: { enabled: !sandbox && (Boolean(wallet)), refetchInterval: REFRESH_MS },
+    query: { enabled: !sandbox && DEPLOYMENT_READY && (Boolean(wallet)), refetchInterval: REFRESH_MS },
   });
   const result = merge(
     query,
@@ -109,7 +109,7 @@ export function useLots(cursor = 0n, limit = PAGE_LIMIT) {
     ...lens,
     functionName: 'lots',
     args: [cursor, limit],
-    query: { ...listQuery, enabled: !sandbox },
+    query: { ...listQuery, enabled: !sandbox && DEPLOYMENT_READY },
   });
   const result = merge(
     query,
@@ -156,7 +156,7 @@ export function useAllLots() {
       functionName: 'lots' as const,
       args: [cursor, PAGE_LIMIT] as const,
     })),
-    query: { ...listQuery, enabled: !sandbox && cursors.length > 0 },
+    query: { ...listQuery, enabled: !sandbox && DEPLOYMENT_READY && cursors.length > 0 },
   });
 
   const items = useMemo(() => {
@@ -189,7 +189,7 @@ export function useLot(id?: bigint) {
     ...lens,
     functionName: 'lot',
     args: id !== undefined ? [id] : undefined,
-    query: { enabled: !sandbox && (id !== undefined), refetchInterval: REFRESH_MS },
+    query: { enabled: !sandbox && DEPLOYMENT_READY && (id !== undefined), refetchInterval: REFRESH_MS },
   });
   const result = merge(
     query,
@@ -206,7 +206,7 @@ export function useLotsOfWinery(winery?: Address, cursor = 0n, limit = PAGE_LIMI
     ...lens,
     functionName: 'lotsOfWinery',
     args: winery ? [winery, cursor, limit] : undefined,
-    query: { ...listQuery, enabled: !sandbox && (Boolean(winery))},
+    query: { ...listQuery, enabled: !sandbox && DEPLOYMENT_READY && (Boolean(winery))},
   });
   const result = merge(
     query,
@@ -223,7 +223,7 @@ export function useOffers(cursor = 0n, limit = PAGE_LIMIT) {
     ...lens,
     functionName: 'offers',
     args: [cursor, limit],
-    query: { ...listQuery, enabled: !sandbox },
+    query: { ...listQuery, enabled: !sandbox && DEPLOYMENT_READY },
   });
   const result = merge(
     query,
@@ -240,7 +240,7 @@ export function useOffersOfLot(lotId?: bigint, cursor = 0n, limit = PAGE_LIMIT) 
     ...lens,
     functionName: 'offersOfLot',
     args: lotId !== undefined ? [lotId, cursor, limit] : undefined,
-    query: { ...listQuery, enabled: !sandbox && (lotId !== undefined)},
+    query: { ...listQuery, enabled: !sandbox && DEPLOYMENT_READY && (lotId !== undefined)},
   });
   const result = merge(
     query,
@@ -257,7 +257,7 @@ export function useOffersOfWinery(winery?: Address, cursor = 0n, limit = PAGE_LI
     ...lens,
     functionName: 'offersOfWinery',
     args: winery ? [winery, cursor, limit] : undefined,
-    query: { ...listQuery, enabled: !sandbox && (Boolean(winery))},
+    query: { ...listQuery, enabled: !sandbox && DEPLOYMENT_READY && (Boolean(winery))},
   });
   const result = merge(
     query,
@@ -274,7 +274,7 @@ export function useOffer(id?: bigint) {
     ...lens,
     functionName: 'offer',
     args: id !== undefined ? [id] : undefined,
-    query: { enabled: !sandbox && (id !== undefined), refetchInterval: REFRESH_MS },
+    query: { enabled: !sandbox && DEPLOYMENT_READY && (id !== undefined), refetchInterval: REFRESH_MS },
   });
   const result = merge(
     query,
@@ -290,7 +290,7 @@ export function useAllocation(id?: bigint) {
     ...lens,
     functionName: 'allocation',
     args: id !== undefined ? [id] : undefined,
-    query: { enabled: !sandbox && (id !== undefined), refetchInterval: REFRESH_MS },
+    query: { enabled: !sandbox && DEPLOYMENT_READY && (id !== undefined), refetchInterval: REFRESH_MS },
   });
   const result = merge(
     query,
@@ -306,7 +306,7 @@ export function useAllocationsOfBuyer(buyer?: Address, cursor = 0n, limit = PAGE
     ...lens,
     functionName: 'allocationsOfBuyer',
     args: buyer ? [buyer, cursor, limit] : undefined,
-    query: { ...listQuery, enabled: !sandbox && (Boolean(buyer))},
+    query: { ...listQuery, enabled: !sandbox && DEPLOYMENT_READY && (Boolean(buyer))},
   });
   const result = merge(
     query,
@@ -323,7 +323,7 @@ export function useAllocationsOfOffer(offerId?: bigint, cursor = 0n, limit = PAG
     ...lens,
     functionName: 'allocationsOfOffer',
     args: offerId !== undefined ? [offerId, cursor, limit] : undefined,
-    query: { ...listQuery, enabled: !sandbox && (offerId !== undefined)},
+    query: { ...listQuery, enabled: !sandbox && DEPLOYMENT_READY && (offerId !== undefined)},
   });
   const result = merge(
     query,
@@ -340,7 +340,7 @@ export function useActiveListings(cursor = 0n, limit = PAGE_LIMIT) {
     ...lens,
     functionName: 'activeListings',
     args: [cursor, limit],
-    query: { ...listQuery, enabled: !sandbox },
+    query: { ...listQuery, enabled: !sandbox && DEPLOYMENT_READY },
   });
   const result = merge(
     query,
@@ -357,7 +357,7 @@ export function useListingsOfSeller(seller?: Address, cursor = 0n, limit = PAGE_
     ...lens,
     functionName: 'listingsOfSeller',
     args: seller ? [seller, cursor, limit] : undefined,
-    query: { ...listQuery, enabled: !sandbox && (Boolean(seller))},
+    query: { ...listQuery, enabled: !sandbox && DEPLOYMENT_READY && (Boolean(seller))},
   });
   const result = merge(
     query,
@@ -374,7 +374,7 @@ export function useListing(id?: bigint) {
     ...lens,
     functionName: 'listing',
     args: id !== undefined ? [id] : undefined,
-    query: { enabled: !sandbox && (id !== undefined), refetchInterval: REFRESH_MS },
+    query: { enabled: !sandbox && DEPLOYMENT_READY && (id !== undefined), refetchInterval: REFRESH_MS },
   });
   const result = merge(
     query,
@@ -390,7 +390,7 @@ export function useRedemption(id?: bigint) {
     ...lens,
     functionName: 'redemption',
     args: id !== undefined ? [id] : undefined,
-    query: { enabled: !sandbox && (id !== undefined), refetchInterval: REFRESH_MS },
+    query: { enabled: !sandbox && DEPLOYMENT_READY && (id !== undefined), refetchInterval: REFRESH_MS },
   });
   const result = merge(
     query,
@@ -406,7 +406,7 @@ export function useRedemptions(cursor = 0n, limit = PAGE_LIMIT) {
     ...lens,
     functionName: 'redemptions',
     args: [cursor, limit],
-    query: { ...listQuery, enabled: !sandbox },
+    query: { ...listQuery, enabled: !sandbox && DEPLOYMENT_READY },
   });
   const result = merge(
     query,
@@ -423,7 +423,7 @@ export function useRedemptionsOfBuyer(buyer?: Address, cursor = 0n, limit = PAGE
     ...lens,
     functionName: 'redemptionsOfBuyer',
     args: buyer ? [buyer, cursor, limit] : undefined,
-    query: { ...listQuery, enabled: !sandbox && (Boolean(buyer))},
+    query: { ...listQuery, enabled: !sandbox && DEPLOYMENT_READY && (Boolean(buyer))},
   });
   const result = merge(
     query,
@@ -440,7 +440,7 @@ export function useRedemptionsOfWinery(winery?: Address, cursor = 0n, limit = PA
     ...lens,
     functionName: 'redemptionsOfWinery',
     args: winery ? [winery, cursor, limit] : undefined,
-    query: { ...listQuery, enabled: !sandbox && (Boolean(winery))},
+    query: { ...listQuery, enabled: !sandbox && DEPLOYMENT_READY && (Boolean(winery))},
   });
   const result = merge(
     query,
@@ -477,7 +477,7 @@ export function usePositions(account?: Address, lotIds: readonly bigint[] = []) 
       functionName: 'positions' as const,
       args: [account as Address, chunk] as const,
     })),
-    query: { ...listQuery, enabled: !sandbox && Boolean(account) && chunks.length > 0 },
+    query: { ...listQuery, enabled: !sandbox && DEPLOYMENT_READY && Boolean(account) && chunks.length > 0 },
   });
 
   const items = useMemo(() => {
@@ -508,7 +508,7 @@ export function useSettlement(offerId?: bigint) {
     ...lens,
     functionName: 'settlement',
     args: offerId !== undefined ? [offerId] : undefined,
-    query: { enabled: !sandbox && (offerId !== undefined), refetchInterval: REFRESH_MS },
+    query: { enabled: !sandbox && DEPLOYMENT_READY && (offerId !== undefined), refetchInterval: REFRESH_MS },
   });
   const result = merge(
     query,
@@ -522,11 +522,12 @@ export function useSettlement(offerId?: bigint) {
 export function usePaymentBalance(owner?: Address) {
   const sandbox = useSandbox();
   const query = useReadContract({
+    chainId: CHAIN_ID,
     address: PAYMENT_TOKEN.address,
     abi: erc20Abi,
     functionName: 'balanceOf',
     args: owner ? [owner] : undefined,
-    query: { enabled: !sandbox && (Boolean(owner)), refetchInterval: REFRESH_MS },
+    query: { enabled: !sandbox && DEPLOYMENT_READY && (Boolean(owner)), refetchInterval: REFRESH_MS },
   });
   const result = merge(
     query,
@@ -540,11 +541,12 @@ export function usePaymentBalance(owner?: Address) {
 export function usePaymentAllowance(owner?: Address, spender?: Address) {
   const sandbox = useSandbox();
   const query = useReadContract({
+    chainId: CHAIN_ID,
     address: PAYMENT_TOKEN.address,
     abi: erc20Abi,
     functionName: 'allowance',
     args: owner && spender ? [owner, spender] : undefined,
-    query: { enabled: !sandbox && (Boolean(owner && spender)), refetchInterval: REFRESH_MS },
+    query: { enabled: !sandbox && DEPLOYMENT_READY && (Boolean(owner && spender)), refetchInterval: REFRESH_MS },
   });
   const result = merge(
     query,
@@ -573,7 +575,7 @@ export function useSettlements(offerIds: readonly bigint[]) {
       functionName: 'settlement' as const,
       args: [id] as const,
     })),
-    query: { ...listQuery, enabled: !sandbox && offerIds.length > 0 },
+    query: { ...listQuery, enabled: !sandbox && DEPLOYMENT_READY && offerIds.length > 0 },
   });
 
   const items = useMemo<(SettlementView | undefined)[]>(() => {
@@ -604,7 +606,7 @@ export function useAllocationsOfOffers(offerIds: readonly bigint[]) {
       functionName: 'allocationsOfOffer' as const,
       args: [id, 0n, PAGE_LIMIT] as const,
     })),
-    query: { ...listQuery, enabled: !sandbox && offerIds.length > 0 },
+    query: { ...listQuery, enabled: !sandbox && DEPLOYMENT_READY && offerIds.length > 0 },
   });
 
   const items = useMemo<AllocationView[]>(() => {
@@ -627,11 +629,12 @@ export function useAllocationsOfOffers(offerIds: readonly bigint[]) {
 export function useApprovedForAll(owner?: Address, operator?: Address) {
   const sandbox = useSandbox();
   const query = useReadContract({
+    chainId: CHAIN_ID,
     address: CONTRACTS.wineLotToken,
     abi: wineLotTokenAbi,
     functionName: 'isApprovedForAll',
     args: owner && operator ? [owner, operator] : undefined,
-    query: { enabled: !sandbox && Boolean(owner && operator) },
+    query: { enabled: !sandbox && DEPLOYMENT_READY && Boolean(owner && operator) },
   });
   return merge(query, sandbox, sandbox ? sim.selectApprovedForAll(sandbox, owner, operator) : undefined);
 }
@@ -640,11 +643,12 @@ export function useApprovedForAll(owner?: Address, operator?: Address) {
 export function useMilestonesLocked(offerId?: bigint) {
   const sandbox = useSandbox();
   const query = useReadContract({
+    chainId: CHAIN_ID,
     address: CONTRACTS.primaryMarket,
     abi: primaryMarketAbi,
     functionName: 'milestonesLocked',
     args: offerId !== undefined ? [offerId] : undefined,
-    query: { enabled: !sandbox && offerId !== undefined },
+    query: { enabled: !sandbox && DEPLOYMENT_READY && offerId !== undefined },
   });
   return merge(query, sandbox, sandbox ? sim.selectMilestonesLocked(sandbox, offerId) : undefined);
 }
@@ -658,12 +662,13 @@ export function useAdminRoles(
   const key = entries.map((entry) => entry.address).join(',');
   const query = useReadContracts({
     contracts: entries.map((entry) => ({
+      chainId: CHAIN_ID,
       address: entry.address,
       abi: accessControlAbi,
       functionName: 'hasRole' as const,
       args: [entry.role, account as Address] as const,
     })),
-    query: { ...listQuery, enabled: !sandbox && Boolean(account) },
+    query: { ...listQuery, enabled: !sandbox && DEPLOYMENT_READY && Boolean(account) },
   });
 
   const items = useMemo<boolean[]>(() => {

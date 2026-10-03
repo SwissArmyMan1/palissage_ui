@@ -18,7 +18,7 @@ import { formatAmount, formatMoney } from '@/lib/format';
  * dashboard headline, and a tile's large value would outweigh the navigation
  * it sits under.
  *
- * Both balances are read from Base directly rather than from whichever network
+ * Both balances are read from the selected network directly rather than from whichever network
  * the wallet is pointed at, so they stay correct while the network is wrong —
  * the same rule the readiness screen states.
  */

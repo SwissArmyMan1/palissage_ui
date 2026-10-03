@@ -1,10 +1,9 @@
 import { useLocale } from '@/lib/i18n/context';
 import { cn } from '@/lib/cn';
 import { CHAIN_LABEL } from '@/chain/config';
-import { MODE_MARKERS } from '@/lib/content/copy';
 
 /**
- * Permanent, not dismissible (doc 07 §1). The Base blue is used here and on the
+ * Permanent, not dismissible (doc 07 §1). The the selected network blue is used here and on the
  * /network page only — it is a fact about the deployment, not a brand accent.
  */
 export function NetworkChip({ className }: { className?: string }) {
@@ -18,7 +17,7 @@ export function NetworkChip({ className }: { className?: string }) {
     >
       <span aria-hidden className="size-2 rounded-full bg-chain" />
       <span className="sr-only">{t('Network: ')}</span>
-      {MODE_MARKERS.testnet}
+      {CHAIN_LABEL} · {t('test assets only')}
       <span className="sr-only"> — {CHAIN_LABEL}</span>
     </span>
   );
