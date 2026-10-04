@@ -1,0 +1,187 @@
+{
+  "chainId": 421614,
+  "version": "1.1.0",
+  "asset": {
+    "address": "0xFdEed5cE7E281B4e0F163B70eBe2Cf0B10803b7B",
+    "symbol": "EURe",
+    "decimals": 18,
+    "issuer": "Monerium",
+    "currency": "EUR",
+    "source": "https://monerium.com/eure/"
+  },
+  "notice": "Official Monerium test EURe and fictional bottles. No real euros or physical delivery are involved.",
+  "lotId": "8",
+  "offerId": "8",
+  "allocationId": "6",
+  "listingId": "4",
+  "redemptionId": "5",
+  "supply": "9",
+  "minted": 12,
+  "redeemed": 3,
+  "observedBlock": "315678531",
+  "actors": {
+    "winery": "0x1ceBd3D14221f5e0401401EfA39a0F4aC302A0F2",
+    "shop": "0x0706aAE611F6C9C6b89708562FF4d08a9C5F6771",
+    "buyer": "0xFc0c6AA09c7ef59F9aa5d9BbB36852bF87c13838",
+    "treasury": "0xDCf00f1A5600c6191Fbc8d333A4C004903580A85"
+  },
+  "paymentBalances": {
+    "winery": "11730000000000000000",
+    "shop": "16438000000000000000",
+    "buyer": "21400000000000000000",
+    "treasury": "3170432000000000000000"
+  },
+  "paymentChanges": {
+    "winery": "11730000000000000000",
+    "shop": "16438000000000000000",
+    "buyer": "21400000000000000000",
+    "treasury": "-49568000000000000000"
+  },
+  "fees": {
+    "primaryFee": "360000000000000000",
+    "secondaryFee": "72000000000000000",
+    "royalty": "90000000000000000"
+  },
+  "transactions": {
+    "eure.allow.primaryMarket": {
+      "hash": "0x04fff42591af27a419defda2b151ec9b0bf4cb2051f1e207ed7ec57bbcd3a461",
+      "to": "0x191af3012e33228f2a6c6e4df33c81f87cddfeb4",
+      "sender": "0xDCf00f1A5600c6191Fbc8d333A4C004903580A85",
+      "status": "confirmed",
+      "blockNumber": "315678362"
+    },
+    "eure.allow.secondaryMarket": {
+      "hash": "0x4e9cda9ff6e10178ed576bda7672e139718a6f70d9c2758ba326a6323371b6a8",
+      "to": "0x6515e7162e973529420d1e44ab1f7a6b34f37a42",
+      "sender": "0xDCf00f1A5600c6191Fbc8d333A4C004903580A85",
+      "status": "confirmed",
+      "blockNumber": "315678371"
+    },
+    "eure.fundShop": {
+      "hash": "0x87a56ac354ec6562b332b23f5cabefd64c5777f809221f7ab3a9df9fc2e383ca",
+      "to": "0xFdEed5cE7E281B4e0F163B70eBe2Cf0B10803b7B",
+      "sender": "0xDCf00f1A5600c6191Fbc8d333A4C004903580A85",
+      "status": "confirmed",
+      "blockNumber": "315678380"
+    },
+    "eure.fundBuyer": {
+      "hash": "0xfd98f08ff9ebb6a0f052d3d3d53aac491001deca6b48c41ced65cd4c8b70c03c",
+      "to": "0xFdEed5cE7E281B4e0F163B70eBe2Cf0B10803b7B",
+      "sender": "0xDCf00f1A5600c6191Fbc8d333A4C004903580A85",
+      "status": "confirmed",
+      "blockNumber": "315678390"
+    },
+    "eure.lot": {
+      "hash": "0x3b395c34496d8d388a683beb60b032c6399eb2cdd2049b56e1756fe916acb728",
+      "to": "0x9bc6bca932359c336c13b0ea9d4b249774882a7b",
+      "sender": "0x1ceBd3D14221f5e0401401EfA39a0F4aC302A0F2",
+      "status": "confirmed",
+      "blockNumber": "315678400"
+    },
+    "eure.verify": {
+      "hash": "0xdd5dad8d02a4c5593a84ba9c822a939270f822643ce042ca2c31a582d5d8d977",
+      "to": "0x9bc6bca932359c336c13b0ea9d4b249774882a7b",
+      "sender": "0xDCf00f1A5600c6191Fbc8d333A4C004903580A85",
+      "status": "confirmed",
+      "blockNumber": "315678410"
+    },
+    "eure.production": {
+      "hash": "0x930e0551d538f3841af1a52a08d0cfa499e4c6d173f7fb4ce867fea3f0a2638c",
+      "to": "0x9bc6bca932359c336c13b0ea9d4b249774882a7b",
+      "sender": "0x1ceBd3D14221f5e0401401EfA39a0F4aC302A0F2",
+      "status": "confirmed",
+      "blockNumber": "315678419"
+    },
+    "eure.offer": {
+      "hash": "0xce6b165ca1435d9f1e14b2de4ce49f41dff808a4e333700ed0a6e85deeb12d3e",
+      "to": "0x191af3012e33228f2a6c6e4df33c81f87cddfeb4",
+      "sender": "0x1ceBd3D14221f5e0401401EfA39a0F4aC302A0F2",
+      "status": "confirmed",
+      "blockNumber": "315678426"
+    },
+    "eure.milestone": {
+      "hash": "0x1e906ec890fba36cc2cbbd9f8c4ad59d8d979a6f85692a57b7bf3470f5450808",
+      "to": "0x191af3012e33228f2a6c6e4df33c81f87cddfeb4",
+      "sender": "0x1ceBd3D14221f5e0401401EfA39a0F4aC302A0F2",
+      "status": "confirmed",
+      "blockNumber": "315678436"
+    },
+    "eure.approvePrimary": {
+      "hash": "0x02692c86e32bfe6ae07dca8c82d0f47950df7aeed95aadf5f8e85f3446b9ed02",
+      "to": "0xFdEed5cE7E281B4e0F163B70eBe2Cf0B10803b7B",
+      "sender": "0x0706aAE611F6C9C6b89708562FF4d08a9C5F6771",
+      "status": "confirmed",
+      "blockNumber": "315678445"
+    },
+    "eure.reserve": {
+      "hash": "0x35dc7b25c5b72f7dbd84fb66c32194903e843423d679ad99caff62be5410b8dc",
+      "to": "0x191af3012e33228f2a6c6e4df33c81f87cddfeb4",
+      "sender": "0x0706aAE611F6C9C6b89708562FF4d08a9C5F6771",
+      "status": "confirmed",
+      "blockNumber": "315678453"
+    },
+    "eure.confirmMilestone": {
+      "hash": "0x2bbd6829ee18b3e7e1dab7ab0e18752cbb3cf7013d3db9d85d6425a98337f081",
+      "to": "0x191af3012e33228f2a6c6e4df33c81f87cddfeb4",
+      "sender": "0xDCf00f1A5600c6191Fbc8d333A4C004903580A85",
+      "status": "confirmed",
+      "blockNumber": "315678461"
+    },
+    "eure.withdraw": {
+      "hash": "0x4c968186f7d8cb4be3bad636ba5968f827fe7f57c819231126f79c7b68797fbb",
+      "to": "0x191af3012e33228f2a6c6e4df33c81f87cddfeb4",
+      "sender": "0x1ceBd3D14221f5e0401401EfA39a0F4aC302A0F2",
+      "status": "confirmed",
+      "blockNumber": "315678468"
+    },
+    "eure.list": {
+      "hash": "0x15398188dec6803e09e449728047e476ac1cc7d6401d7a501f0317bbf2d6bb1c",
+      "to": "0x6515e7162e973529420d1e44ab1f7a6b34f37a42",
+      "sender": "0x0706aAE611F6C9C6b89708562FF4d08a9C5F6771",
+      "status": "confirmed",
+      "blockNumber": "315678478"
+    },
+    "eure.approveSecondary": {
+      "hash": "0x85e4e1e43375f9b42867b35ed50df1498a34696716c64a7c489dc420f5761531",
+      "to": "0xFdEed5cE7E281B4e0F163B70eBe2Cf0B10803b7B",
+      "sender": "0xFc0c6AA09c7ef59F9aa5d9BbB36852bF87c13838",
+      "status": "confirmed",
+      "blockNumber": "315678487"
+    },
+    "eure.buy": {
+      "hash": "0xe498f21d411acbfe84f48bb5b8b6ade0b7ca34fc423ac9571ac51a87649bd627",
+      "to": "0x6515e7162e973529420d1e44ab1f7a6b34f37a42",
+      "sender": "0xFc0c6AA09c7ef59F9aa5d9BbB36852bF87c13838",
+      "status": "confirmed",
+      "blockNumber": "315678495"
+    },
+    "eure.approveRedemption": {
+      "hash": "0xa36da1a63ad3cf08a61f6a0ba4de072d0a42c17d9752661f5cae7b2978c09a66",
+      "to": "0x9bc6bca932359c336c13b0ea9d4b249774882a7b",
+      "sender": "0xFc0c6AA09c7ef59F9aa5d9BbB36852bF87c13838",
+      "status": "confirmed",
+      "blockNumber": "315678503"
+    },
+    "eure.redeem": {
+      "hash": "0xc4641ddb0a76988a8185b6c7c4949ff1ea830ac6c5912a15bf7aa8d1edbd8121",
+      "to": "0x7a8fbcd3c566baf7f58049933be64f7e61413d4c",
+      "sender": "0xFc0c6AA09c7ef59F9aa5d9BbB36852bF87c13838",
+      "status": "confirmed",
+      "blockNumber": "315678511"
+    },
+    "eure.ship": {
+      "hash": "0x8d1ff7b96f0a1f781a23877d360dc9c8757cdec09558160ff6d3bf2d1aadaa34",
+      "to": "0x7a8fbcd3c566baf7f58049933be64f7e61413d4c",
+      "sender": "0x1ceBd3D14221f5e0401401EfA39a0F4aC302A0F2",
+      "status": "confirmed",
+      "blockNumber": "315678519"
+    },
+    "eure.delivery": {
+      "hash": "0x777c5dbd4a93d7c7de0fd80973bf3301e092654659c310194e9784aba4382e09",
+      "to": "0x7a8fbcd3c566baf7f58049933be64f7e61413d4c",
+      "sender": "0xFc0c6AA09c7ef59F9aa5d9BbB36852bF87c13838",
+      "status": "confirmed",
+      "blockNumber": "315678529"
+    }
+  }
+}

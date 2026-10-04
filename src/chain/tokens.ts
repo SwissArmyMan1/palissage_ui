@@ -1,5 +1,5 @@
 import type { Address } from 'viem';
-import { PAYMENT_TOKEN, NETWORK, TEST_EUR_ADDRESS, ZERO_ADDRESS } from './config';
+import { PAYMENT_TOKEN, NETWORK, TEST_EUR_ADDRESS, EURE_ADDRESS, ZERO_ADDRESS } from './config';
 import { formatAmount } from '@/lib/format';
 import type { ProtocolView } from './types';
 
@@ -19,6 +19,9 @@ export function tokenMeta(token: Address | undefined, protocol?: ProtocolView): 
   };
   if (address === NETWORK.usdg.toLowerCase()) return {
     symbol: 'USDG', decimals: 6, currency: 'USD', settlement, known: true,
+  };
+  if (address && address !== ZERO_ADDRESS && address === EURE_ADDRESS.toLowerCase()) return {
+    symbol: 'EURe', decimals: 18, currency: 'EUR', settlement, known: true,
   };
   if (settlement && protocol?.paymentMetadataOk) return {
     symbol: protocol.paymentSymbol, decimals: protocol.paymentDecimals, settlement, known: true,

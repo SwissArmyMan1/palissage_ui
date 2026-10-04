@@ -57,6 +57,8 @@
       "roleGateway": "0x23f48c274452bda1b0a20bed1ad0d8cf6a01a90e94d83a16c1f1bfe2a05c6867",
       "palissageLens": "0x2876715ee98c04a7a51cf8fd3951a1f9235be898e0b0eb286df674a665e0d9b4"
     },
-    "usdgEnabled": true
+    "usdgEnabled": true,
+    "eureEnabled": true,
+    "eureAddress": "0xFdEed5cE7E281B4e0F163B70eBe2Cf0B10803b7B"
   }
 }

@@ -1,4 +1,4 @@
-import { ASSET, CHAIN_ID } from '@/chain/config';
+import { ASSET, CHAIN_ID, EURE_ENABLED, settlementAsset } from '@/chain/config';
 import { NETWORKS, isSupportedChain, type SettlementAsset } from '@/chain/networks';
 import { stopSimulation } from '@/sandbox/store';
 
@@ -6,6 +6,7 @@ import { stopSimulation } from '@/sandbox/store';
 export function NetworkPicker({ assets = false }: { assets?: boolean }) {
   function select(chainId: number, asset: SettlementAsset) {
     if (!isSupportedChain(chainId)) return;
+    asset = settlementAsset(chainId, asset);
     stopSimulation();
     try {
       localStorage.setItem('palissage.chain', String(chainId));
@@ -32,6 +33,7 @@ export function NetworkPicker({ assets = false }: { assets?: boolean }) {
         <>
           <label className="sr-only" htmlFor="settlement-asset">Settlement asset</label>
           <select id="settlement-asset" className="rounded-md border border-edge-subtle bg-surface px-2 py-2 text-body-sm" value={ASSET} onChange={(event) => select(CHAIN_ID, event.target.value as SettlementAsset)}>
+            {EURE_ENABLED ? <option value="eure">Test EURe · Monerium</option> : null}
             <option value="eur">Test EUR · tEURe</option>
             <option value="usdg">Test USDG · Paxos</option>
           </select>

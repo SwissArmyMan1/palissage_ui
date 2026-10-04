@@ -30,7 +30,12 @@ export const NETWORKS = {
 } as const;
 
 export type SupportedChainId = keyof typeof NETWORKS;
-export type SettlementAsset = 'eur' | 'usdg';
+export type SettlementAsset = 'eur' | 'eure' | 'usdg';
+
+// Official Monerium sandbox token on Arbitrum Sepolia; no Robinhood deployment is published.
+export const MONERIUM_EURE: Partial<Record<SupportedChainId, `0x${string}`>> = {
+  421614: '0xFdEed5cE7E281B4e0F163B70eBe2Cf0B10803b7B',
+};
 
 export function isSupportedChain(id: number): id is SupportedChainId {
   return Object.hasOwn(NETWORKS, id);

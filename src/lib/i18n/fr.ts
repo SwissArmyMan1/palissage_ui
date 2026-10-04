@@ -593,6 +593,7 @@ export const FR: Record<string, string> = {
   "What runs on-chain": "Ce qui fonctionne sur la blockchain",
   "Test network": "Réseau de test",
   "Test EUR · tEURe": "Euro de test · tEURe",
+  "Test EURe · Monerium": "EURe de test · Monerium",
   "Test USDG · Paxos": "USDG de test · Paxos",
   "Explore the workflow, then try it on a testnet.": "Découvrez le parcours, puis essayez-le sur un réseau de test.",
   "Start a guided simulation without a wallet, or connect to Arbitrum Sepolia or Robinhood Testnet to submit real transactions using test assets. Simulated actions never reach a blockchain.": "Commencez une simulation guidée sans portefeuille, ou connectez-vous à Arbitrum Sepolia ou Robinhood Testnet pour envoyer de vraies transactions avec des actifs de test. Les actions simulées restent locales.",

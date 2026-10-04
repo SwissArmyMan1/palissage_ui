@@ -84,7 +84,7 @@ export default function Testnet() {
           <div className="mt-4 flex flex-wrap gap-3"><NetworkPicker assets /><NetworkChip /></div>
           <p className="mt-4 max-w-reading text-body text-ink-secondary">
             Three independent checks. They are shown separately on purpose: a wallet with no{' '}
-            {symbol} must still be able to reach the faucet.
+            {symbol} can still check the deployment and find test funds.
           </p>
         </header>
 
@@ -239,7 +239,7 @@ export default function Testnet() {
                       Claim 5,000 test EUR
                     </Button>
                   ) : (
-                    <ExternalButton href={PAYMENT_TOKEN.faucetUrl} size="sm">Get test {symbol} from Paxos<ExternalLink aria-hidden className="size-4" strokeWidth={1.75} /></ExternalButton>
+                    <ExternalButton href={PAYMENT_TOKEN.faucetUrl} size="sm">Get test {symbol} from {PAYMENT_TOKEN.issuer}<ExternalLink aria-hidden className="size-4" strokeWidth={1.75} /></ExternalButton>
                   )}
                   <ExternalButton href={GAS_FAUCET_URL} size="sm">
                     Get {CHAIN_LABEL} ETH
@@ -250,6 +250,7 @@ export default function Testnet() {
                     Disconnect this wallet
                   </Button>
                 </div>
+                {PAYMENT_TOKEN.issuer === 'Monerium' ? <p className="text-body-sm text-ink-secondary">In the Monerium sandbox, link this wallet on Arbitrum Sepolia, then open Receive and choose Add money to get test EURe.</p> : null}
                 <TxStatus tx={faucetTx} />
               </>
             )}
